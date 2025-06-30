@@ -176,27 +176,35 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
             ),
             Column(
               children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 8.0),
-                  color: Colors.amber.shade50.withValues(alpha: 0.8),
-                  child: Row(
-                    children: [
-                      Icon(Icons.info_outline,
-                          size: 18, color: Colors.amber.shade800),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'This provides general legal information, not formal legal advice. Consult a qualified advocate for specific legal matters.',
-                          style: TextStyle(
-                              fontSize: 11, color: Colors.amber.shade900),
-                          textAlign: TextAlign.center,
+                 BlocBuilder<WakiliBloc, WakiliState>(
+                builder: (context, state) {
+                if (state is WakiliChatInitial || 
+                    (state is WakiliChatLoaded && state.messages.isEmpty)) {
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8.0),
+                    color: Colors.amber.shade50.withValues(alpha: 0.8),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline,
+                            size: 18, color: Colors.black),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'This provides general legal information, not formal legal advice. Consult a qualified advocate for specific legal matters.',
+                            style: TextStyle(
+                                fontSize: 11, color: Colors.black),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
+                      ],
+                    ),
+                  );
+                }
+                return const SizedBox.shrink(); // No banner needed
+              },
+              ),
                 Expanded(
                   child: BlocConsumer<WakiliBloc, WakiliState>(
                     listener: (context, state) {
