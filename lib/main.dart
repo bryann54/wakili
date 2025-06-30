@@ -73,9 +73,11 @@ class MyApp extends StatelessWidget {
         darkTheme: ThemeData(
             brightness: Brightness.dark,
             primarySwatch: Colors.blue,
+            
             bottomNavigationBarTheme: BottomNavigationBarThemeData(
               backgroundColor: Colors.grey[900],
               selectedItemColor: Colors.blue,
+           
               unselectedItemColor: Colors.grey[500],
               selectedIconTheme: IconThemeData(size: 28),
               unselectedIconTheme: IconThemeData(size: 24),

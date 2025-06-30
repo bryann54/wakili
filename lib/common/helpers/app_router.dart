@@ -9,12 +9,12 @@ class AppRouter extends RootStackRouter {
       page: MainRoute.page,
       initial: true,
       children: [
-        AutoRoute(page: OverviewRoute.page),
-        AutoRoute(page: HotelsRoute.page),
-        AutoRoute(page: FavouritesRoute.page),
-        AutoRoute(page: AccountRoute.page),
+      AutoRoute(page: OverviewRoute.page),
+    AutoRoute(page:  ChatHistoryRoute.page),
+      AutoRoute(page: AccountRoute.page),
+      AutoRoute(page: WakiliChatRoute.page),
       ],
     ),
-    AutoRoute(page: FullImageRoute.page),
+  
   ];
 }

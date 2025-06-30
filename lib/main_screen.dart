@@ -4,10 +4,10 @@ import 'package:wakili/common/helpers/app_router.gr.dart';
 import 'package:wakili/common/res/l10n.dart';
 import 'package:wakili/core/di/injector.dart';
 import 'package:wakili/features/account/presentation/bloc/account_bloc.dart';
-import 'package:wakili/features/favourites/presentation/bloc/favourites_bloc.dart';
-import 'package:wakili/features/hotels/presentation/bloc/hotels_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakili/features/history/presentation/bloc/history_bloc.dart';
+import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 
 @RoutePage()
 class MainScreen extends StatelessWidget {
@@ -17,16 +17,19 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => getIt<HotelsBloc>()),
-        BlocProvider(create: (context) => getIt<FavouritesBloc>()),
+       BlocProvider(create: (context) => getIt<HistoryBloc>()),
+        BlocProvider(create: (context) => getIt<WakiliBloc>()),
         BlocProvider(create: (context) => getIt<AccountBloc>()),
+
       ],
       child: AutoTabsScaffold(
         lazyLoad: false,
         routes: const [
           OverviewRoute(),
-          HotelsRoute(),
-          FavouritesRoute(),
+         
+             WakiliChatRoute(),
+         ChatHistoryRoute(),
+       
           AccountRoute(),
         ],
         bottomNavigationBuilder: (_, tabsRouter) {
@@ -36,9 +39,10 @@ class MainScreen extends StatelessWidget {
                 icon: const Icon(Icons.receipt_long),
                 label: AppLocalizations.getString(context, 'Bills'),
               ),
-              BottomNavigationBarItem(
+           
+                BottomNavigationBarItem(
                 icon: const Icon(Icons.balance),
-                label: AppLocalizations.getString(context, 'Wakili'),
+                label: AppLocalizations.getString(context, 'wakiliChat'),
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.restore),

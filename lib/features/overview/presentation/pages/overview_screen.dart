@@ -11,11 +11,11 @@ class OverviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.getString(context, 'overview')),
+        title: Text(AppLocalizations.getString(context, 'Bills')),
       ),
       body: Center(
         child: Text(
-          '${AppLocalizations.getString(context, 'overview')} Screen',
+          '${AppLocalizations.getString(context, 'Bills')} Screen',
         ),
       ),
     );
