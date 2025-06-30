@@ -39,53 +39,53 @@ class AccountScreen extends StatelessWidget {
                   SizedBox(height: 20),
                   state is ChangeLanguageError
                       ? Column(
-                        children: [
-                          Text(state.error),
-                          const SizedBox(height: 10),
-                          OutlinedButton(
-                            onPressed: () {
-                              accountBloc.add(
-                                ChangeLanguageEvent(langCode: state.lang),
-                              );
-                            },
-                            child: Text(
-                              AppLocalizations.getString(context, 'retry'),
-                            ),
-                          ),
-                        ],
-                      )
-                      : DropdownButton<Locale>(
-                        value: currentLocale,
-                        items: [
-                          DropdownMenuItem(
-                            value: Locale('en'),
-                            child: Text(
-                              AppLocalizations.getString(context, 'english'),
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: Locale('fr'),
-                            child: Text(
-                              AppLocalizations.getString(context, 'french'),
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: Locale('es'),
-                            child: Text(
-                              AppLocalizations.getString(context, 'spanish'),
-                            ),
-                          ),
-                        ],
-                        onChanged: (locale) {
-                          if (locale != null) {
-                            accountBloc.add(
-                              ChangeLanguageEvent(
-                                langCode: locale.languageCode,
+                          children: [
+                            Text(state.error),
+                            const SizedBox(height: 10),
+                            OutlinedButton(
+                              onPressed: () {
+                                accountBloc.add(
+                                  ChangeLanguageEvent(langCode: state.lang),
+                                );
+                              },
+                              child: Text(
+                                AppLocalizations.getString(context, 'retry'),
                               ),
-                            );
-                          }
-                        },
-                      ),
+                            ),
+                          ],
+                        )
+                      : DropdownButton<Locale>(
+                          value: currentLocale,
+                          items: [
+                            DropdownMenuItem(
+                              value: Locale('en'),
+                              child: Text(
+                                AppLocalizations.getString(context, 'english'),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: Locale('fr'),
+                              child: Text(
+                                AppLocalizations.getString(context, 'french'),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: Locale('es'),
+                              child: Text(
+                                AppLocalizations.getString(context, 'spanish'),
+                              ),
+                            ),
+                          ],
+                          onChanged: (locale) {
+                            if (locale != null) {
+                              accountBloc.add(
+                                ChangeLanguageEvent(
+                                  langCode: locale.languageCode,
+                                ),
+                              );
+                            }
+                          },
+                        ),
                 ],
               ),
             );

@@ -5,16 +5,16 @@ import 'package:wakili/common/helpers/app_router.gr.dart';
 class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
-    AutoRoute(
-      page: MainRoute.page,
-      initial: true,
-      children: [
-      AutoRoute(page: OverviewRoute.page),
-    AutoRoute(page:  ChatHistoryRoute.page),
-      AutoRoute(page: AccountRoute.page),
-      AutoRoute(page: WakiliChatRoute.page),
-      ],
-    ),
-  
-  ];
+        AutoRoute(
+          page: MainRoute.page,
+          initial: true,
+          children: [
+            AutoRoute(page: OverviewRoute.page),
+            AutoRoute(page: ChatHistoryRoute.page),
+            AutoRoute(page: AccountRoute.page),
+            AutoRoute(page: WakiliChatRoute.page),
+            
+          ],
+        ),
+      ];
 }

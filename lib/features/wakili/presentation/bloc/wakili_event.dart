@@ -1,8 +1,10 @@
 part of 'wakili_bloc.dart';
 
-
 abstract class WakiliEvent extends Equatable {
   const WakiliEvent();
+
+  @override
+  List<Object> get props => [];
 }
 
 class SendMessageEvent extends WakiliEvent {
@@ -22,17 +24,23 @@ class SendStreamMessageEvent extends WakiliEvent {
   @override
   List<Object> get props => [message];
 }
-class WakiliChatErrorState extends WakiliState {
-  final String message;
-  final List<ChatMessage>
-      messages; 
 
-  const WakiliChatErrorState({required this.message, required this.messages});
+class ClearChatEvent extends WakiliEvent {
+  const ClearChatEvent();
+}
+
+class SetCategoryContextEvent extends WakiliEvent {
+  final String category;
+
+  const SetCategoryContextEvent(this.category);
 
   @override
-  List<Object?> get props => [message, messages];
+  List<Object> get props => [category];
 }
-class ClearChatEvent extends WakiliEvent {
+
+class ClearCategoryContextEvent extends WakiliEvent {
+  const ClearCategoryContextEvent();
+
   @override
   List<Object> get props => [];
 }

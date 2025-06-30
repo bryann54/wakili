@@ -6,7 +6,7 @@ import 'package:wakili/features/wakili/domain/repositories/wakili_chat_repositor
 class WakiliChatRepositoryImpl implements WakiliChatRepository {
   final WakiliChatRemoteDataSource _remoteDataSource;
 
-  WakiliChatRepositoryImpl( this._remoteDataSource);
+  WakiliChatRepositoryImpl(this._remoteDataSource);
 
   @override
   Future<String> sendMessage(String message) async {

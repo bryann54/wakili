@@ -44,8 +44,7 @@ class _AppLocalizationsDelegate
   late String languageCode;
 
   _AppLocalizationsDelegate() {
-    languageCode =
-        getIt<SharedPreferencesManager>().getString(
+    languageCode = getIt<SharedPreferencesManager>().getString(
           SharedPreferencesManager.language,
         ) ??
         'en';
