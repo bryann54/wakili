@@ -17,5 +17,6 @@ class AppRouter extends RootStackRouter {
         ),
         //
         AutoRoute(page: CategoryChatRoute.page),
+        AutoRoute(page: GeneralChatRoute.page),
       ];
 }

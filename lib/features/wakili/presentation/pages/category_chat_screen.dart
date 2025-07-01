@@ -88,10 +88,31 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
         ..add(SetCategoryContextEvent(widget.category.title)),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.category.title),
-          backgroundColor: widget.category.color.withValues(alpha: .1),
+          backgroundColor: Colors.transparent,
           elevation: 0,
-          centerTitle: true,
+          centerTitle: false,
+          title: Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundImage: AssetImage('assets/dp.png'),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '${widget.category.title}   wakili',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () {},
+            ),
+          ],
         ),
         body: Stack(
           children: [
