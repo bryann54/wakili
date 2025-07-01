@@ -115,7 +115,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wakili AI'),
+        // title: const Text('Wakili AI'),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
@@ -127,7 +127,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
           child: Column(
             children: [
               const WakiliWelcomeHeader(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 14),
               WakiliSearchBar(
                 controller: _searchController,
                 onChanged: (value) {

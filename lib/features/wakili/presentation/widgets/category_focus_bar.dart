@@ -11,7 +11,7 @@ class CategoryFocusBar extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: category.color.withOpacity(0.1),
+      color: category.color.withValues(alpha: 0.1),
       child: Row(
         children: [
           Icon(

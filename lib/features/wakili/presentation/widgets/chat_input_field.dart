@@ -23,13 +23,13 @@ class ChatInputField extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -44,7 +44,7 @@ class ChatInputField extends StatelessWidget {
                   color: Theme.of(context)
                       .colorScheme
                       .onSurfaceVariant
-                      .withOpacity(0.6),
+                      .withValues(alpha: 0.6),
                 ),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(

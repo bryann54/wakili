@@ -13,7 +13,7 @@ class WakiliWelcomeHeader extends StatelessWidget {
             '⚖️',
             style: TextStyle(fontSize: 48),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 5),
           RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
