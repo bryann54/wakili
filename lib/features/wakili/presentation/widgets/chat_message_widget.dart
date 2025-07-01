@@ -21,9 +21,12 @@ class ChatMessageWidget extends StatelessWidget {
         children: [
           if (!message.isUser) ...[
             CircleAvatar(
-              radius: 16,
+              radius: 18,
               backgroundColor: Theme.of(context).colorScheme.primary,
-              child: const Text('⚖️'),
+              child: CircleAvatar(
+                radius: 18,
+                backgroundImage: AssetImage('assets/dp.png'),
+              ),
             ),
             const SizedBox(width: 8),
           ],

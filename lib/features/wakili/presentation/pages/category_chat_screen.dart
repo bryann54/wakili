@@ -55,7 +55,6 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
     }
   }
 
-  // Helper function to get image path based on category title
   String _getChatBackgroundImagePath(String categoryTitle) {
     switch (categoryTitle) {
       case 'Traffic Law':
@@ -89,13 +88,31 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
         ..add(SetCategoryContextEvent(widget.category.title)),
       child: Scaffold(
         appBar: AppBar(
-          title: Hero(
-              tag: 'category_card_${widget.category.title}',
-            child: Text(widget.category.title)),
-          backgroundColor: widget.category.color
-              .withValues(alpha: 0.1), 
+          backgroundColor: Colors.transparent,
           elevation: 0,
-          centerTitle: true,
+          centerTitle: false,
+          title: Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundImage: AssetImage('assets/dp.png'),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '${widget.category.title}   wakili',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () {},
+            ),
+          ],
         ),
         body: Stack(
           children: [
@@ -105,9 +122,8 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surfaceVariant,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     child: Center(
                       child: Icon(Icons.broken_image, color: Colors.grey[400]),
                     ),
@@ -117,15 +133,17 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
             ),
             Positioned.fill(
               child: Container(
-                color: Colors.black
-                    .withValues(alpha: 0.4),
+                color: Colors.black.withValues(alpha: .4),
               ),
             ),
             Column(
               children: [
-                Material(
-                  color: Colors.transparent,
-                  child: CategoryFocusBar(category: widget.category),
+                Hero(
+                  tag: 'category_card_${widget.category.title}',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: CategoryFocusBar(category: widget.category),
+                  ),
                 ),
                 Expanded(
                   child: BlocConsumer<WakiliBloc, WakiliState>(
