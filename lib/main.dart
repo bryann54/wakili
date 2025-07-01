@@ -98,11 +98,11 @@ class MyApp extends StatelessWidget {
               backgroundColor: Colors.grey[900],
               selectedItemColor: Colors.blue,
               unselectedItemColor: Colors.grey[500],
-              selectedIconTheme: const IconThemeData(size: 28), // Add const
-              unselectedIconTheme: const IconThemeData(size: 24), // Add const
+              selectedIconTheme: const IconThemeData(size: 28),
+              unselectedIconTheme: const IconThemeData(size: 24),
               type: BottomNavigationBarType.fixed,
             )),
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.light,
       ),
     );
   }

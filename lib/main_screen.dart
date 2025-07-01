@@ -19,10 +19,9 @@ class MainScreen extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => getIt<WakiliBloc>()),
         BlocProvider(create: (context) => getIt<AccountBloc>()),
-        // Ensure ChatHistoryBloc is provided here and loads its history
         BlocProvider<ChatHistoryBloc>(
           create: (context) => getIt<ChatHistoryBloc>()
-            ..add(const LoadChatHistory()), // Dispatch LoadChatHistory event
+            ..add(const LoadChatHistory()), 
         ),
       ],
       child: AutoTabsScaffold(
