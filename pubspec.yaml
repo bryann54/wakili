@@ -47,6 +47,7 @@ flutter:
   assets:
     - env/
     - assets/
+    - assets/lang/ 
 
 flutter_launcher_icons:
   android: "launcher_icon"
