@@ -12,7 +12,6 @@ class CategoryCard extends StatelessWidget {
     required this.onTap,
   });
 
-
   @override
   Widget build(BuildContext context) {
     final String imagePath = getImagePath(category.title);
@@ -24,11 +23,11 @@ class CategoryCard extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(16),
-          clipBehavior: Clip.antiAlias, 
+          clipBehavior: Clip.antiAlias,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
             child: Stack(
               children: [
@@ -39,7 +38,7 @@ class CategoryCard extends StatelessWidget {
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        color: Theme.of(context).colorScheme.surfaceVariant,
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         child: Center(
                           child:
                               Icon(Icons.broken_image, color: Colors.grey[400]),
@@ -67,17 +66,14 @@ class CategoryCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
-                    mainAxisAlignment:
-                        MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                   
                       Text(
                         category.title,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        
-                        ),
+                              fontWeight: FontWeight.bold,
+                            ),
                         textAlign: TextAlign.left, // Align text left
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

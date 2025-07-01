@@ -64,7 +64,7 @@ class ChatInputField extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: isLoading
-                    ? Theme.of(context).colorScheme.surfaceVariant
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
                     : Theme.of(context).colorScheme.primary,
                 borderRadius: BorderRadius.circular(20),
               ),

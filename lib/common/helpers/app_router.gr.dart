@@ -28,7 +28,7 @@ import 'package:wakili/main_screen.dart' as _i4;
 /// [_i1.AccountScreen]
 class AccountRoute extends _i7.PageRouteInfo<void> {
   const AccountRoute({List<_i7.PageRouteInfo>? children})
-    : super(AccountRoute.name, initialChildren: children);
+      : super(AccountRoute.name, initialChildren: children);
 
   static const String name = 'AccountRoute';
 
@@ -48,10 +48,10 @@ class CategoryChatRoute extends _i7.PageRouteInfo<CategoryChatRouteArgs> {
     required _i9.LegalCategory category,
     List<_i7.PageRouteInfo>? children,
   }) : super(
-         CategoryChatRoute.name,
-         args: CategoryChatRouteArgs(key: key, category: category),
-         initialChildren: children,
-       );
+          CategoryChatRoute.name,
+          args: CategoryChatRouteArgs(key: key, category: category),
+          initialChildren: children,
+        );
 
   static const String name = 'CategoryChatRoute';
 
@@ -81,7 +81,7 @@ class CategoryChatRouteArgs {
 /// [_i3.ChatHistoryScreen]
 class ChatHistoryRoute extends _i7.PageRouteInfo<void> {
   const ChatHistoryRoute({List<_i7.PageRouteInfo>? children})
-    : super(ChatHistoryRoute.name, initialChildren: children);
+      : super(ChatHistoryRoute.name, initialChildren: children);
 
   static const String name = 'ChatHistoryRoute';
 
@@ -97,7 +97,7 @@ class ChatHistoryRoute extends _i7.PageRouteInfo<void> {
 /// [_i4.MainScreen]
 class MainRoute extends _i7.PageRouteInfo<void> {
   const MainRoute({List<_i7.PageRouteInfo>? children})
-    : super(MainRoute.name, initialChildren: children);
+      : super(MainRoute.name, initialChildren: children);
 
   static const String name = 'MainRoute';
 
@@ -113,7 +113,7 @@ class MainRoute extends _i7.PageRouteInfo<void> {
 /// [_i5.OverviewScreen]
 class OverviewRoute extends _i7.PageRouteInfo<void> {
   const OverviewRoute({List<_i7.PageRouteInfo>? children})
-    : super(OverviewRoute.name, initialChildren: children);
+      : super(OverviewRoute.name, initialChildren: children);
 
   static const String name = 'OverviewRoute';
 
@@ -129,7 +129,7 @@ class OverviewRoute extends _i7.PageRouteInfo<void> {
 /// [_i6.WakiliChatScreen]
 class WakiliChatRoute extends _i7.PageRouteInfo<void> {
   const WakiliChatRoute({List<_i7.PageRouteInfo>? children})
-    : super(WakiliChatRoute.name, initialChildren: children);
+      : super(WakiliChatRoute.name, initialChildren: children);
 
   static const String name = 'WakiliChatRoute';
 
