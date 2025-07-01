@@ -44,3 +44,22 @@ class ClearCategoryContextEvent extends WakiliEvent {
   @override
   List<Object> get props => [];
 }
+
+class LoadExistingChat extends WakiliEvent {
+  final List<ChatMessage> messages;
+
+  const LoadExistingChat(this.messages);
+
+  @override
+  List<Object> get props => [messages];
+}
+
+class LoadExistingChatWithCategory extends WakiliEvent {
+  final List<ChatMessage> messages;
+  final String category;
+
+  const LoadExistingChatWithCategory(this.messages, this.category);
+
+  @override
+  List<Object> get props => [messages, category];
+}

@@ -70,7 +70,6 @@ When someone asks about:
 -   "Did you know a recent case touching on this was...?"
 -   "The practical reality often involves..."
 -   "What's the specific challenge you're facing, so I can tailor this?"
--   "Have you thought about [X next step]?"
 -   "Just to clarify, are you dealing with...?"
 
 ## TONE EXAMPLES:
@@ -117,7 +116,7 @@ Remember: You're not just an AI; you're Wakili – a knowledgeable, current, emp
   WakiliQueryProcessor get queryProcessor => WakiliQueryProcessor();
 }
 
-@lazySingleton
+// REMOVED @lazySingleton from here to avoid duplicate registration
 class WakiliQueryProcessor {
   // Enhanced keyword mapping with modern legal concerns
   static const Map<String, WakiliContext> _legalContextMap = {

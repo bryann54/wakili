@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
+import 'package:wakili/features/chat_history/presentation/bloc/chat_history_bloc.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
 import 'package:wakili/features/wakili/domain/usecases/send_message_usecase.dart';
 import 'package:wakili/features/wakili/domain/usecases/send_message_stream_usecase.dart';
@@ -12,16 +13,20 @@ part 'wakili_state.dart';
 class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
   final SendMessageUseCase _sendMessageUseCase;
   final SendMessageStreamUseCase _sendMessageStreamUseCase;
+  final ChatHistoryBloc _chatHistoryBloc;
 
   WakiliBloc(
     this._sendMessageUseCase,
     this._sendMessageStreamUseCase,
+    this._chatHistoryBloc,
   ) : super(WakiliChatInitial()) {
     on<SendMessageEvent>(_onSendMessage);
     on<SendStreamMessageEvent>(_onSendStreamMessage);
     on<ClearChatEvent>(_onClearChat);
     on<SetCategoryContextEvent>(_onSetCategoryContext);
     on<ClearCategoryContextEvent>(_onClearCategoryContext);
+     on<LoadExistingChat>(_onLoadExistingChat);
+    on<LoadExistingChatWithCategory>(_onLoadExistingChatWithCategory);
   }
 
   Future<void> _onSendMessage(
@@ -188,6 +193,19 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
   }
 
   void _onClearChat(ClearChatEvent event, Emitter<WakiliState> emit) {
+    // Save the current chat messages to history before clearing
+    List<ChatMessage> messagesToSave = [];
+    if (state is WakiliChatLoaded) {
+      messagesToSave = (state as WakiliChatLoaded).messages;
+    } else if (state is WakiliChatErrorState) {
+      messagesToSave = (state as WakiliChatErrorState).messages;
+    }
+
+    if (messagesToSave.isNotEmpty) {
+      // Dispatch an event to the ChatHistoryBloc to save the conversation
+      _chatHistoryBloc.add(SaveCurrentChatConversation(messagesToSave));
+    }
+
     // Preserve selected category when clearing chat
     String? selectedCategory;
     if (state is WakiliChatLoaded) {
@@ -195,7 +213,6 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     } else if (state is WakiliChatErrorState) {
       selectedCategory = (state as WakiliChatErrorState).selectedCategory;
     }
-
     emit(WakiliChatLoaded(
       messages: [],
       selectedCategory: selectedCategory,
@@ -239,4 +256,24 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       ));
     }
   }
+
+  void _onLoadExistingChat(LoadExistingChat event, Emitter<WakiliState> emit) {
+    emit(WakiliChatLoaded(
+      messages: event.messages,
+      isLoading: false,
+      error: null,
+      selectedCategory: null,
+    ));
+  }
+
+  void _onLoadExistingChatWithCategory(
+      LoadExistingChatWithCategory event, Emitter<WakiliState> emit) {
+    emit(WakiliChatLoaded(
+      messages: event.messages,
+      isLoading: false,
+      error: null,
+      selectedCategory: event.category,
+    ));
+  }
+
 }

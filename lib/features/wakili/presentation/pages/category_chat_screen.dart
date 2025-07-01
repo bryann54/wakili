@@ -9,14 +9,19 @@ import 'package:wakili/features/wakili/data/models/legal_category.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_typing_indicator.dart';
 import 'package:wakili/features/wakili/presentation/widgets/category_focus_bar.dart';
+import 'package:wakili/common/helpers/app_router.gr.dart'; // Import for AutoRouter routes
 
 @RoutePage()
 class CategoryChatScreen extends StatefulWidget {
   final LegalCategory category;
+  final List<ChatMessage>? initialMessages; // New: Optional initial messages
+  final String? conversationId; // New: Optional conversation ID
 
   const CategoryChatScreen({
     super.key,
     required this.category,
+    this.initialMessages, // Make it optional
+    this.conversationId, // Make it optional
   });
 
   @override
@@ -26,6 +31,27 @@ class CategoryChatScreen extends StatefulWidget {
 class _CategoryChatScreenState extends State<CategoryChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the WakiliBloc with either existing messages or a fresh start
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.initialMessages != null &&
+          widget.initialMessages!.isNotEmpty) {
+      context.read<WakiliBloc>().add(
+              LoadExistingChatWithCategory(
+                  widget.initialMessages!, widget.category.title),
+            );
+      } else {
+        // If no initial messages, set the category context for a new chat
+        context
+            .read<WakiliBloc>()
+            .add(SetCategoryContextEvent(widget.category.title));
+      }
+      _scrollToBottom(); // Scroll to bottom initially
+    });
+  }
 
   @override
   void dispose() {
@@ -83,24 +109,24 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
     final String backgroundImagePath =
         _getChatBackgroundImagePath(widget.category.title);
 
-    return BlocProvider(
-      create: (context) => GetIt.instance<WakiliBloc>()
-        ..add(SetCategoryContextEvent(widget.category.title)),
+    return BlocProvider.value(
+      // Use BlocProvider.value since WakiliBloc is already provided higher up
+      value: GetIt.instance<WakiliBloc>(), // Get the existing instance
       child: Scaffold(
-        appBar: AppBar(
+     appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           centerTitle: false,
           title: Row(
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 18,
                 backgroundImage: AssetImage('assets/dp.png'),
               ),
               const SizedBox(width: 12),
               Text(
                 '${widget.category.title}   wakili',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
@@ -108,12 +134,35 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
             ],
           ),
           actions: [
-            IconButton(
+            PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert),
-              onPressed: () {},
+              onSelected: (value) {
+                if (value == 'history') {
+                  AutoRouter.of(context).push(const ChatHistoryRoute());
+                } else if (value == 'clear') {
+                  context.read<WakiliBloc>().add(const ClearChatEvent());
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem<String>(
+                  value: 'history',
+                  child: ListTile(
+                    leading: Icon(Icons.history),
+                    title: Text('Chat History'),
+                  ),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'clear',
+                  child: ListTile(
+                    leading: Icon(Icons.clear),
+                    title: Text('Clear Chat'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
+
         body: Stack(
           children: [
             Positioned.fill(
@@ -133,7 +182,8 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
             ),
             Positioned.fill(
               child: Container(
-                color: Colors.black.withValues(alpha: .4),
+                color: Colors.black
+                    .withOpacity(0.4), // Use withOpacity for clarity
               ),
             ),
             Column(

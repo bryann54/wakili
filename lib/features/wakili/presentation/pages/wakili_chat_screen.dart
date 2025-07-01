@@ -9,7 +9,6 @@ import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dar
 import 'package:wakili/features/wakili/presentation/widgets/wakili_welcome_header.dart';
 import 'package:wakili/features/wakili/presentation/widgets/wakili_search_bar.dart';
 import 'package:wakili/features/wakili/presentation/widgets/category_grid_view.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 @RoutePage()
 class WakiliChatScreen extends StatefulWidget {
@@ -154,9 +153,13 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    Icon(
-                      FontAwesomeIcons.commentDots,
-                      color: Theme.of(context).colorScheme.primary,
+                     CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      child: CircleAvatar(
+                        radius: 18,
+                        backgroundImage: AssetImage('assets/dp.png'),
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -291,10 +294,13 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
             children: [
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
-                child: const Icon(
-                  FontAwesomeIcons.commentDots,
-                  size: 20,
-                  color: Colors.white,
+                child:    CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundImage: AssetImage('assets/dp.png'),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),

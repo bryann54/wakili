@@ -9,10 +9,17 @@ class WakiliWelcomeHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
-          const Text(
-            '⚖️',
-            style: TextStyle(fontSize: 48),
-          ),
+           Padding(
+             padding: const EdgeInsets.only(top: 20.0),
+             child: CircleAvatar(
+                radius: 70,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: CircleAvatar(
+                  radius: 70,
+                  backgroundImage: AssetImage('assets/dp.png'),
+                ),
+              ),
+           ),
           const SizedBox(height: 5),
           RichText(
             textAlign: TextAlign.center,

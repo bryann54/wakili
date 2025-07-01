@@ -6,7 +6,7 @@ import 'package:wakili/core/di/injector.dart';
 import 'package:wakili/features/account/presentation/bloc/account_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakili/features/history/presentation/bloc/history_bloc.dart';
+import 'package:wakili/features/chat_history/presentation/bloc/chat_history_bloc.dart';
 import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 
 @RoutePage()
@@ -17,16 +17,20 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => getIt<HistoryBloc>()),
         BlocProvider(create: (context) => getIt<WakiliBloc>()),
         BlocProvider(create: (context) => getIt<AccountBloc>()),
+        // Ensure ChatHistoryBloc is provided here and loads its history
+        BlocProvider<ChatHistoryBloc>(
+          create: (context) => getIt<ChatHistoryBloc>()
+            ..add(const LoadChatHistory()), // Dispatch LoadChatHistory event
+        ),
       ],
       child: AutoTabsScaffold(
         lazyLoad: false,
         routes: const [
           OverviewRoute(),
           WakiliChatRoute(),
-          ChatHistoryRoute(),
+          ChatHistoryRoute(), 
           AccountRoute(),
         ],
         bottomNavigationBuilder: (_, tabsRouter) {

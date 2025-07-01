@@ -5,14 +5,20 @@ import 'package:get_it/get_it.dart';
 import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
+import 'package:wakili/common/helpers/app_router.gr.dart'; // Import for AutoRouter routes
 
 @RoutePage()
 class GeneralChatScreen extends StatefulWidget {
-  final String initialMessage;
+  final String? initialMessage; // Made optional
+  final List<ChatMessage>?
+      initialMessages; // New: Optional list of messages for history
+  final String? conversationId; // New: Optional conversation ID
 
   const GeneralChatScreen({
     super.key,
-    required this.initialMessage,
+    this.initialMessage, // Now optional
+    this.initialMessages, // New
+    this.conversationId, // New
   });
 
   @override
@@ -29,9 +35,20 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     super.initState();
     _wakiliBloc = GetIt.instance<WakiliBloc>();
 
-    // Send the initial message automatically
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _sendInitialMessage();
+      if (widget.initialMessages != null &&
+          widget.initialMessages!.isNotEmpty) {
+        // If initial messages are provided (from history), load them
+      _wakiliBloc.add(LoadExistingChat(widget.initialMessages!));
+      } else if (widget.initialMessage != null &&
+          widget.initialMessage!.isNotEmpty) {
+        // If a single initial message is provided (for a new chat), send it
+        _sendInitialMessage(widget.initialMessage!);
+      } else {
+        // Otherwise, clear the chat for a fresh start
+        _wakiliBloc.add(const ClearChatEvent());
+      }
+      _scrollToBottom(); // Scroll to bottom initially
     });
   }
 
@@ -42,9 +59,8 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     super.dispose();
   }
 
-  void _sendInitialMessage() {
-    // Send to bloc for processing
-    _wakiliBloc.add(SendMessageEvent(widget.initialMessage));
+  void _sendInitialMessage(String message) {
+    _wakiliBloc.add(SendMessageEvent(message));
     _scrollToBottom();
   }
 
@@ -76,14 +92,16 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
-        title: Row(
+        title: const Row(
+          // Add const
           children: [
             CircleAvatar(
+              // Add const
               radius: 18,
               backgroundImage: AssetImage('assets/dp.png'),
             ),
-            const SizedBox(width: 12),
-            const Text(
+            SizedBox(width: 12),
+            Text(
               'Wakili',
               style: TextStyle(
                 fontSize: 18,
@@ -93,6 +111,19 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.history), // History button
+            onPressed: () {
+              AutoRouter.of(context).push(const ChatHistoryRoute());
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.clear), // Clear chat button
+            onPressed: () {
+              // This will trigger saving the current chat to history via WakiliBloc's _onClearChat
+              context.read<WakiliBloc>().add(const ClearChatEvent());
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.more_vert),
             onPressed: () {},
@@ -115,7 +146,6 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
           builder: (context, state) {
             if (state is WakiliChatInitial) {
               return Stack(
-                // Wrap the initial state in a stack for the background
                 children: [
                   _buildBackground(),
                   const Center(
@@ -159,7 +189,6 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     );
   }
 
-  // Extracted method to build the background image and overlay
   Widget _buildBackground() {
     return Positioned.fill(
       child: Stack(
@@ -170,14 +199,10 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             width: double.infinity,
             height: double.infinity,
           ),
-          // Overlay for dark/light mode accommodation
-          // Adjust opacity based on theme brightness
           Container(
             color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.black
-                    .withValues(alpha: 0.6) // Darker overlay for dark mode
-                : Colors.black
-                    .withValues(alpha: 0.3), // Lighter overlay for light mode
+                ? Colors.black.withOpacity(0.6)
+                : Colors.black.withOpacity(0.3),
           ),
         ],
       ),
@@ -193,20 +218,15 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             Icon(
               Icons.chat_bubble_outline,
               size: 64,
-              color: Theme.of(context)
-                  .colorScheme
-                  .outline
-                  .withValues(alpha: 0.7), // Adjust opacity for background
+              color: Theme.of(context).colorScheme.outline.withOpacity(0.7),
             ),
             const SizedBox(height: 16),
             Text(
               'Start your conversation with Wakili',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .outline
-                        .withValues(alpha: 0.8), // Adjust opacity
+                    color:
+                        Theme.of(context).colorScheme.outline.withOpacity(0.8),
                   ),
             ),
           ],
@@ -214,15 +234,13 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
       );
     }
 
-    // Auto-scroll to bottom when messages update
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
     });
 
     return ListView.builder(
       controller: _scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          16, 0, 16, 16), // Adjust top padding, it's handled by SizedBox above
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       itemCount: messages.length,
       itemBuilder: (context, index) {
         final message = messages[index];
@@ -240,16 +258,12 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
           maxWidth: MediaQuery.of(context).size.width * 0.8,
         ),
         decoration: BoxDecoration(
-          // Adjusted colors for better contrast against background image
           color: message.isUser
-              ? Theme.of(context)
-                  .colorScheme
-                  .primary
-                  .withValues(alpha: 0.9) // Slightly transparent primary
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.9)
               : Theme.of(context)
                   .colorScheme
                   .surfaceContainerHighest
-                  .withValues(alpha: 0.9), // Slightly transparent background
+                  .withOpacity(0.9),
           borderRadius: BorderRadius.circular(16).copyWith(
             bottomRight: message.isUser ? const Radius.circular(4) : null,
             bottomLeft: !message.isUser ? const Radius.circular(4) : null,
@@ -260,8 +274,8 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
           message.content,
           style: TextStyle(
             color: message.isUser
-                ? Theme.of(context).colorScheme.onPrimary // Should be fine
-                : Theme.of(context).colorScheme.onSurface, // Should be fine
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),
@@ -279,7 +293,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
               color: Theme.of(context)
                   .colorScheme
                   .surfaceContainerHighest
-                  .withValues(alpha: 0.9), // Match bubble opacity
+                  .withOpacity(0.9),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
