@@ -33,7 +33,7 @@ class ChatMessageWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 color: message.isUser
                     ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.surfaceVariant,
+                    : Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(16).copyWith(
                   bottomLeft:
                       message.isUser ? const Radius.circular(16) : Radius.zero,

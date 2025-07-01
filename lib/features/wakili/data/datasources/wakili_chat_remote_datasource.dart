@@ -7,10 +7,8 @@ abstract class WakiliChatRemoteDataSource {
 }
 
 @LazySingleton(as: WakiliChatRemoteDataSource)
-
 class GeminiWakiliChatRemoteDataSource implements WakiliChatRemoteDataSource {
   final GenerativeModel _model;
-
 
   GeminiWakiliChatRemoteDataSource(this._model);
 

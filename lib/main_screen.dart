@@ -17,19 +17,16 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-       BlocProvider(create: (context) => getIt<HistoryBloc>()),
+        BlocProvider(create: (context) => getIt<HistoryBloc>()),
         BlocProvider(create: (context) => getIt<WakiliBloc>()),
         BlocProvider(create: (context) => getIt<AccountBloc>()),
-
       ],
       child: AutoTabsScaffold(
         lazyLoad: false,
         routes: const [
           OverviewRoute(),
-         
-             WakiliChatRoute(),
-         ChatHistoryRoute(),
-       
+          WakiliChatRoute(),
+          ChatHistoryRoute(),
           AccountRoute(),
         ],
         bottomNavigationBuilder: (_, tabsRouter) {
@@ -39,8 +36,7 @@ class MainScreen extends StatelessWidget {
                 icon: const Icon(Icons.receipt_long),
                 label: AppLocalizations.getString(context, 'Bills'),
               ),
-           
-                BottomNavigationBarItem(
+              BottomNavigationBarItem(
                 icon: const Icon(Icons.balance),
                 label: AppLocalizations.getString(context, 'wakiliChat'),
               ),

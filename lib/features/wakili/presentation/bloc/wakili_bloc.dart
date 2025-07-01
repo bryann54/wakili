@@ -20,6 +20,8 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     on<SendMessageEvent>(_onSendMessage);
     on<SendStreamMessageEvent>(_onSendStreamMessage);
     on<ClearChatEvent>(_onClearChat);
+    on<SetCategoryContextEvent>(_onSetCategoryContext);
+    on<ClearCategoryContextEvent>(_onClearCategoryContext);
   }
 
   Future<void> _onSendMessage(
@@ -27,15 +29,26 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     Emitter<WakiliState> emit,
   ) async {
     List<ChatMessage> currentMessages = [];
+    String? selectedCategory;
+
     if (state is WakiliChatLoaded) {
       currentMessages = (state as WakiliChatLoaded).messages;
+      selectedCategory = (state as WakiliChatLoaded).selectedCategory;
     } else if (state is WakiliChatErrorState) {
       currentMessages = (state as WakiliChatErrorState).messages;
+      selectedCategory = (state as WakiliChatErrorState).selectedCategory;
+    }
+
+    // Add category context to the message if a category is selected
+    String messageWithContext = event.message;
+    if (selectedCategory != null) {
+      messageWithContext =
+          "In the context of $selectedCategory law: ${event.message}";
     }
 
     final userMessage = ChatMessage(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      content: event.message,
+      content: event.message, // Show original message to user
       isUser: true,
       timestamp: DateTime.now(),
     );
@@ -45,10 +58,12 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       messages: [...currentMessages, userMessage],
       isLoading: true,
       error: null,
+      selectedCategory: selectedCategory,
     ));
 
     try {
-      final response = await _sendMessageUseCase(event.message);
+      final response = await _sendMessageUseCase(
+          messageWithContext); // Use context message for AI
       final aiMessage = ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         content: response,
@@ -62,11 +77,13 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
         isLoading: false,
       ));
     } catch (e) {
-      final List<ChatMessage> newStateMessages =
-          state is WakiliChatLoaded ? (state as WakiliChatLoaded).messages : <ChatMessage>[];
+      final List<ChatMessage> newStateMessages = state is WakiliChatLoaded
+          ? (state as WakiliChatLoaded).messages
+          : <ChatMessage>[];
       emit(WakiliChatErrorState(
           message: "Failed to get response: ${e.toString()}",
-          messages: newStateMessages));
+          messages: newStateMessages,
+          selectedCategory: selectedCategory));
     }
   }
 
@@ -75,16 +92,26 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     Emitter<WakiliState> emit,
   ) async {
     List<ChatMessage> currentMessages = [];
+    String? selectedCategory;
+
     if (state is WakiliChatLoaded) {
       currentMessages = (state as WakiliChatLoaded).messages;
+      selectedCategory = (state as WakiliChatLoaded).selectedCategory;
     } else if (state is WakiliChatErrorState) {
-      // Carry over messages from error state
       currentMessages = (state as WakiliChatErrorState).messages;
+      selectedCategory = (state as WakiliChatErrorState).selectedCategory;
+    }
+
+    // Add category context to the message if a category is selected
+    String messageWithContext = event.message;
+    if (selectedCategory != null) {
+      messageWithContext =
+          "In the context of $selectedCategory law: ${event.message}";
     }
 
     final userMessage = ChatMessage(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      content: event.message,
+      content: event.message, // Show original message to user
       isUser: true,
       timestamp: DateTime.now(),
     );
@@ -94,26 +121,31 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       messages: [...currentMessages, userMessage],
       isLoading: true,
       error: null,
+      selectedCategory: selectedCategory,
     ));
 
     try {
       String accumulatedResponse = '';
       final aiMessageId = DateTime.now().millisecondsSinceEpoch.toString();
 
-      await for (final chunk in _sendMessageStreamUseCase(event.message)) {
+      await for (final chunk in _sendMessageStreamUseCase(messageWithContext)) {
+        // Use context message for AI
         accumulatedResponse += chunk;
 
         final aiMessage = ChatMessage(
           id: aiMessageId,
           content: accumulatedResponse,
           isUser: false,
-          timestamp:
-              DateTime.now(), // Timestamp can be updated or fixed to start
+          timestamp: DateTime.now(),
         );
 
         final currentStateForStream = state is WakiliChatLoaded
             ? (state as WakiliChatLoaded)
-            : WakiliChatLoaded(messages: currentMessages, isLoading: true);
+            : WakiliChatLoaded(
+                messages: currentMessages,
+                isLoading: true,
+                selectedCategory: selectedCategory,
+              );
         final updatedMessages =
             List<ChatMessage>.from(currentStateForStream.messages);
 
@@ -134,11 +166,15 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
           isLoading: true, // Still loading until stream finishes
         ));
       }
+
       // After stream completes, set isLoading to false.
-      // Need to cast state to WakiliChatLoaded explicitly as it might be WakiliChatLoadingState
       final finalStateAfterStream = state is WakiliChatLoaded
           ? state as WakiliChatLoaded
-          : WakiliChatLoaded(messages: currentMessages, isLoading: false);
+          : WakiliChatLoaded(
+              messages: currentMessages,
+              isLoading: false,
+              selectedCategory: selectedCategory,
+            );
       emit(finalStateAfterStream.copyWith(isLoading: false));
     } catch (e) {
       final newStateMessages = state is WakiliChatLoaded
@@ -146,12 +182,61 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
           : currentMessages;
       emit(WakiliChatErrorState(
           message: "Failed to get streaming response: ${e.toString()}",
-          messages: newStateMessages));
+          messages: newStateMessages,
+          selectedCategory: selectedCategory));
     }
   }
 
   void _onClearChat(ClearChatEvent event, Emitter<WakiliState> emit) {
-    emit(const WakiliChatLoaded(
-        messages: [])); // Changed to loaded with empty list
+    // Preserve selected category when clearing chat
+    String? selectedCategory;
+    if (state is WakiliChatLoaded) {
+      selectedCategory = (state as WakiliChatLoaded).selectedCategory;
+    } else if (state is WakiliChatErrorState) {
+      selectedCategory = (state as WakiliChatErrorState).selectedCategory;
+    }
+
+    emit(WakiliChatLoaded(
+      messages: [],
+      selectedCategory: selectedCategory,
+    ));
+  }
+
+  void _onSetCategoryContext(
+    SetCategoryContextEvent event,
+    Emitter<WakiliState> emit,
+  ) {
+    if (state is WakiliChatLoaded) {
+      final currentState = state as WakiliChatLoaded;
+      emit(currentState.copyWith(selectedCategory: event.category));
+    } else if (state is WakiliChatErrorState) {
+      final currentState = state as WakiliChatErrorState;
+      emit(WakiliChatLoaded(
+        messages: currentState.messages,
+        selectedCategory: event.category,
+      ));
+    } else {
+      // If in initial state, transition to loaded with empty messages but selected category
+      emit(WakiliChatLoaded(
+        messages: const [],
+        selectedCategory: event.category,
+      ));
+    }
+  }
+
+  void _onClearCategoryContext(
+    ClearCategoryContextEvent event,
+    Emitter<WakiliState> emit,
+  ) {
+    if (state is WakiliChatLoaded) {
+      final currentState = state as WakiliChatLoaded;
+      emit(currentState.copyWith(selectedCategory: null));
+    } else if (state is WakiliChatErrorState) {
+      final currentState = state as WakiliChatErrorState;
+      emit(WakiliChatLoaded(
+        messages: currentState.messages,
+        selectedCategory: null,
+      ));
+    }
   }
 }

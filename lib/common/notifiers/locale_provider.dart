@@ -10,8 +10,7 @@ class LocaleProvider with ChangeNotifier {
   Locale get locale => _locale;
 
   void loadLocale() {
-    final String langCode =
-        getIt<SharedPreferencesManager>().getString(
+    final String langCode = getIt<SharedPreferencesManager>().getString(
           SharedPreferencesManager.language,
         ) ??
         'en';
