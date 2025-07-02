@@ -86,7 +86,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp.router(
         debugShowCheckedModeBanner: !kReleaseMode,
         title: AppLocalizations.getString(context, 'appName'),
-        routerConfig: _appRouter.config(), // Use the initialized _appRouter
+        routerConfig: _appRouter.config(), 
         localizationsDelegates: [
           AppLocalizations.delegate(),
           GlobalMaterialLocalizations.delegate,
