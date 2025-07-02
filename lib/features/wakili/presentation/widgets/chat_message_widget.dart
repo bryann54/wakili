@@ -5,10 +5,7 @@ import '../../data/models/chat_message.dart';
 class ChatMessageWidget extends StatelessWidget {
   final ChatMessage message;
 
-  const ChatMessageWidget({
-    super.key,
-    required this.message,
-  });
+  const ChatMessageWidget({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +58,9 @@ class ChatMessageWidget extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10,
                       color: message.isUser
-                          ? Theme.of(context)
-                              .colorScheme
-                              .onPrimary
-                              .withValues(alpha: 0.7)
+                          ? Theme.of(
+                              context,
+                            ).colorScheme.onPrimary.withValues(alpha: 0.7)
                           : Theme.of(context)
                               .colorScheme
                               .onSurfaceVariant
@@ -80,11 +76,7 @@ class ChatMessageWidget extends StatelessWidget {
             CircleAvatar(
               radius: 16,
               backgroundColor: Theme.of(context).colorScheme.secondary,
-              child: const Icon(
-                Icons.person,
-                size: 18,
-                color: Colors.white,
-              ),
+              child: const Icon(Icons.person, size: 18, color: Colors.white),
             ),
           ],
         ],

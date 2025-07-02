@@ -39,15 +39,17 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialMessages != null &&
           widget.initialMessages!.isNotEmpty) {
-      context.read<WakiliBloc>().add(
+        context.read<WakiliBloc>().add(
               LoadExistingChatWithCategory(
-                  widget.initialMessages!, widget.category.title),
+                widget.initialMessages!,
+                widget.category.title,
+              ),
             );
       } else {
         // If no initial messages, set the category context for a new chat
-        context
-            .read<WakiliBloc>()
-            .add(SetCategoryContextEvent(widget.category.title));
+        context.read<WakiliBloc>().add(
+              SetCategoryContextEvent(widget.category.title),
+            );
       }
       _scrollToBottom(); // Scroll to bottom initially
     });
@@ -106,14 +108,15 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String backgroundImagePath =
-        _getChatBackgroundImagePath(widget.category.title);
+    final String backgroundImagePath = _getChatBackgroundImagePath(
+      widget.category.title,
+    );
 
     return BlocProvider.value(
       // Use BlocProvider.value since WakiliBloc is already provided higher up
       value: GetIt.instance<WakiliBloc>(), // Get the existing instance
       child: Scaffold(
-     appBar: AppBar(
+        appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           centerTitle: false,
@@ -162,7 +165,6 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
             ),
           ],
         ),
-
         body: Stack(
           children: [
             Positioned.fill(
@@ -182,8 +184,9 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
             ),
             Positioned.fill(
               child: Container(
-                color: Colors.black
-                    .withOpacity(0.4), // Use withOpacity for clarity
+                color: Colors.black.withOpacity(
+                  0.4,
+                ), // Use withOpacity for clarity
               ),
             ),
             Column(

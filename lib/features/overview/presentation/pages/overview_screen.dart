@@ -10,13 +10,9 @@ class OverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.getString(context, 'Bills')),
-      ),
+      appBar: AppBar(title: Text(AppLocalizations.getString(context, 'Bills'))),
       body: Center(
-        child: Text(
-          '${AppLocalizations.getString(context, 'Bills')} Screen',
-        ),
+        child: Text('${AppLocalizations.getString(context, 'Bills')} Screen'),
       ),
     );
   }

@@ -11,8 +11,10 @@ abstract class WakiliChatModule {
   String get _geminiApiKey {
     final apiKey = dotenv.env['GEMINI_API_KEY'];
     if (apiKey == null || apiKey.isEmpty) {
-      throw Exception('GEMINI_API_KEY not found in .env file or is empty. '
-          'Ensure .env is loaded and key is present.');
+      throw Exception(
+        'GEMINI_API_KEY not found in .env file or is empty. '
+        'Ensure .env is loaded and key is present.',
+      );
     }
     return apiKey;
   }
@@ -128,7 +130,7 @@ class WakiliQueryProcessor {
         'police harassment',
         'discrimination',
         'freedom of expression',
-        'data privacy' // Added a modern concern
+        'data privacy', // Added a modern concern
       ],
     ),
     'employment': WakiliContext(
@@ -139,7 +141,7 @@ class WakiliQueryProcessor {
         'unpaid wages',
         'workplace harassment',
         'retrenchment',
-        'gig economy worker rights' // Added a modern concern
+        'gig economy worker rights', // Added a modern concern
       ],
     ),
     'property': WakiliContext(
@@ -151,7 +153,7 @@ class WakiliQueryProcessor {
         'illegal eviction',
         'property inheritance',
         'land fraud',
-        'title deed process' // Added a practical scenario
+        'title deed process', // Added a practical scenario
       ],
     ),
     'business': WakiliContext(
@@ -163,7 +165,7 @@ class WakiliQueryProcessor {
         'contract disputes',
         'licensing',
         'startup legal advice',
-        'intellectual property' // Added a modern concern
+        'intellectual property', // Added a modern concern
       ],
     ),
     'family': WakiliContext(
@@ -175,14 +177,14 @@ class WakiliQueryProcessor {
         'child support',
         'custody battles',
         'adoption process',
-        'domestic violence' // Important social context
+        'domestic violence', // Important social context
       ],
     ),
     'court': WakiliContext(
       provisions: [
         'Chapter 10',
         'Civil Procedure Act',
-        'Magistrates\' Courts Act'
+        'Magistrates\' Courts Act',
       ],
       practicalContext:
           'court procedures, filing cases, legal representation, alternative dispute resolution',
@@ -191,7 +193,7 @@ class WakiliQueryProcessor {
         'case filing',
         'court appearances',
         'mediation',
-        'appeals process' // Added process detail
+        'appeals process', // Added process detail
       ],
     ),
     'criminal': WakiliContext(
@@ -203,7 +205,7 @@ class WakiliQueryProcessor {
         'bail application',
         'criminal charges',
         'rights during arrest',
-        'sentencing guidelines' // Added process detail
+        'sentencing guidelines', // Added process detail
       ],
     ),
     'tax': WakiliContext(
@@ -214,7 +216,7 @@ class WakiliQueryProcessor {
         'filing tax returns',
         'VAT registration',
         'tax evasion',
-        'KRA penalties'
+        'KRA penalties',
       ],
     ),
     'consumer': WakiliContext(
@@ -226,7 +228,7 @@ class WakiliQueryProcessor {
         'product defects',
         'service complaints',
         'false advertising',
-        'online shopping rights'
+        'online shopping rights',
       ],
     ),
   };
@@ -242,7 +244,8 @@ class WakiliQueryProcessor {
 
     // Example mock implementation:
     await Future.delayed(
-        const Duration(milliseconds: 200)); // Simulate network delay
+      const Duration(milliseconds: 200),
+    ); // Simulate network delay
 
     if (query.toLowerCase().contains('latest property law kenya')) {
       return "Recent news: 'Kenya's Land ministry announced new digital land transaction procedures in Q2 2025 aimed at curbing fraud.'";
@@ -262,8 +265,9 @@ class WakiliQueryProcessor {
 
     for (final entry in _legalContextMap.entries) {
       if (queryLower.contains(entry.key) ||
-          entry.value.commonScenarios
-              .any((scenario) => queryLower.contains(scenario.toLowerCase()))) {
+          entry.value.commonScenarios.any(
+            (scenario) => queryLower.contains(scenario.toLowerCase()),
+          )) {
         return entry.value;
       }
     }
@@ -283,7 +287,8 @@ class WakiliQueryProcessor {
     } else {
       // Even if no specific legal context, try to get general current news if query seems broad
       webKnowledge = await _fetchWebKnowledge(
-          "Kenya legal news recent ${originalQuery.split(' ').take(3).join(' ')}");
+        "Kenya legal news recent ${originalQuery.split(' ').take(3).join(' ')}",
+      );
     }
 
     if (context != null) {
@@ -329,14 +334,15 @@ Maintain Wakili's intelligent, empathetic, and current tone.
       return [
         "Can you explain more about general legal rights?",
         "How do I find a lawyer in Kenya?",
-        "What's the process for small claims court?"
+        "What's the process for small claims court?",
       ];
     }
 
     // Filter out scenarios already directly mentioned in the query for better variety
     final suggestions = context.commonScenarios
         .where(
-            (scenario) => !query.toLowerCase().contains(scenario.toLowerCase()))
+          (scenario) => !query.toLowerCase().contains(scenario.toLowerCase()),
+        )
         .toList();
 
     // Prioritize variety and relevance, take top 2-3

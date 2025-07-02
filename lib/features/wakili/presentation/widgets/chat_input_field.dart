@@ -41,10 +41,9 @@ class ChatInputField extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: hintText,
                 hintStyle: TextStyle(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurfaceVariant
-                      .withValues(alpha: 0.6),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                 ),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(

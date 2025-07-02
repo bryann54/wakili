@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "749843920861",
+    "project_id": "wakili-5400e",
+    "storage_bucket": "wakili-5400e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:749843920861:android:12bb646d9696209c606834",
+        "android_client_info": {
+          "package_name": "com.example.wakili"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "749843920861-2t62f7jkt63hme5g78e6ke1jbfrsa6ea.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnlyLZgh50MJqbqTSzo8rreQygjkoUIys"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "749843920861-2t62f7jkt63hme5g78e6ke1jbfrsa6ea.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "749843920861-sgfngm0m061e95khlocpcp0ism9udc1q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.buenrowakili"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

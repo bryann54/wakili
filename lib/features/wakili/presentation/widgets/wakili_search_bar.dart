@@ -28,8 +28,10 @@ class WakiliSearchBar extends StatelessWidget {
           ),
           filled: true,
           fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
         ),
       ),
     );

@@ -9,8 +9,10 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:dio/dio.dart' as _i361;
+import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:google_generative_ai/google_generative_ai.dart' as _i656;
+import 'package:google_sign_in/google_sign_in.dart' as _i116;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
@@ -23,6 +25,13 @@ import '../../features/account/domain/repositories/account_repository.dart'
 import '../../features/account/domain/usecases/change_language_usecase.dart'
     as _i993;
 import '../../features/account/presentation/bloc/account_bloc.dart' as _i708;
+import '../../features/auth/data/datasources/auth_remoteDataSource.dart'
+    as _i167;
+import '../../features/auth/data/repositories/auth_repositoryImpl.dart'
+    as _i877;
+import '../../features/auth/domain/repositories/auth_epository.dart' as _i626;
+import '../../features/auth/domain/usecases/auth_usecases.dart' as _i46;
+import '../../features/auth/presentation/bloc/auth_bloc.dart' as _i797;
 import '../../features/chat_history/data/datasources/chat_history_datasource.dart'
     as _i578;
 import '../../features/chat_history/data/repositories/chat_history_repository_impl.dart'
@@ -73,6 +82,8 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModules.prefs(),
       preResolve: true,
     );
+    gh.lazySingleton<_i59.FirebaseAuth>(() => registerModules.firebaseAuth);
+    gh.lazySingleton<_i116.GoogleSignIn>(() => registerModules.googleSignIn);
     gh.lazySingleton<_i656.GenerativeModel>(
         () => wakiliChatModule.generativeModel);
     gh.lazySingleton<_i307.WakiliQueryProcessor>(
@@ -87,6 +98,11 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModules.apiKey,
       instanceName: 'ApiKey',
     );
+    gh.lazySingleton<_i167.AuthRemoteDataSource>(
+        () => _i167.AuthRemoteDataSourceImpl(
+              firebaseAuth: gh<_i59.FirebaseAuth>(),
+              googleSignIn: gh<_i116.GoogleSignIn>(),
+            ));
     gh.lazySingleton<_i934.SharedPreferencesManager>(
         () => _i934.SharedPreferencesManager(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i106.WakiliChatRemoteDataSource>(() =>
@@ -108,6 +124,8 @@ extension GetItInjectableX on _i174.GetIt {
         _i11.SaveChatConversationUseCase(gh<_i371.ChatHistoryRepository>()));
     gh.factory<_i295.DeleteChatConversationUseCase>(() =>
         _i295.DeleteChatConversationUseCase(gh<_i371.ChatHistoryRepository>()));
+    gh.lazySingleton<_i626.AuthRepository>(() => _i877.AuthRepositoryImpl(
+        remoteDataSource: gh<_i167.AuthRemoteDataSource>()));
     gh.lazySingleton<_i313.WakiliChatRepository>(() =>
         _i644.WakiliChatRepositoryImpl(gh<_i106.WakiliChatRemoteDataSource>()));
     gh.factory<_i393.ChatHistoryBloc>(() => _i393.ChatHistoryBloc(
@@ -130,6 +148,28 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i758.DioClient>(() => _i758.DioClient(
           gh<_i361.Dio>(),
           gh<String>(instanceName: 'ApiKey'),
+        ));
+    gh.lazySingleton<_i46.SignInWithEmailAndPasswordUseCase>(() =>
+        _i46.SignInWithEmailAndPasswordUseCase(gh<_i626.AuthRepository>()));
+    gh.lazySingleton<_i46.SignUpWithEmailAndPasswordUseCase>(() =>
+        _i46.SignUpWithEmailAndPasswordUseCase(gh<_i626.AuthRepository>()));
+    gh.lazySingleton<_i46.SignInWithGoogleUseCase>(
+        () => _i46.SignInWithGoogleUseCase(gh<_i626.AuthRepository>()));
+    gh.lazySingleton<_i46.SignOutUseCase>(
+        () => _i46.SignOutUseCase(gh<_i626.AuthRepository>()));
+    gh.lazySingleton<_i46.GetAuthStateChangesUseCase>(
+        () => _i46.GetAuthStateChangesUseCase(gh<_i626.AuthRepository>()));
+    gh.lazySingleton<_i46.ResetPasswordUseCase>(
+        () => _i46.ResetPasswordUseCase(gh<_i626.AuthRepository>()));
+    gh.factory<_i797.AuthBloc>(() => _i797.AuthBloc(
+          signInWithEmailAndPasswordUseCase:
+              gh<_i46.SignInWithEmailAndPasswordUseCase>(),
+          signUpWithEmailAndPasswordUseCase:
+              gh<_i46.SignUpWithEmailAndPasswordUseCase>(),
+          signInWithGoogleUseCase: gh<_i46.SignInWithGoogleUseCase>(),
+          signOutUseCase: gh<_i46.SignOutUseCase>(),
+          getAuthStateChangesUseCase: gh<_i46.GetAuthStateChangesUseCase>(),
+          resetPasswordUseCase: gh<_i46.ResetPasswordUseCase>(),
         ));
     gh.lazySingleton<_i546.ClientProvider>(
         () => _i546.ClientProvider(gh<_i758.DioClient>()));

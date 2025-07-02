@@ -23,9 +23,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat History'),
-      ),
+      appBar: AppBar(title: const Text('Chat History')),
       body: BlocBuilder<ChatHistoryBloc, ChatHistoryState>(
         builder: (context, state) {
           if (state is ChatHistoryLoading) {
@@ -50,12 +48,13 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                     child: const Icon(Icons.delete, color: Colors.white),
                   ),
                   onDismissed: (direction) {
-                    context
-                        .read<ChatHistoryBloc>()
-                        .add(DeleteChatConversation(conversation.id));
+                    context.read<ChatHistoryBloc>().add(
+                          DeleteChatConversation(conversation.id),
+                        );
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                          content: Text('${conversation.title} dismissed')),
+                        content: Text('${conversation.title} dismissed'),
+                      ),
                     );
                   },
                   child: ListTile(
@@ -101,7 +100,8 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                             onTap: () {
                               AutoRouter.of(context).push(
                                 ChatRoute(
-                                    initialMessages: conversation.messages),
+                                  initialMessages: conversation.messages,
+                                ),
                               );
                             },
                           );
@@ -110,9 +110,9 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                     ),
                   TextButton(
                     onPressed: () {
-                      context
-                          .read<ChatHistoryBloc>()
-                          .add(const LoadChatHistory());
+                      context.read<ChatHistoryBloc>().add(
+                            const LoadChatHistory(),
+                          );
                     },
                     child: const Text('Retry'),
                   ),

@@ -39,7 +39,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
       if (widget.initialMessages != null &&
           widget.initialMessages!.isNotEmpty) {
         // If initial messages are provided (from history), load them
-      _wakiliBloc.add(LoadExistingChat(widget.initialMessages!));
+        _wakiliBloc.add(LoadExistingChat(widget.initialMessages!));
       } else if (widget.initialMessage != null &&
           widget.initialMessage!.isNotEmpty) {
         // If a single initial message is provided (for a new chat), send it
@@ -103,10 +103,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             SizedBox(width: 12),
             Text(
               'Wakili',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -124,10 +121,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
               context.read<WakiliBloc>().add(const ClearChatEvent());
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
         ],
       ),
       body: BlocProvider.value(
@@ -148,9 +142,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
               return Stack(
                 children: [
                   _buildBackground(),
-                  const Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  const Center(child: CircularProgressIndicator()),
                 ],
               );
             }
@@ -172,11 +164,10 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                 Column(
                   children: [
                     SizedBox(
-                        height: MediaQuery.of(context).padding.top +
-                            kToolbarHeight),
-                    Expanded(
-                      child: _buildMessagesList(messages),
+                      height:
+                          MediaQuery.of(context).padding.top + kToolbarHeight,
                     ),
+                    Expanded(child: _buildMessagesList(messages)),
                     if (isLoading) _buildTypingIndicator(),
                     _buildChatInput(isLoading),
                   ],
@@ -260,10 +251,9 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
         decoration: BoxDecoration(
           color: message.isUser
               ? Theme.of(context).colorScheme.primary.withOpacity(0.9)
-              : Theme.of(context)
-                  .colorScheme
-                  .surfaceContainerHighest
-                  .withOpacity(0.9),
+              : Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withOpacity(0.9),
           borderRadius: BorderRadius.circular(16).copyWith(
             bottomRight: message.isUser ? const Radius.circular(4) : null,
             bottomLeft: !message.isUser ? const Radius.circular(4) : null,
@@ -290,10 +280,9 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .surfaceContainerHighest
-                  .withOpacity(0.9),
+              color: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withOpacity(0.9),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(

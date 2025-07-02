@@ -20,8 +20,8 @@ class MainScreen extends StatelessWidget {
         BlocProvider(create: (context) => getIt<WakiliBloc>()),
         BlocProvider(create: (context) => getIt<AccountBloc>()),
         BlocProvider<ChatHistoryBloc>(
-          create: (context) => getIt<ChatHistoryBloc>()
-            ..add(const LoadChatHistory()), 
+          create: (context) =>
+              getIt<ChatHistoryBloc>()..add(const LoadChatHistory()),
         ),
       ],
       child: AutoTabsScaffold(
@@ -29,7 +29,7 @@ class MainScreen extends StatelessWidget {
         routes: const [
           OverviewRoute(),
           WakiliChatRoute(),
-          ChatHistoryRoute(), 
+          ChatHistoryRoute(),
           AccountRoute(),
         ],
         bottomNavigationBuilder: (_, tabsRouter) {

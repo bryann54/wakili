@@ -25,7 +25,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     on<ClearChatEvent>(_onClearChat);
     on<SetCategoryContextEvent>(_onSetCategoryContext);
     on<ClearCategoryContextEvent>(_onClearCategoryContext);
-     on<LoadExistingChat>(_onLoadExistingChat);
+    on<LoadExistingChat>(_onLoadExistingChat);
     on<LoadExistingChatWithCategory>(_onLoadExistingChatWithCategory);
   }
 
@@ -59,16 +59,19 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     );
 
     // Add user message and set loading
-    emit(WakiliChatLoaded(
-      messages: [...currentMessages, userMessage],
-      isLoading: true,
-      error: null,
-      selectedCategory: selectedCategory,
-    ));
+    emit(
+      WakiliChatLoaded(
+        messages: [...currentMessages, userMessage],
+        isLoading: true,
+        error: null,
+        selectedCategory: selectedCategory,
+      ),
+    );
 
     try {
       final response = await _sendMessageUseCase(
-          messageWithContext); // Use context message for AI
+        messageWithContext,
+      ); // Use context message for AI
       final aiMessage = ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         content: response,
@@ -77,18 +80,23 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       );
 
       final newState = state as WakiliChatLoaded;
-      emit(newState.copyWith(
-        messages: [...newState.messages, aiMessage],
-        isLoading: false,
-      ));
+      emit(
+        newState.copyWith(
+          messages: [...newState.messages, aiMessage],
+          isLoading: false,
+        ),
+      );
     } catch (e) {
       final List<ChatMessage> newStateMessages = state is WakiliChatLoaded
           ? (state as WakiliChatLoaded).messages
           : <ChatMessage>[];
-      emit(WakiliChatErrorState(
+      emit(
+        WakiliChatErrorState(
           message: "Failed to get response: ${e.toString()}",
           messages: newStateMessages,
-          selectedCategory: selectedCategory));
+          selectedCategory: selectedCategory,
+        ),
+      );
     }
   }
 
@@ -122,12 +130,14 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     );
 
     // Add user message and set loading to true
-    emit(WakiliChatLoaded(
-      messages: [...currentMessages, userMessage],
-      isLoading: true,
-      error: null,
-      selectedCategory: selectedCategory,
-    ));
+    emit(
+      WakiliChatLoaded(
+        messages: [...currentMessages, userMessage],
+        isLoading: true,
+        error: null,
+        selectedCategory: selectedCategory,
+      ),
+    );
 
     try {
       String accumulatedResponse = '';
@@ -151,8 +161,9 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
                 isLoading: true,
                 selectedCategory: selectedCategory,
               );
-        final updatedMessages =
-            List<ChatMessage>.from(currentStateForStream.messages);
+        final updatedMessages = List<ChatMessage>.from(
+          currentStateForStream.messages,
+        );
 
         // Find and replace the placeholder AI message or add if it's the first chunk
         final existingIndex = updatedMessages.indexWhere(
@@ -166,10 +177,12 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
         }
 
         // Emit new state with partial response, still loading until stream completes
-        emit(currentStateForStream.copyWith(
-          messages: updatedMessages,
-          isLoading: true, // Still loading until stream finishes
-        ));
+        emit(
+          currentStateForStream.copyWith(
+            messages: updatedMessages,
+            isLoading: true, // Still loading until stream finishes
+          ),
+        );
       }
 
       // After stream completes, set isLoading to false.
@@ -185,10 +198,13 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       final newStateMessages = state is WakiliChatLoaded
           ? (state as WakiliChatLoaded).messages
           : currentMessages;
-      emit(WakiliChatErrorState(
+      emit(
+        WakiliChatErrorState(
           message: "Failed to get streaming response: ${e.toString()}",
           messages: newStateMessages,
-          selectedCategory: selectedCategory));
+          selectedCategory: selectedCategory,
+        ),
+      );
     }
   }
 
@@ -213,10 +229,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     } else if (state is WakiliChatErrorState) {
       selectedCategory = (state as WakiliChatErrorState).selectedCategory;
     }
-    emit(WakiliChatLoaded(
-      messages: [],
-      selectedCategory: selectedCategory,
-    ));
+    emit(WakiliChatLoaded(messages: [], selectedCategory: selectedCategory));
   }
 
   void _onSetCategoryContext(
@@ -228,16 +241,17 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       emit(currentState.copyWith(selectedCategory: event.category));
     } else if (state is WakiliChatErrorState) {
       final currentState = state as WakiliChatErrorState;
-      emit(WakiliChatLoaded(
-        messages: currentState.messages,
-        selectedCategory: event.category,
-      ));
+      emit(
+        WakiliChatLoaded(
+          messages: currentState.messages,
+          selectedCategory: event.category,
+        ),
+      );
     } else {
       // If in initial state, transition to loaded with empty messages but selected category
-      emit(WakiliChatLoaded(
-        messages: const [],
-        selectedCategory: event.category,
-      ));
+      emit(
+        WakiliChatLoaded(messages: const [], selectedCategory: event.category),
+      );
     }
   }
 
@@ -250,30 +264,37 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       emit(currentState.copyWith(selectedCategory: null));
     } else if (state is WakiliChatErrorState) {
       final currentState = state as WakiliChatErrorState;
-      emit(WakiliChatLoaded(
-        messages: currentState.messages,
-        selectedCategory: null,
-      ));
+      emit(
+        WakiliChatLoaded(
+          messages: currentState.messages,
+          selectedCategory: null,
+        ),
+      );
     }
   }
 
   void _onLoadExistingChat(LoadExistingChat event, Emitter<WakiliState> emit) {
-    emit(WakiliChatLoaded(
-      messages: event.messages,
-      isLoading: false,
-      error: null,
-      selectedCategory: null,
-    ));
+    emit(
+      WakiliChatLoaded(
+        messages: event.messages,
+        isLoading: false,
+        error: null,
+        selectedCategory: null,
+      ),
+    );
   }
 
   void _onLoadExistingChatWithCategory(
-      LoadExistingChatWithCategory event, Emitter<WakiliState> emit) {
-    emit(WakiliChatLoaded(
-      messages: event.messages,
-      isLoading: false,
-      error: null,
-      selectedCategory: event.category,
-    ));
+    LoadExistingChatWithCategory event,
+    Emitter<WakiliState> emit,
+  ) {
+    emit(
+      WakiliChatLoaded(
+        messages: event.messages,
+        isLoading: false,
+        error: null,
+        selectedCategory: event.category,
+      ),
+    );
   }
-
 }

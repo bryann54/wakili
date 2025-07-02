@@ -66,10 +66,12 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
       emit(ChatHistoryLoaded(conversations: conversations));
     } catch (e) {
       if (state is ChatHistoryLoaded) {
-        emit(ChatHistoryError(
-          message: 'Failed to save conversation: $e',
-          conversations: (state as ChatHistoryLoaded).conversations,
-        ));
+        emit(
+          ChatHistoryError(
+            message: 'Failed to save conversation: $e',
+            conversations: (state as ChatHistoryLoaded).conversations,
+          ),
+        );
       } else {
         emit(ChatHistoryError(message: 'Failed to save conversation: $e'));
       }
@@ -84,7 +86,8 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
     final currentState = state;
     if (currentState is ChatHistoryLoaded) {
       final updatedConversations = List<ChatConversation>.from(
-          currentState.conversations.where((conv) => conv.id != event.id));
+        currentState.conversations.where((conv) => conv.id != event.id),
+      );
       emit(ChatHistoryLoaded(conversations: updatedConversations));
     }
 
@@ -92,11 +95,14 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
       await _deleteChatConversationUseCase(event.id);
       // If the deletion fails, reload to revert the optimistic update
     } catch (e) {
-      emit(ChatHistoryError(
-        message: 'Failed to delete conversation: $e',
-        conversations:
-            currentState is ChatHistoryLoaded ? currentState.conversations : [],
-      ));
+      emit(
+        ChatHistoryError(
+          message: 'Failed to delete conversation: $e',
+          conversations: currentState is ChatHistoryLoaded
+              ? currentState.conversations
+              : [],
+        ),
+      );
       // Re-fetch to ensure state consistency if optimistic update failed
       add(LoadChatHistory());
     }

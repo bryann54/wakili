@@ -6,11 +6,7 @@ class CategoryCard extends StatelessWidget {
   final LegalCategory category;
   final VoidCallback onTap;
 
-  const CategoryCard({
-    super.key,
-    required this.category,
-    required this.onTap,
-  });
+  const CategoryCard({super.key, required this.category, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +39,11 @@ class CategoryCard extends StatelessWidget {
                       return Container(
                         color: Theme.of(context).colorScheme.surfaceContainer,
                         child: Center(
-                          child: Icon(Icons.broken_image,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant),
+                          child: Icon(
+                            Icons.broken_image,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       );
                     },
@@ -64,16 +61,18 @@ class CategoryCard extends StatelessWidget {
                           isDarkMode
                               ? Colors.black.withOpacity(0.2)
                               : Colors.black.withOpacity(
-                                  0.05), // Reduced dark mode top opacity
+                                  0.05,
+                                ), // Reduced dark mode top opacity
                           // Middle color: Category color with controlled opacity
-                          category.color.withOpacity(isDarkMode
-                              ? 0.5
-                              : 0.3), // Slightly reduced dark mode middle opacity
+                          category.color.withOpacity(
+                            isDarkMode ? 0.5 : 0.3,
+                          ), // Slightly reduced dark mode middle opacity
                           // Bottom color: Still provides good contrast, but slightly less opaque for dark mode
                           isDarkMode
                               ? Colors.black.withOpacity(0.7)
                               : Colors.black.withOpacity(
-                                  0.6), // Reduced dark mode bottom opacity slightly
+                                  0.6,
+                                ), // Reduced dark mode bottom opacity slightly
                         ],
                         stops: const [0.0, 0.6, 1.0],
                       ),

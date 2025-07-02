@@ -41,7 +41,8 @@ class GeminiWakiliChatRemoteDataSource implements WakiliChatRemoteDataSource {
       }
     } catch (e) {
       throw Exception(
-          'Failed to get streaming response from Wakili: ${e.toString()}');
+        'Failed to get streaming response from Wakili: ${e.toString()}',
+      );
     }
   }
 }

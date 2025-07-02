@@ -1,4 +1,3 @@
-
 import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
 
 abstract class ChatHistoryRepository {

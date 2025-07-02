@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:wakili/features/chat_history/data/datasources/chat_history_datasource.dart';
 import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
 import 'package:wakili/features/chat_history/domain/repositories/chat_history_repository.dart';
+
 @LazySingleton(as: ChatHistoryRepository)
 class ChatHistoryRepositoryImpl implements ChatHistoryRepository {
   final ChatHistoryLocalDataSource _localDataSource;

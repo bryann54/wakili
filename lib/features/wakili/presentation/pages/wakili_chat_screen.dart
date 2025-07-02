@@ -107,11 +107,15 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
   List<LegalCategory> get _filteredCategories {
     if (_searchQuery.isEmpty) return _legalCategories;
     return _legalCategories
-        .where((category) =>
-            category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            category.description
-                .toLowerCase()
-                .contains(_searchQuery.toLowerCase()))
+        .where(
+          (category) =>
+              category.title.toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ) ||
+              category.description.toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ),
+        )
         .toList();
   }
 
@@ -153,7 +157,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                     CircleAvatar(
+                    CircleAvatar(
                       radius: 18,
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       child: CircleAvatar(
@@ -204,9 +208,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
         Navigator.of(context).pop();
-        AutoRouter.of(context).push(
-          GeneralChatRoute(initialMessage: message),
-        );
+        AutoRouter.of(context).push(GeneralChatRoute(initialMessage: message));
       }
     } catch (e) {
       if (mounted) {
@@ -279,14 +281,13 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
             ),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.3),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.3),
                 blurRadius: 12,
                 spreadRadius: 1,
                 offset: const Offset(0, 4),
-              )
+              ),
             ],
           ),
           child: Row(
@@ -294,7 +295,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
             children: [
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
-                child:    CircleAvatar(
+                child: CircleAvatar(
                   radius: 18,
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   child: CircleAvatar(

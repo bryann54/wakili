@@ -28,8 +28,10 @@ class ChatHistoryError extends ChatHistoryState {
   final String message;
   final List<ChatConversation> conversations; // Keep existing data if possible
 
-  const ChatHistoryError(
-      {required this.message, this.conversations = const []});
+  const ChatHistoryError({
+    required this.message,
+    this.conversations = const [],
+  });
 
   @override
   List<Object?> get props => [message, conversations];

@@ -1,7 +1,8 @@
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart'; // For generating unique IDs
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
-part 'chat_conversation.g.dart'; 
+part 'chat_conversation.g.dart';
+
 @HiveType(typeId: 0) // Unique type ID for this Hive object
 class ChatConversation extends HiveObject {
   @HiveField(0)

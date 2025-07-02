@@ -11,11 +11,7 @@ class ChatScreen extends StatefulWidget {
   final List<ChatMessage>? initialMessages; // New parameter
   final String? conversationId; // Optional: to identify existing conversation
 
-  const ChatScreen({
-    super.key,
-    this.initialMessages,
-    this.conversationId,
-  });
+  const ChatScreen({super.key, this.initialMessages, this.conversationId});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -92,9 +88,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Chip(
                     label: Text('Context: $selectedCategory Law'),
                     onDeleted: () {
-                      context
-                          .read<WakiliBloc>()
-                          .add(const ClearCategoryContextEvent());
+                      context.read<WakiliBloc>().add(
+                            const ClearCategoryContextEvent(),
+                          );
                     },
                   ),
                 ),
@@ -110,7 +106,9 @@ class _ChatScreenState extends State<ChatScreen> {
                           : Alignment.centerLeft,
                       child: Container(
                         margin: const EdgeInsets.symmetric(
-                            vertical: 4.0, horizontal: 8.0),
+                          vertical: 4.0,
+                          horizontal: 8.0,
+                        ),
                         padding: const EdgeInsets.all(12.0),
                         decoration: BoxDecoration(
                           color: message.isUser
@@ -121,8 +119,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Text(
                           message.content,
                           style: TextStyle(
-                              color:
-                                  message.isUser ? Colors.white : Colors.black),
+                            color: message.isUser ? Colors.white : Colors.black,
+                          ),
                         ),
                       ),
                     );
@@ -153,9 +151,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         onSubmitted: (text) {
                           if (text.isNotEmpty) {
-                            context
-                                .read<WakiliBloc>()
-                                .add(SendMessageEvent(text));
+                            context.read<WakiliBloc>().add(
+                                  SendMessageEvent(text),
+                                );
                             _messageController.clear();
                           }
                         },
@@ -165,9 +163,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     FloatingActionButton(
                       onPressed: () {
                         if (_messageController.text.isNotEmpty) {
-                          context
-                              .read<WakiliBloc>()
-                              .add(SendMessageEvent(_messageController.text));
+                          context.read<WakiliBloc>().add(
+                                SendMessageEvent(_messageController.text),
+                              );
                           _messageController.clear();
                         }
                       },
