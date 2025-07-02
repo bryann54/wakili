@@ -11,6 +11,8 @@ abstract class AuthRepository {
   Future<Either<Failure, UserEntity>> signUpWithEmailAndPassword(
     String email,
     String password,
+    String firstName,
+    String lastName,
   );
   Future<Either<Failure, UserEntity>> signInWithGoogle();
   Future<Either<Failure, void>> signOut();

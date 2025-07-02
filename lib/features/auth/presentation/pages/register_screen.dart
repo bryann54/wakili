@@ -420,8 +420,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       },
       validator: (value) {
         if (value?.isEmpty ?? true) return 'Password is required';
-        if ((value?.length ?? 0) < 6)
+        if ((value?.length ?? 0) < 6) {
           return 'Password must be at least 6 characters';
+        }
         return null;
       },
     );
@@ -467,6 +468,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       if (_formKey.currentState?.validate() ?? false) {
                         context.read<AuthBloc>().add(
                               AuthSignUpWithEmailAndPassword(
+                                firstName: _firstNameController.text.trim(),
+                                lastName: _lastNameController.text.trim(),
                                 email: _emailController.text.trim(),
                                 password: _passwordController.text.trim(),
                               ),

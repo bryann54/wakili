@@ -93,11 +93,7 @@ class MyApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate
         ],
-        supportedLocales: const [
-          Locale('en'),
-          Locale('es'),
-          Locale('fr'),
-        ],
+
         locale: localeProvider.locale,
         theme: ThemeData(
           primarySwatch: Colors.blue,

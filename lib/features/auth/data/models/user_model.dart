@@ -7,6 +7,8 @@ class UserModel extends UserEntity {
     super.email,
     super.displayName,
     super.photoUrl,
+    super.firstName,
+    super.lastName,
   });
 
   factory UserModel.fromFirebaseUser(auth.User user) {
@@ -15,6 +17,10 @@ class UserModel extends UserEntity {
       email: user.email,
       displayName: user.displayName,
       photoUrl: user.photoURL,
+      firstName: user.displayName?.split(' ').first ?? '',
+      lastName: user.displayName?.split(' ').length == 2
+          ? user.displayName?.split(' ').last
+          : '',
     );
   }
 }

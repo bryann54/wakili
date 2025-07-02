@@ -8,7 +8,8 @@ import 'package:injectable/injectable.dart';
 abstract class AuthRemoteDataSource {
   Stream<UserModel?> get authStateChanges;
   Future<UserModel> signInWithEmailAndPassword(String email, String password);
-  Future<UserModel> signUpWithEmailAndPassword(String email, String password);
+  Future<UserModel> signUpWithEmailAndPassword(
+      String email, String password, String firstName, String lastName);
   Future<UserModel> signInWithGoogle();
   Future<void> signOut();
   Future<void> resetPassword(String email);
@@ -60,6 +61,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel> signUpWithEmailAndPassword(
     String email,
     String password,
+    String firstName,
+    String lastName,
   ) async {
     try {
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
@@ -69,9 +72,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (userCredential.user == null) {
         throw ServerException();
       }
+      await userCredential.user!.updateDisplayName('$firstName $lastName');
       return UserModel.fromFirebaseUser(userCredential.user!);
     } on auth.FirebaseAuthException {
-      throw ServerException(); // Map Firebase errors to your exceptions
+      throw ServerException();
     } catch (e) {
       throw ServerException();
     }
@@ -112,7 +116,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> signOut() async {
     try {
       await _firebaseAuth.signOut();
-      await _googleSignIn.signOut(); // Sign out from Google too
+      await _googleSignIn.signOut();
     } catch (e) {
       throw ServerException();
     }

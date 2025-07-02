@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
-
 import 'package:wakili/features/auth/domain/entities/user_entity.dart';
 import 'package:wakili/features/auth/domain/usecases/auth_usecases.dart';
 
@@ -79,6 +78,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await signUpWithEmailAndPasswordUseCase(
       event.email,
       event.password,
+      event.firstName, // ADDED
+      event.lastName, // ADDED
     );
     result.fold(
       (failure) => emit(AuthError(message: failure.toString())),

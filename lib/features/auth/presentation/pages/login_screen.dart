@@ -187,8 +187,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         });
                       },
                       validator: (value) {
-                        if (value?.isEmpty ?? true)
+                        if (value?.isEmpty ?? true) {
                           return 'Password is required';
+                        }
                         return null;
                       },
                     )
@@ -499,7 +500,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _showResetPasswordDialog(BuildContext context) {
     // Implementation for password reset dialog (as it was already present)
     final TextEditingController resetEmailController = TextEditingController();
-    final _resetFormKey = GlobalKey<FormState>();
+    final resetFormKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
@@ -531,7 +532,7 @@ class _LoginScreenState extends State<LoginScreen> {
               style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
             ),
             content: Form(
-              key: _resetFormKey,
+              key: resetFormKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -575,7 +576,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: isLoading
                         ? null
                         : () {
-                            if (_resetFormKey.currentState?.validate() ??
+                            if (resetFormKey.currentState?.validate() ??
                                 false) {
                               context.read<AuthBloc>().add(AuthResetPassword(
                                   email: resetEmailController.text.trim()));

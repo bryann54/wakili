@@ -27,8 +27,11 @@ class SignUpWithEmailAndPasswordUseCase {
   Future<Either<Failure, UserEntity>> call(
     String email,
     String password,
+    String firstName,
+    String lastName,
   ) async {
-    return await repository.signUpWithEmailAndPassword(email, password);
+    return await repository.signUpWithEmailAndPassword(
+        email, password, firstName, lastName);
   }
 }
 
