@@ -2,6 +2,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
 import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
 
@@ -21,14 +22,18 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _backgroundFadeAnimation;
   late Animation<double> _titleSlideAnimation;
   late Animation<double> _subtitleSlideAnimation;
-  bool _authCheckComplete = false;
-  bool _animationComplete = false;
+
+  bool _authCheckCompleted = false;
+  bool _animationCompleted = false;
 
   @override
   void initState() {
     super.initState();
     _setupAnimations();
-    _checkAuth();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthBloc>().add(AuthCheckStatus());
+    });
   }
 
   void _setupAnimations() {
@@ -37,7 +42,6 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 2500),
     );
 
-    // Logo scale animation
     _logoScaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -45,7 +49,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Fade animation for logo and text
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -53,7 +56,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Background fade animation
     _backgroundFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -61,7 +63,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Text slide animations
     _titleSlideAnimation = Tween<double>(begin: 50.0, end: 0.0).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -78,22 +79,30 @@ class _SplashScreenState extends State<SplashScreen>
 
     _animationController.forward().then((_) {
       setState(() {
-        _animationComplete = true;
+        _animationCompleted = true;
       });
-      _navigateBasedOnAuth();
+      _tryNavigate();
     });
   }
 
-  Future<void> _checkAuth() async {
-    // Dispatch AuthCheckStatus when the splash screen initializes
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuthBloc>().add(AuthCheckStatus());
-    });
-  }
+  void _tryNavigate() {
+    if (!mounted) return;
 
-  void _navigateBasedOnAuth() {
-    if (_authCheckComplete && _animationComplete) {
-      // Navigation is handled by BlocListener
+    if (_authCheckCompleted && _animationCompleted) {
+      final currentAuthState = context.read<AuthBloc>().state;
+
+      if (currentAuthState is AuthAuthenticated) {
+        context.router.replace(const MainRoute());
+      } else if (currentAuthState is AuthUnauthenticated) {
+        context.router.replace(const LoginRoute());
+      } else if (currentAuthState is AuthError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Authentication Error: ${currentAuthState.message}')),
+        );
+        context.router.replace(const LoginRoute());
+      }
     }
   }
 
@@ -105,25 +114,17 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AuthAuthenticated) {
-          // User is authenticated, navigate to the main app (MainRoute)
-          context.router.replace(const MainRoute());
-        } else if (state is AuthUnauthenticated) {
-          // User is not authenticated, navigate to the login screen
-          context.router.replace(const LoginRoute());
-        } else if (state is AuthError) {
-          // Handle error, e.g., show a snackbar or navigate to an error screen
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Authentication Error: ${state.message}')),
-          );
-          context.router.replace(const LoginRoute());
-        }
+        // Mark auth check as complete whenever an auth state is received
+        // This ensures _authCheckCompleted is true regardless of success/failure
         setState(() {
-          _authCheckComplete = true;
+          _authCheckCompleted = true;
         });
-        _navigateBasedOnAuth();
+        // Immediately try to navigate, which will check _animationCompleted
+        _tryNavigate();
       },
       child: Scaffold(
         body: AnimatedBuilder(
@@ -136,11 +137,11 @@ class _SplashScreenState extends State<SplashScreen>
                 Opacity(
                   opacity: _backgroundFadeAnimation.value,
                   child: Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Colors.blue,
-                          Color(0xFF1E3A8A), // Darker shade for depth
+                          theme.primaryColor,
+                          const Color(0xFF1E3A8A),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -161,7 +162,10 @@ class _SplashScreenState extends State<SplashScreen>
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
-                          colors: [Colors.white, Colors.white.withOpacity(0)],
+                          colors: [
+                            theme.colorScheme.surface,
+                            theme.dividerColor.withOpacity(0)
+                          ],
                           stops: const [0.1, 1.0],
                         ),
                       ),
@@ -179,7 +183,10 @@ class _SplashScreenState extends State<SplashScreen>
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
-                          colors: [Colors.white, Colors.white.withOpacity(0)],
+                          colors: [
+                            theme.colorScheme.surface,
+                            theme.dividerColor.withOpacity(0)
+                          ],
                           stops: const [0.1, 1.0],
                         ),
                       ),
@@ -203,7 +210,9 @@ class _SplashScreenState extends State<SplashScreen>
                               width: 150,
                               height: 150,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: Colors.white.withValues(
+                                  alpha: 0.2 * _fadeAnimation.value,
+                                ),
                                 borderRadius: BorderRadius.circular(30),
                                 boxShadow: [
                                   BoxShadow(
@@ -251,7 +260,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
 
                 // Loading Indicator
-                if (!_authCheckComplete)
+                if (!_authCheckCompleted) // Show only while auth check is pending
                   Positioned(
                     bottom: 50,
                     left: 0,
@@ -289,7 +298,7 @@ class _SplashScreenState extends State<SplashScreen>
       child: Text(
         text,
         textAlign: TextAlign.center,
-        style: const TextStyle(
+        style: GoogleFonts.poppins(
           fontSize: 36,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.5,
@@ -304,7 +313,7 @@ class _SplashScreenState extends State<SplashScreen>
     return Text(
       text,
       textAlign: TextAlign.center,
-      style: TextStyle(
+      style: GoogleFonts.poppins(
         fontSize: 16,
         fontWeight: FontWeight.w400,
         letterSpacing: 0.5,
