@@ -9,6 +9,7 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState> {
   OverviewBloc() : super(OverviewInitial()) {
     on<LoadLegalDocuments>(_onLoadLegalDocuments);
     on<RefreshDocuments>(_onRefreshDocuments);
+    on<RequestDocumentExplanation>(_onRequestDocumentExplanation);
   }
 
   Future<void> _onLoadLegalDocuments(
@@ -61,6 +62,15 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState> {
       add(const LoadLegalDocuments());
     }
   }
+
+  void _onRequestDocumentExplanation(
+      RequestDocumentExplanation event, Emitter<OverviewState> emit) {
+    emit(ExplanationRequested(
+      documentId: event.documentId,
+      documentTitle: event.documentTitle,
+    ));
+  }
+
 
   List<LegalDocument> _getMockDocuments() {
     return [

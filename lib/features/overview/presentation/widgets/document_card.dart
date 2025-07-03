@@ -1,174 +1,170 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../../domain/entities/legal_document.dart';
+import 'package:wakili/features/overview/domain/entities/legal_document.dart';
 
-class DocumentCard extends StatelessWidget {
+class DocumentCard extends StatefulWidget {
   final LegalDocument document;
-  final VoidCallback onTap;
+  final VoidCallback onView;
+  final VoidCallback onExplain;
 
   const DocumentCard({
     super.key,
     required this.document,
-    required this.onTap,
+    required this.onView,
+    required this.onExplain,
   });
 
   @override
+  State<DocumentCard> createState() => _DocumentCardState();
+}
+
+class _DocumentCardState extends State<DocumentCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _rotateAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat();
+
+    _rotateAnimation = Tween<double>(begin: 0, end: 2 * 3.14159).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: onTap,
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: colors.outlineVariant.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: widget.onView,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header with type and status
+              // Header with type badge
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _getTypeColor(document.type).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: _getTypeColor(document.type).withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      document.type.name.toUpperCase(),
-                      style: GoogleFonts.poppins(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: _getTypeColor(document.type),
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(document.status).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      document.status,
-                      style: GoogleFonts.poppins(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: _getStatusColor(document.status),
-                      ),
-                    ),
+                  _buildTypeBadge(context),
+                  Icon(
+                    Icons.chevron_right,
+                    color: colors.onSurfaceVariant,
+                    size: 20,
                   ),
                 ],
               ),
-
               const SizedBox(height: 12),
 
-              // Title
+              // Document Title
               Text(
-                document.title,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
+                widget.document.title,
+                style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
-                  height: 1.3,
+                  color: colors.onSurface,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-
               const SizedBox(height: 8),
 
               // Summary
               Text(
-                document.summary,
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                widget.document.summary,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colors.onSurfaceVariant,
                   height: 1.4,
                 ),
-                maxLines: 3,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
+              const SizedBox(height: 16),
 
-              const SizedBox(height: 12),
-
-              // Footer with date and sponsor
+              // Action buttons
               Row(
                 children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: 14,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    _formatDate(document.datePublished),
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  OutlinedButton(
+                    onPressed: widget.onView,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(0, 36),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.visibility_outlined, size: 16),
+                        SizedBox(width: 6),
+                        Text('View'),
+                      ],
                     ),
                   ),
-                  const Spacer(),
-                  Icon(
-                    Icons.account_balance,
-                    size: 14,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 4),
-                  Flexible(
-                    child: Text(
-                      document.sponsor,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: widget.onExplain,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(0, 36),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      overflow: TextOverflow.ellipsis,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircleAvatar(
+                          radius: 12,
+                          backgroundColor: colors.primary,
+                          child: const CircleAvatar(
+                            radius: 10,
+                            backgroundImage: AssetImage('assets/wak.png'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        AnimatedBuilder(
+                          animation: _rotateAnimation,
+                          builder: (context, child) {
+                            return Transform.rotate(
+                              angle: _rotateAnimation.value,
+                              child: const Icon(
+                                Icons.auto_awesome,
+                                size: 16,
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        const Text('Explain'),
+                      ],
                     ),
                   ),
                 ],
               ),
-
-              // Tags (if any)
-              if (document.tags.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  children: document.tags
-                      .take(3)
-                      .map((tag) => Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer
-                                  .withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              tag,
-                              style: GoogleFonts.poppins(
-                                fontSize: 10,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onPrimaryContainer,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                ),
-              ],
             ],
           ),
         ),
@@ -176,12 +172,37 @@ class DocumentCard extends StatelessWidget {
     );
   }
 
-  Color _getTypeColor(DocumentType type) {
-    switch (type) {
-      case DocumentType.bill:
-        return Colors.blue;
+  Widget _buildTypeBadge(BuildContext context) {
+    final theme = Theme.of(context);
+    final typeColor = _getTypeColor();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: typeColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: typeColor.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        widget.document.type.name.toUpperCase(),
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: typeColor,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Color _getTypeColor() {
+    switch (widget.document.type) {
       case DocumentType.act:
         return Colors.green;
+      case DocumentType.bill:
+        return Colors.blue;
       case DocumentType.law:
         return Colors.purple;
       case DocumentType.amendment:
@@ -189,24 +210,5 @@ class DocumentCard extends StatelessWidget {
       case DocumentType.regulation:
         return Colors.teal;
     }
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'enacted':
-        return Colors.green;
-      case 'under review':
-        return Colors.orange;
-      case 'pending':
-        return Colors.blue;
-      case 'rejected':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 }
