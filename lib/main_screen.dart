@@ -29,8 +29,8 @@ class MainScreen extends StatelessWidget {
         lazyLoad: false,
         homeIndex: 1,
         routes: const [
-          OverviewRoute(),
           WakiliChatRoute(),
+          OverviewRoute(),
           ChatHistoryRoute(),
           AccountRoute(),
         ],
@@ -39,7 +39,7 @@ class MainScreen extends StatelessWidget {
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 10,
                   spreadRadius: 2,
                   offset: const Offset(0, -2),
@@ -56,25 +56,25 @@ class MainScreen extends StatelessWidget {
                 items: <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
                     icon: _BottomNavIcon(
-                      icon: FontAwesomeIcons.landmark,
-                      isActive: tabsRouter.activeIndex == 0,
-                    ),
-                    activeIcon: _BottomNavIcon(
-                      icon: FontAwesomeIcons.landmark,
-                      isActive: true,
-                    ),
-                    label: AppLocalizations.getString(context, 'Bills'),
-                  ),
-                  BottomNavigationBarItem(
-                    icon: _BottomNavIcon(
                       icon: FontAwesomeIcons.comments,
-                      isActive: tabsRouter.activeIndex == 1,
+                      isActive: tabsRouter.activeIndex == 0,
                     ),
                     activeIcon: _BottomNavIcon(
                       icon: FontAwesomeIcons.solidComments,
                       isActive: true,
                     ),
                     label: AppLocalizations.getString(context, 'wakiliChat'),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: _BottomNavIcon(
+                      icon: FontAwesomeIcons.landmark,
+                      isActive: tabsRouter.activeIndex == 1,
+                    ),
+                    activeIcon: _BottomNavIcon(
+                      icon: FontAwesomeIcons.landmark,
+                      isActive: true,
+                    ),
+                    label: AppLocalizations.getString(context, 'Bills'),
                   ),
                   BottomNavigationBarItem(
                     icon: _BottomNavIcon(

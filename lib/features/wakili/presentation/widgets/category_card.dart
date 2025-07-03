@@ -59,19 +59,19 @@ class CategoryCard extends StatelessWidget {
                         colors: [
                           // Top color: Even more subtle in light mode, less opaque in dark mode
                           isDarkMode
-                              ? Colors.black.withOpacity(0.2)
-                              : Colors.black.withOpacity(
-                                  0.05,
+                              ? Colors.black.withValues(alpha: 0.2)
+                              : Colors.black.withValues(
+                                  alpha: 0.05,
                                 ), // Reduced dark mode top opacity
                           // Middle color: Category color with controlled opacity
-                          category.color.withOpacity(
-                            isDarkMode ? 0.5 : 0.3,
+                          category.color.withValues(
+                            alpha: isDarkMode ? 0.5 : 0.3,
                           ), // Slightly reduced dark mode middle opacity
                           // Bottom color: Still provides good contrast, but slightly less opaque for dark mode
                           isDarkMode
-                              ? Colors.black.withOpacity(0.7)
-                              : Colors.black.withOpacity(
-                                  0.6,
+                              ? Colors.black.withValues(alpha: 0.7)
+                              : Colors.black.withValues(
+                                  alpha: 0.6,
                                 ), // Reduced dark mode bottom opacity slightly
                         ],
                         stops: const [0.0, 0.6, 1.0],
@@ -104,7 +104,7 @@ class CategoryCard extends StatelessWidget {
                           shadows: [
                             Shadow(
                               blurRadius: 4.0,
-                              color: Colors.black.withOpacity(0.5),
+                              color: Colors.black.withValues(alpha: 0.5),
                               offset: const Offset(1.0, 1.0),
                             ),
                           ],

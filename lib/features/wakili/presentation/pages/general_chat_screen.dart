@@ -192,8 +192,8 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
           ),
           Container(
             color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.black.withOpacity(0.6)
-                : Colors.black.withOpacity(0.3),
+                ? Colors.black.withValues(alpha: 0.6)
+                : Colors.black.withValues(alpha: 0.3),
           ),
         ],
       ),
@@ -209,15 +209,18 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             Icon(
               Icons.chat_bubble_outline,
               size: 64,
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.7),
+              color:
+                  Theme.of(context).colorScheme.outline.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 16),
             Text(
               'Start your conversation with Wakili',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color:
-                        Theme.of(context).colorScheme.outline.withOpacity(0.8),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline
+                        .withValues(alpha: 0.8),
                   ),
             ),
           ],
@@ -250,10 +253,10 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
         ),
         decoration: BoxDecoration(
           color: message.isUser
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.9)
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.9)
               : Theme.of(
                   context,
-                ).colorScheme.surfaceContainerHighest.withOpacity(0.9),
+                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(16).copyWith(
             bottomRight: message.isUser ? const Radius.circular(4) : null,
             bottomLeft: !message.isUser ? const Radius.circular(4) : null,
@@ -282,7 +285,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             decoration: BoxDecoration(
               color: Theme.of(
                 context,
-              ).colorScheme.surfaceContainerHighest.withOpacity(0.9),
+              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(

@@ -112,7 +112,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.message),
-                  backgroundColor: Colors.red.withOpacity(0.9),
+                  backgroundColor: Colors.red.withValues(alpha: 0.9),
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -184,7 +184,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           .textTheme
                           .bodyMedium
                           ?.color
-                          ?.withOpacity(0.7),
+                          ?.withValues(alpha: 0.7),
                     ),
                   )
                       .animate(delay: 200.ms)
@@ -256,8 +256,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Expanded(
                           child: Divider(
                             thickness: 1,
-                            color:
-                                Theme.of(context).dividerColor.withOpacity(0.3),
+                            color: Theme.of(context)
+                                .dividerColor
+                                .withValues(alpha: 0.3),
                             endIndent: 12,
                           ),
                         ),
@@ -269,14 +270,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 .textTheme
                                 .bodyMedium
                                 ?.color
-                                ?.withOpacity(0.7),
+                                ?.withValues(alpha: 0.7),
                           ),
                         ).animate(delay: 800.ms).fadeIn(duration: 600.ms),
                         Expanded(
                           child: Divider(
                             thickness: 1,
-                            color:
-                                Theme.of(context).dividerColor.withOpacity(0.3),
+                            color: Theme.of(context)
+                                .dividerColor
+                                .withValues(alpha: 0.3),
                             indent: 12,
                           ),
                         ),
@@ -314,7 +316,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).dividerColor.withOpacity(0.2),
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
         ),
       ),
       child: TextFormField(
@@ -530,7 +532,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               side: BorderSide(
-                color: Theme.of(context).dividerColor.withOpacity(0.3),
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
               ),
               backgroundColor: Theme.of(context)
                   .colorScheme
@@ -576,7 +578,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     .textTheme
                     .bodyLarge
                     ?.color
-                    ?.withOpacity(0.7),
+                    ?.withValues(alpha: 0.7),
               ),
             ),
             Hero(

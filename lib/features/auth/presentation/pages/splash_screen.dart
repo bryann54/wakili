@@ -17,11 +17,8 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<double> _logoScaleAnimation;
   late Animation<double> _fadeAnimation;
-  late Animation<double> _backgroundFadeAnimation;
-  late Animation<double> _titleSlideAnimation;
-  late Animation<double> _subtitleSlideAnimation;
+  late Animation<double> _slideAnimation;
 
   bool _authCheckCompleted = false;
   bool _animationCompleted = false;
@@ -39,41 +36,20 @@ class _SplashScreenState extends State<SplashScreen>
   void _setupAnimations() {
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2500),
-    );
-
-    _logoScaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.2, 0.6, curve: Curves.easeOutBack),
-      ),
+      duration: const Duration(milliseconds: 1800),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeIn),
+        curve: const Interval(0.0, 0.7, curve: Curves.easeOut),
       ),
     );
 
-    _backgroundFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _slideAnimation = Tween<double>(begin: 30.0, end: 0.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.0, 0.3, curve: Curves.easeIn),
-      ),
-    );
-
-    _titleSlideAnimation = Tween<double>(begin: 50.0, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.4, 0.8, curve: Curves.easeOutCubic),
-      ),
-    );
-
-    _subtitleSlideAnimation = Tween<double>(begin: 30.0, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.5, 0.9, curve: Curves.easeOutCubic),
+        curve: const Interval(0.3, 1.0, curve: Curves.easeOutCubic),
       ),
     );
 
@@ -114,16 +90,13 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        // Mark auth check as complete whenever an auth state is received
-        // This ensures _authCheckCompleted is true regardless of success/failure
         setState(() {
           _authCheckCompleted = true;
         });
-        // Immediately try to navigate, which will check _animationCompleted
         _tryNavigate();
       },
       child: Scaffold(
@@ -131,148 +104,168 @@ class _SplashScreenState extends State<SplashScreen>
           animation: _animationController,
           builder: (context, child) {
             return Stack(
-              fit: StackFit.expand,
               children: [
-                // Gradient background
-                Opacity(
-                  opacity: _backgroundFadeAnimation.value,
+                // Split screen background
+                Row(
+                  children: [
+                    // Left half - Dark
+                    Expanded(
+                      child: Container(
+                        color:
+                            isDark ? Colors.grey[900] : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    // Right half - Light
+                    Expanded(
+                      child: Container(
+                        color: isDark ? Colors.grey[100] : Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Center vertical divider (subtle)
+                Positioned(
+                  left: MediaQuery.of(context).size.width / 2 - 0.5,
+                  top: 0,
+                  bottom: 0,
                   child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          theme.primaryColor,
-                          const Color(0xFF1E3A8A),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
+                    width: 1,
+                    color: Colors.grey.withOpacity(0.2),
                   ),
                 ),
 
-                // Animated circular patterns for visual interest
-                Positioned(
-                  top: -50,
-                  right: -100,
-                  child: Opacity(
-                    opacity: 0.15 * _backgroundFadeAnimation.value,
-                    child: Container(
-                      width: 300,
-                      height: 300,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            theme.colorScheme.surface,
-                            theme.dividerColor.withOpacity(0)
-                          ],
-                          stops: const [0.1, 1.0],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: -80,
-                  left: -50,
-                  child: Opacity(
-                    opacity: 0.1 * _backgroundFadeAnimation.value,
-                    child: Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            theme.colorScheme.surface,
-                            theme.dividerColor.withOpacity(0)
-                          ],
-                          stops: const [0.1, 1.0],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Main Content
+                // Main content
                 Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Logo container with Wakili logo
-                      FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: ScaleTransition(
-                          scale: _logoScaleAnimation,
-                          child: Hero(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Transform.translate(
+                      offset: Offset(0, _slideAnimation.value),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Logo with dual-colored border
+                          Hero(
                             tag: 'app_logo',
                             child: Container(
-                              width: 150,
-                              height: 150,
+                              width: 120,
+                              height: 120,
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(
-                                  alpha: 0.2 * _fadeAnimation.value,
-                                ),
-                                borderRadius: BorderRadius.circular(30),
+                                borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    blurRadius: 30,
-                                    offset: const Offset(0, 15),
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 10),
                                   ),
                                 ],
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.white.withOpacity(
+                                        0.3), // Light border on dark side
+                                    const Color(0xFF1A1A1A).withOpacity(
+                                        0.3), // Dark border on light side
+                                  ],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  stops: const [0.5, 0.5],
+                                ),
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(30),
-                                child: Image.asset(
-                                  'assets/wak.png',
-                                  fit: BoxFit.cover,
+                              padding:
+                                  const EdgeInsets.all(3), // Border thickness
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(17),
+                                  color: Colors.white,
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(17),
+                                  child: Image.asset(
+                                    'assets/wak.png',
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
+
+                          const SizedBox(height: 32),
+
+                          // App name with dual colors for split visibility
+                          ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [
+                                Colors.white, // 'Wak' on dark side - white
+                                const Color(
+                                    0xFF1A1A1A), // 'ili' on light side - dark
+                              ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              stops: const [
+                                0.5,
+                                0.5
+                              ], // Sharp transition at center
+                            ).createShader(bounds),
+                            child: Text(
+                              'Wakili',
+                              style: GoogleFonts.poppins(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.5,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          // Tagline with dual colors
+                          ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [
+                                Colors
+                                    .white70, // 'Legal AI' on dark side - light
+                                Colors.grey[
+                                    600]!, // 'Assistant' on light side - dark
+                              ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              stops: const [
+                                0.55,
+                                0.55
+                              ], // Adjusted for 'Legal AI' portion
+                            ).createShader(bounds),
+                            child: Text(
+                              'Legal AI Assistant',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: 0.5,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-
-                      const SizedBox(height: 40),
-
-                      // Title with animation
-                      Transform.translate(
-                        offset: Offset(0, _titleSlideAnimation.value),
-                        child: Opacity(
-                          opacity: _fadeAnimation.value,
-                          child: _buildTitle('Wakili'),
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Subtitle with animation
-                      Transform.translate(
-                        offset: Offset(0, _subtitleSlideAnimation.value),
-                        child: Opacity(
-                          opacity: _fadeAnimation.value,
-                          child: _buildSubtitle('Your Legal Assistant'),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
 
-                // Loading Indicator
-                if (!_authCheckCompleted) // Show only while auth check is pending
+                // Minimal loading indicator
+                if (!_authCheckCompleted)
                   Positioned(
-                    bottom: 50,
+                    bottom: 60,
                     left: 0,
                     right: 0,
                     child: Center(
                       child: SizedBox(
-                        width: 40,
-                        height: 40,
+                        width: 24,
+                        height: 24,
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white.withOpacity(0.7)),
                           strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            isDark ? Colors.white54 : Colors.grey[400]!,
+                          ),
                         ),
                       ),
                     ),
@@ -281,44 +274,6 @@ class _SplashScreenState extends State<SplashScreen>
             );
           },
         ),
-      ),
-    );
-  }
-
-  Widget _buildTitle(String text) {
-    return ShaderMask(
-      shaderCallback: (bounds) => const LinearGradient(
-        colors: [
-          Colors.white,
-          Color(0xFFE0F2FE),
-        ],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(bounds),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: GoogleFonts.poppins(
-          fontSize: 36,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.5,
-          height: 1.1,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubtitle(String text) {
-    return Text(
-      text,
-      textAlign: TextAlign.center,
-      style: GoogleFonts.poppins(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        letterSpacing: 0.5,
-        height: 1.5,
-        color: Colors.white.withOpacity(0.85),
       ),
     );
   }

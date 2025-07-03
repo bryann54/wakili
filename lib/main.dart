@@ -86,14 +86,13 @@ class MyApp extends StatelessWidget {
       child: MaterialApp.router(
         debugShowCheckedModeBanner: !kReleaseMode,
         title: AppLocalizations.getString(context, 'appName'),
-        routerConfig: _appRouter.config(), 
+        routerConfig: _appRouter.config(),
         localizationsDelegates: [
           AppLocalizations.delegate(),
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate
         ],
-
         locale: localeProvider.locale,
         theme: ThemeData(
           primarySwatch: Colors.blue,
