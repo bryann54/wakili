@@ -1,0 +1,2 @@
+/Users/user/Desktop/flutter/wakili/android/app/.cxx/RelWithDebInfo/3au6if1l/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/user/Desktop/flutter/wakili/android/app/.cxx/RelWithDebInfo/3au6if1l/arm64-v8a/CMakeFiles/rebuild_cache.dir

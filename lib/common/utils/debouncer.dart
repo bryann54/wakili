@@ -11,7 +11,9 @@ class Debouncer {
     if (_timer?.isActive ?? false) {
       _timer?.cancel();
     }
-    _timer =
-        Timer(Duration(milliseconds: timeout ?? milliseconds ?? 1000), action);
+    _timer = Timer(
+      Duration(milliseconds: timeout ?? milliseconds ?? 1000),
+      action,
+    );
   }
 }

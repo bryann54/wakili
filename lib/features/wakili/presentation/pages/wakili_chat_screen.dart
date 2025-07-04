@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
@@ -9,7 +10,6 @@ import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dar
 import 'package:wakili/features/wakili/presentation/widgets/wakili_welcome_header.dart';
 import 'package:wakili/features/wakili/presentation/widgets/wakili_search_bar.dart';
 import 'package:wakili/features/wakili/presentation/widgets/category_grid_view.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 @RoutePage()
 class WakiliChatScreen extends StatefulWidget {
@@ -108,11 +108,15 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
   List<LegalCategory> get _filteredCategories {
     if (_searchQuery.isEmpty) return _legalCategories;
     return _legalCategories
-        .where((category) =>
-            category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            category.description
-                .toLowerCase()
-                .contains(_searchQuery.toLowerCase()))
+        .where(
+          (category) =>
+              category.title.toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ) ||
+              category.description.toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ),
+        )
         .toList();
   }
 
@@ -154,9 +158,13 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    Icon(
-                      FontAwesomeIcons.commentDots,
-                      color: Theme.of(context).colorScheme.primary,
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      child: CircleAvatar(
+                        radius: 18,
+                        backgroundImage: AssetImage('assets/dp.png'),
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -201,9 +209,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
         Navigator.of(context).pop();
-        AutoRouter.of(context).push(
-          GeneralChatRoute(initialMessage: message),
-        );
+        AutoRouter.of(context).push(GeneralChatRoute(initialMessage: message));
       }
     } catch (e) {
       if (mounted) {
@@ -243,7 +249,8 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                     _searchQuery = value;
                   });
                 },
-              ),
+                ).animate().slideX(begin: 1, end: 0, curve: Curves.easeOut)
+                .fadeIn(duration: 500.ms, delay: 500.ms),
               const SizedBox(height: 16),
               Expanded(
                 child: Padding(
@@ -276,14 +283,13 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
             ),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.3),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.3),
                 blurRadius: 12,
                 spreadRadius: 1,
                 offset: const Offset(0, 4),
-              )
+              ),
             ],
           ),
           child: Row(
@@ -291,10 +297,13 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
             children: [
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
-                child: const Icon(
-                  FontAwesomeIcons.commentDots,
-                  size: 20,
-                  color: Colors.white,
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundImage: AssetImage('assets/dp.png'),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),

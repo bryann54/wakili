@@ -10,9 +10,12 @@ class DioLogInterceptors extends Interceptor {
 
   @override
   void onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     debugPrint(
-        "--> ${options.method.toUpperCase()} ${"${options.baseUrl}${options.path}"}");
+      "--> ${options.method.toUpperCase()} ${"${options.baseUrl}${options.path}"}",
+    );
     debugPrint("Headers:");
     options.headers.forEach((k, v) => debugPrint('$k: $v'));
     debugPrint("queryParameters:");
@@ -27,7 +30,8 @@ class DioLogInterceptors extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     debugPrint(
-        "<-- ${response.statusCode} ${((response.requestOptions.baseUrl + response.requestOptions.path))}");
+      "<-- ${response.statusCode} ${((response.requestOptions.baseUrl + response.requestOptions.path))}",
+    );
     debugPrint("Headers:");
     response.headers.forEach((k, v) => debugPrint('$k: $v'));
     if (printBody ?? false) {
@@ -41,9 +45,11 @@ class DioLogInterceptors extends Interceptor {
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
     debugPrint(
-        "<-- ERRR ${err.message} ${(err.response?.requestOptions != null ? ("${err.response?.requestOptions.baseUrl}${err.response?.requestOptions.path}") : 'URL')}");
+      "<-- ERRR ${err.message} ${(err.response?.requestOptions != null ? ("${err.response?.requestOptions.baseUrl}${err.response?.requestOptions.path}") : 'URL')}",
+    );
     debugPrint(
-        "${err.response != null ? err.response?.data : 'Unknown Error'}");
+      "${err.response != null ? err.response?.data : 'Unknown Error'}",
+    );
     debugPrint("<-- End error");
     return super.onError(err, handler);
   }
