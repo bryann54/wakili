@@ -36,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen>
   void _setupAnimations() {
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1800),
+      duration: const Duration(milliseconds: 3800),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -131,7 +131,7 @@ class _SplashScreenState extends State<SplashScreen>
                   bottom: 0,
                   child: Container(
                     width: 1,
-                    color: Colors.grey.withOpacity(0.2),
+                    color: Colors.grey.withValues(alpha: 0.2),
                   ),
                 ),
 
@@ -154,17 +154,19 @@ class _SplashScreenState extends State<SplashScreen>
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: Colors.black.withValues(alpha: 0.1),
                                     blurRadius: 20,
                                     offset: const Offset(0, 10),
                                   ),
                                 ],
                                 gradient: LinearGradient(
                                   colors: [
-                                    Colors.white.withOpacity(
-                                        0.3), // Light border on dark side
-                                    const Color(0xFF1A1A1A).withOpacity(
-                                        0.3), // Dark border on light side
+                                    Colors.white.withValues(
+                                        alpha:
+                                            0.3), // Light border on dark side
+                                    const Color(0xFF1A1A1A).withValues(
+                                        alpha:
+                                            0.3), // Dark border on light side
                                   ],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,

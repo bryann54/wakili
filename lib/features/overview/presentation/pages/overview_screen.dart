@@ -39,7 +39,7 @@ class OverviewScreen extends StatelessWidget {
               // Title
               Expanded(
                 child: Text(
-                  AppLocalizations.getString(context, 'Legal Documents'),
+                  AppLocalizations.getString(context, 'Wakili\'s legal docs'),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context).colorScheme.onSurface,
@@ -59,8 +59,8 @@ class OverviewScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Theme.of(context)
                       .colorScheme
-                      .surfaceVariant
-                      .withOpacity(0.5),
+                      .surfaceContainerHighest
+                      .withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -81,8 +81,8 @@ class OverviewScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Theme.of(context)
                       .colorScheme
-                      .surfaceVariant
-                      .withOpacity(0.5),
+                      .surfaceContainerHighest
+                      .withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -290,7 +290,7 @@ class _OverviewBodyState extends State<_OverviewBody>
                                     color: Theme.of(context)
                                         .colorScheme
                                         .onSurface
-                                        .withOpacity(0.7),
+                                        .withValues(alpha: 0.7),
                                   ),
                         ),
                       ),
@@ -345,7 +345,7 @@ class _OverviewBodyState extends State<_OverviewBody>
                         color: Theme.of(context)
                             .colorScheme
                             .onSurface
-                            .withOpacity(0.3),
+                            .withValues(alpha: 0.3),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -354,7 +354,7 @@ class _OverviewBodyState extends State<_OverviewBody>
                               color: Theme.of(context)
                                   .colorScheme
                                   .onSurface
-                                  .withOpacity(0.7),
+                                  .withValues(alpha: 0.7),
                             ),
                       ),
                     ],
@@ -378,7 +378,6 @@ class _OverviewBodyState extends State<_OverviewBody>
                     // Fallback for items that don't have animations
                     return DocumentCard(
                       document: document,
-                      onView: () => _showDocumentDetails(context, document),
                       onExplain: () => _requestExplanation(context, document),
                     );
                   }
@@ -396,8 +395,6 @@ class _OverviewBodyState extends State<_OverviewBody>
                               margin: const EdgeInsets.only(bottom: 8),
                               child: DocumentCard(
                                 document: document,
-                                onView: () =>
-                                    _showDocumentDetails(context, document),
                                 onExplain: () =>
                                     _requestExplanation(context, document),
                               ),
@@ -414,37 +411,6 @@ class _OverviewBodyState extends State<_OverviewBody>
         }
 
         return const SizedBox();
-      },
-    );
-  }
-
-  void _showDocumentDetails(BuildContext context, LegalDocument document) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                document.title,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              Text(document.summary),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => _requestExplanation(context, document),
-                  child: const Text('Explain with Wakili AI'),
-                ),
-              ),
-            ],
-          ),
-        );
       },
     );
   }

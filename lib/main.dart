@@ -1,16 +1,15 @@
 // main.dart
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wakili/common/helpers/app_router.dart';
-import 'package:wakili/common/res/l10n.dart';
-import 'package:wakili/common/notifiers/locale_provider.dart';
+// import 'package:wakili/common/res/l10n.dart'; // REMOVED: No longer needed for AppLocalizations
+import 'package:wakili/common/notifiers/locale_provider.dart'; // Keep if LocaleProvider is used for other locale-related things, even if not for translations
 import 'package:wakili/common/widgets/global_bloc_observer.dart';
 import 'package:wakili/core/di/injector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart'; // Keep this import for Bloc.observer
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -33,7 +32,6 @@ void main() async {
     await dotenv.load(fileName: "env/.dev.env");
   }
 
-  // Initialize Hive before configuring dependencies that might use it
   final appDocumentDir = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDir.path);
   await Hive.initFlutter();
@@ -43,12 +41,11 @@ void main() async {
   // Configure dependency injection
   await configureDependencies();
 
-  // Initialize locale provider
+  // Initialize locale provider (Keep this if LocaleProvider manages other non-translation locale settings)
   final localeProvider = LocaleProvider();
   localeProvider.loadLocale();
 
-  // Create the AuthBloc instance AFTER configureDependencies()
-  final AuthBloc authBloc = getIt<AuthBloc>(); // Get the instance from GetIt
+  final AuthBloc authBloc = getIt<AuthBloc>();
 
   runApp(
     MultiProvider(
@@ -66,11 +63,10 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final AuthBloc authBloc;
-  late final AppRouter _appRouter; // Initialize in constructor or initState
+  late final AppRouter _appRouter;
 
   MyApp({super.key, required this.authBloc}) {
-    // Require authBloc in constructor
-    _appRouter = AppRouter(authBloc: authBloc); // Initialize AppRouter here
+    _appRouter = AppRouter(authBloc: authBloc);
   }
 
   @override
@@ -79,21 +75,11 @@ class MyApp extends StatelessWidget {
         MediaQuery.of(context).platformBrightness == Brightness.dark
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark;
-
-    final localeProvider = Provider.of<LocaleProvider>(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: systemUiOverlayStyle,
       child: MaterialApp.router(
         debugShowCheckedModeBanner: !kReleaseMode,
-        title: AppLocalizations.getString(context, 'appName'),
         routerConfig: _appRouter.config(),
-        localizationsDelegates: [
-          AppLocalizations.delegate(),
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate
-        ],
-        locale: localeProvider.locale,
         theme: ThemeData(
           primarySwatch: Colors.blue,
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(

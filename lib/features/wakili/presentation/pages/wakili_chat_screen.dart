@@ -6,7 +6,6 @@ import 'package:get_it/get_it.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
 import 'package:wakili/features/wakili/data/models/legal_category.dart';
 import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
-import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dart';
 import 'package:wakili/features/wakili/presentation/widgets/wakili_welcome_header.dart';
 import 'package:wakili/features/wakili/presentation/widgets/wakili_search_bar.dart';
 import 'package:wakili/features/wakili/presentation/widgets/category_grid_view.dart';
@@ -174,6 +173,41 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                           ),
                     ),
                     const Spacer(),
+                    // Speech-to-text indicator
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.mic,
+                            size: 16,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                          ),
+                          const SizedBox(width: 4),
+                          // Text(
+                          //   'Voice supported',
+                          //   style: Theme.of(context)
+                          //       .textTheme
+                          //       .labelSmall
+                          //       ?.copyWith(
+                          //         color: Theme.of(context)
+                          //             .colorScheme
+                          //             .onPrimaryContainer,
+                          //         fontWeight: FontWeight.w500,
+                          //       ),
+                          // ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.of(context).pop(),
@@ -182,18 +216,174 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                 ),
               ),
               const SizedBox(height: 8),
-              ChatInputField(
-                messageController: _messageController,
-                onSendMessage: () => _sendMessage(setModalState),
-                hintText: 'Ask wakili any legal related question...',
-                isLoading: _isLoading,
+
+              // Chat input with mic button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withOpacity(0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      // Mic button
+                      GestureDetector(
+                        onTap: () => _handleSpeechToText(setModalState),
+                        child: Container(
+                          margin: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.mic,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+
+                      // Text input field
+                      Expanded(
+                        child: TextField(
+                          controller: _messageController,
+                          decoration: InputDecoration(
+                            hintText:
+                                'Ask wakili any legal related question...',
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                          maxLines: null,
+                          textInputAction: TextInputAction.send,
+                          onSubmitted: (_) => _sendMessage(setModalState),
+                        ),
+                      ),
+
+                      // Send button
+                      if (_messageController.text.trim().isNotEmpty ||
+                          _isLoading)
+                        GestureDetector(
+                          onTap: _isLoading
+                              ? null
+                              : () => _sendMessage(setModalState),
+                          child: Container(
+                            margin: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: _isLoading
+                                  ? Theme.of(context).colorScheme.outline
+                                  : Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: _isLoading
+                                ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Theme.of(context).colorScheme.onPrimary,
+                                      ),
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.send,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    size: 20,
+                                  ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
+
               const SizedBox(height: 20),
             ],
           ),
         );
       },
     );
+  }
+
+  // Add this method to your _WakiliChatScreenState class
+  void _handleSpeechToText(StateSetter setModalState) async {
+    // TODO: Implement speech-to-text functionality
+    // For now, show a placeholder message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.mic,
+              color: Theme.of(context).colorScheme.onInverseSurface,
+            ),
+            const SizedBox(width: 8),
+            const Text('Speech-to-text feature coming soon!'),
+          ],
+        ),
+        backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    // Example implementation when you're ready to integrate speech-to-text:
+    /*
+  try {
+    bool available = await speech.initialize(
+      onStatus: (val) => print('onStatus: $val'),
+      onError: (val) => print('onError: $val'),
+    );
+    
+    if (available) {
+      setModalState(() {
+        _isListening = true;
+      });
+      
+      speech.listen(
+        onResult: (val) => setModalState(() {
+          _messageController.text = val.recognizedWords;
+        }),
+      );
+    }
+  } catch (e) {
+    print('Speech recognition error: $e');
+  }
+  */
   }
 
   void _sendMessage(StateSetter setModalState) async {
@@ -249,8 +439,10 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                     _searchQuery = value;
                   });
                 },
-                ).animate().slideX(begin: 1, end: 0, curve: Curves.easeOut)
-                .fadeIn(duration: 500.ms, delay: 500.ms),
+              )
+                  .animate()
+                  .slideX(begin: 1, end: 0, curve: Curves.easeOut)
+                  .fadeIn(duration: 500.ms, delay: 500.ms),
               const SizedBox(height: 16),
               Expanded(
                 child: Padding(

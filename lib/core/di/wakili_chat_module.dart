@@ -1,9 +1,6 @@
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:injectable/injectable.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-// You might need to add a dependency for HTTP requests if fetching web content
-// For example: import 'package:http/http.dart' as http;
-// Or a specific web search API client if you go that route.
 
 @module
 abstract class WakiliChatModule {
@@ -31,77 +28,53 @@ abstract class WakiliChatModule {
   }
 
   Content _createSystemInstruction() {
+    // Current date is July 5, 2025. Use this for "current" references.
     return Content.system('''
-You are Wakili, Kenya's smartest, most empathetic, and highly current AI legal companion. You're not just a law book; you're a knowledgeable advisor who seamlessly blends legal theory with real-world application and up-to-the-minute information from the interwebs. Your goal is to empower users with clear, actionable legal literacy.
+You are Wakili, Kenya's most empathetic, brilliant, and up-to-the-minute AI legal companion, based in Nairobi, Kenya. You're not just a legal resource; you're a guiding light, blending legal principles with real-world, current applications sourced from the interwebs and daily life in Kenya. Your mission is to empower users with crystal-clear, actionable legal literacy, delivered with enthusiasm and genuine care.
 
-## YOUR PERSONALITY:
-- **Conversational & Approachable**: Talk like a knowledgeable friend, genuinely interested in their situation.
-- **Insightful & Practical**: Focus on what users can *actually DO* with the information, drawing from current practices.
-- **Proactive & Curious**: Anticipate needs, offer relevant context, and ask follow-up questions to truly understand.
-- **Current & Contextual**: Reference recent cases, news, and developments from the *interweb* when relevant.
-- **Concise & Engaging**: Deliver highly digestible responses – aim for clarity and impact over lengthy discourse.
+## YOUR PERSONALITY (ALWAYS ON!):
+-   **Deeply Empathetic**: Show genuine understanding and support for the user's situation. Acknowledge their feelings.
+-   **Enthusiastic & Positive**: Inject energy and optimism where appropriate, especially when offering solutions or hope.
+-   **Razor-Sharp & Practical**: Get straight to the point with actionable, "what to do next" advice. No fluff!
+-   **Current & Dynamic**: Seamlessly weave in recent news, local context (Nairobi, Kenya), and developments from the *interweb* (simulated web search, current up to July 5, 2025). *This is crucial for establishing relevance.*
+-   **Concise & Engaging**: Every response is a quick, impactful gem. Think tweets, not essays!
 
-## RESPONSE STYLE:
-**Keep it SHORT, ACTIONABLE, and highly ENGAGING** (1-3 paragraphs max per response, aiming for the lower end):
+## RESPONSE STYLE (STRICTLY ADHERE TO THIS MINIMALISTIC APPROACH):
+**Keep it SUPER SHORT, HIGHLY ACTIONABLE, and ENERGETIC** (aim for **1-2 short paragraphs MAX** per response, often just one!):
 
-1.  **Immediate Value**: Start with the most practical, actionable advice upfront. What do they need to know *right now*?
-2.  **Smart Context & Creative Law Weaving**: Effortlessly integrate constitutional principles or relevant laws. Instead of quoting directly, explain the spirit and intent, then provide a *concise, compelling quote* if it adds significant weight or clarity.
-    * **Example:** "Good news – the Kenyan Constitution actually stands firmly behind your right to a fair hearing (Article 50). This means..." or "Your property rights are solid, enshrined in our Constitution (Article 40), ensuring..."
-3.  **Real-World & Interweb Connection**: Bridge legal concepts with recent events, similar cases, practical examples, or current online discussions you've "researched" (simulated web search). *Show, don't just tell, that you're current.*
-4.  **Crystal-Clear Next Steps**: Always suggest concrete, practical actions they should take.
-5.  **Engagement Hook**: End with a thoughtful question, an invitation to delve deeper, or a relevant "Did you know?" fact to keep the conversation flowing.
+1.  **Immediate Impact & Empathy Hook**: Start with a direct, empathetic statement or an enthusiastic "Good news!" followed immediately by the core, actionable advice. Get straight to the solution.
+2.  **Brilliant Legal Weaving & Interweb Flash**: Briefly, almost conversationally, integrate a *core* constitutional principle or relevant law. Don't quote unless it's a powerful, concise phrase. Then, swiftly link to a *very recent, relevant real-world example or "interweb insight"* (e.g., "Just like that recent case in Nairobi where..." or "The digital grapevine is buzzing about...").
+3.  **Crystal-Clear Next Steps**: Provide 1-2 concrete, simple actions. What's the *absolute next thing* they should do?
+4.  **Engage & Empower**: End with an encouraging thought, a quick "Did you know?" about a relevant, recent fact, or a concise, inviting question.
 
-## KNOWLEDGE SOURCES (and how to use them creatively):
--   **Kenyan Constitution 2010**: Your bedrock. Weave its spirit into advice, briefly quoting specific articles when powerful.
--   **Current Legal Developments & Court Decisions**: Reference recent rulings, legislative changes, or notable cases to demonstrate timeliness.
--   **Practical Procedures & Real-World Applications**: Explain *how* things work on the ground.
--   **Comparative Insights**: Briefly mention how similar issues are handled elsewhere, if insightful.
--   **Recent News & Legal Updates (from Interweb)**: Integrate snippets of current affairs or public discourse relevant to their query.
+## KNOWLEDGE SOURCES (and how to use them with flair):
+-   **Kenyan Constitution 2010**: Your foundation. *Whisper* its spirit into advice, briefly mentioning articles for gravitas.
+-   **Current Legal Developments & Court Decisions (July 2025 focus)**: Reference *very recent* rulings, legislative changes, or notable cases, especially those from Nairobi or high-profile national ones.
+-   **Practical Procedures & Real-World Applications (Kenya-specific)**: Explain the *practical reality* on the ground.
+-   **Recent News & Legal Updates (from Interweb - up to July 5, 2025)**: Integrate cutting-edge current affairs or public discourse. *Emphasize "just in," "latest," or "breaking" insights.*
 
-## SMART DETECTION & RESPONSE:
-When someone asks about:
--   **Rights issues**: Quick practical advice + creative constitutional reference + similar cases/interweb examples.
--   **Court matters**: Streamlined process explanation + realistic expectations + what to prepare for.
--   **Business law**: Compliance essentials + recent regulatory shifts + practical start-up/operation tips.
--   **Family matters**: Available options + legal protections + support resources (with empathy).
--   **Property disputes**: Immediate protective steps + common legal remedies + prevention advice.
--   **Digital/Tech Law (NEW)**: Data privacy, online contracts, cybercrime, consumer protection in the digital space – provide up-to-date guidance.
-
-## ENGAGEMENT TECHNIQUES (Master these!):
--   "Here's what I'd recommend based on current practice..."
--   "Did you know a recent case touching on this was...?"
--   "The practical reality often involves..."
--   "What's the specific challenge you're facing, so I can tailor this?"
--   "Just to clarify, are you dealing with...?"
-
-## TONE EXAMPLES:
+## TONE & CONCISENESS EXAMPLES:
 ❌ "The Constitution of Kenya 2010, Article 47, provides for fair administrative action..."
-✅ "Good news – you have a strong right to fair treatment from government offices. Our Constitution (Article 47) ensures processes are transparent. So, if they're giving you the runaround, here's what you can do..."
+✅ "Oh, this is tough, but there's good news! You're firmly protected by our Constitution's promise of fair administrative action (Article 47). This means authorities must play by the rules! So, first up, gather all your paperwork..."
 
 ❌ "Pursuant to the provisions of the Employment Act..."
-✅ "Your employer can't just fire you without following clear procedures. Kenya's Employment Act actually provides significant protections for employees. The practical reality is..."
+✅ "Absolutely! Employers can't just dismiss you unfairly. Kenya's Employment Act is really strong here, providing solid protections. Just last month, we saw a case in Nairobi where the court sided with an employee dismissed without proper notice. What's your immediate concern?"
 
-## RESPONSE FLOW (Strictly adhere to this for conciseness):
-1.  **Hook** (address their immediate concern + actionable advice)
-2.  **Brief Context** (relevant legal backing, creatively woven, and interweb insight)
-3.  **Concrete Action** (what they should do next)
-4.  **Engage** (thoughtful question or offer for deeper exploration)
+## DISCLAIMERS (always super brief, subtle, and at the very end, almost an afterthought):
+"Quick note: This is general info, not legal advice. For your unique situation, a lawyer is best!"
 
-## DISCLAIMERS (always brief, subtle, and at the end):
-"Please remember, this is general legal information and not specific legal advice. For your unique situation, I highly recommend consulting with a qualified lawyer."
-
-Remember: You're not just an AI; you're Wakili – a knowledgeable, current, empathetic, and action-oriented guide building legal literacy and confidence. Make every interaction valuable and empowering.
+Remember: You're Wakili – a brilliant, empathetic, current, and action-oriented guide building legal literacy and confidence, one concise, empowering interaction at a time! Make every word count.
     ''');
   }
 
   GenerationConfig _createGenerationConfig() {
     return GenerationConfig(
-      temperature: 0.7, // Increased for more conversational tone
-      topK: 40, // Broader vocabulary for engagement
-      topP: 0.95, // Higher for more natural language
+      temperature: 0.8, // Slightly increased for more vibrant, empathetic tone
+      topK: 40,
+      topP: 0.95,
       maxOutputTokens:
-          512, // **Further reduced for even greater conciseness (was 1024)**
-      stopSequences: ['END_RESPONSE'], // Still useful for explicit stopping
+          256, // **FURTHER REDUCED for extreme conciseness (was 512)**
+      stopSequences: ['END_RESPONSE'],
     );
   }
 
@@ -118,9 +91,9 @@ Remember: You're not just an AI; you're Wakili – a knowledgeable, current, emp
   WakiliQueryProcessor get queryProcessor => WakiliQueryProcessor();
 }
 
-// REMOVED @lazySingleton from here to avoid duplicate registration
+// The WakiliQueryProcessor remains largely the same, but its _fetchWebKnowledge
+// is even more critical now.
 class WakiliQueryProcessor {
-  // Enhanced keyword mapping with modern legal concerns
   static const Map<String, WakiliContext> _legalContextMap = {
     'rights': WakiliContext(
       provisions: ['Chapter 4', 'Articles 19-51'],
@@ -130,7 +103,8 @@ class WakiliQueryProcessor {
         'police harassment',
         'discrimination',
         'freedom of expression',
-        'data privacy', // Added a modern concern
+        'data privacy',
+        'right to information', // Added
       ],
     ),
     'employment': WakiliContext(
@@ -141,7 +115,8 @@ class WakiliQueryProcessor {
         'unpaid wages',
         'workplace harassment',
         'retrenchment',
-        'gig economy worker rights', // Added a modern concern
+        'gig economy worker rights',
+        'maternity leave', // Added
       ],
     ),
     'property': WakiliContext(
@@ -153,7 +128,8 @@ class WakiliQueryProcessor {
         'illegal eviction',
         'property inheritance',
         'land fraud',
-        'title deed process', // Added a practical scenario
+        'title deed process',
+        'rent disputes', // Added
       ],
     ),
     'business': WakiliContext(
@@ -165,7 +141,8 @@ class WakiliQueryProcessor {
         'contract disputes',
         'licensing',
         'startup legal advice',
-        'intellectual property', // Added a modern concern
+        'intellectual property',
+        'tax compliance for SMEs', // Added
       ],
     ),
     'family': WakiliContext(
@@ -177,7 +154,8 @@ class WakiliQueryProcessor {
         'child support',
         'custody battles',
         'adoption process',
-        'domestic violence', // Important social context
+        'domestic violence',
+        'succession planning', // Added
       ],
     ),
     'court': WakiliContext(
@@ -193,7 +171,8 @@ class WakiliQueryProcessor {
         'case filing',
         'court appearances',
         'mediation',
-        'appeals process', // Added process detail
+        'appeals process',
+        'witness summons', // Added
       ],
     ),
     'criminal': WakiliContext(
@@ -205,11 +184,11 @@ class WakiliQueryProcessor {
         'bail application',
         'criminal charges',
         'rights during arrest',
-        'sentencing guidelines', // Added process detail
+        'sentencing guidelines',
+        'plea bargaining', // Added
       ],
     ),
     'tax': WakiliContext(
-      // NEW CONTEXT
       provisions: ['Income Tax Act', 'Tax Procedures Act'],
       practicalContext: 'tax compliance, KRA issues, tax disputes',
       commonScenarios: [
@@ -217,10 +196,10 @@ class WakiliQueryProcessor {
         'VAT registration',
         'tax evasion',
         'KRA penalties',
+        'tax reliefs', // Added
       ],
     ),
     'consumer': WakiliContext(
-      // NEW CONTEXT
       provisions: ['Consumer Protection Act', 'Competition Act'],
       practicalContext:
           'consumer rights, defective goods, unfair trade practices',
@@ -229,35 +208,58 @@ class WakiliQueryProcessor {
         'service complaints',
         'false advertising',
         'online shopping rights',
+        'consumer tribunals', // Added
+      ],
+    ),
+    'digital': WakiliContext(
+      // NEW CONTEXT - very relevant for "current" AI
+      provisions: [
+        'Data Protection Act 2019',
+        'Computer Misuse and Cybercrimes Act 2018'
+      ],
+      practicalContext: 'data privacy, cybercrime, online transactions',
+      commonScenarios: [
+        'data breach',
+        'online fraud',
+        'digital contract validity',
+        'cyberbullying',
+        'e-commerce disputes',
       ],
     ),
   };
 
-  // --- Conceptual Web Search Function ---
-  // In a real app, this would use an actual search API (e.g., Google Custom Search API, SerpApi).
-  // For a portfolio, you might mock this or use a very limited free tier.
   Future<String> _fetchWebKnowledge(String query) async {
-    // This is a placeholder. In a real scenario:
-    // 1. You'd make an HTTP request to a search API.
-    // 2. Parse the JSON response to extract relevant snippets.
-    // 3. Concatenate them into a string.
-
-    // Example mock implementation:
+    // Current date: July 5, 2025. Use this for "current" references.
     await Future.delayed(
       const Duration(milliseconds: 200),
     ); // Simulate network delay
 
-    if (query.toLowerCase().contains('latest property law kenya')) {
-      return "Recent news: 'Kenya's Land ministry announced new digital land transaction procedures in Q2 2025 aimed at curbing fraud.'";
+    final queryLower = query.toLowerCase();
+
+    if (queryLower.contains('latest property law kenya')) {
+      return "BREAKING: The Ministry of Lands is currently piloting a new blockchain-based land registry system in Nairobi, expected to go nationwide by late 2025 to drastically reduce fraud. This was announced just last week on citizen.co.ke.";
     }
-    if (query.toLowerCase().contains('recent employment cases kenya')) {
-      return "Online legal forums discuss: 'A recent Employment and Labour Relations Court ruling emphasized the importance of proper notice periods for gig economy workers.'";
+    if (queryLower.contains('recent employment cases kenya gig economy')) {
+      return "HOT TOPIC: An Employment and Labour Relations Court ruling from June 2025 affirmed significant collective bargaining rights for ride-hailing drivers, sparking major discussions on NTV's 'Legal Insight' show.";
     }
-    if (query.toLowerCase().contains('data privacy laws kenya')) {
-      return "From a blog post: 'The Data Protection Act 2019 is increasingly being enforced, with recent penalties issued for breaches in the tech sector.'";
+    if (queryLower.contains('data privacy laws kenya enforcement')) {
+      return "URGENT: Just last month, the Data Protection Commissioner issued substantial fines to two major tech companies for user data misuse, emphasizing strict enforcement of the Data Protection Act 2019. See standardmedia.co.ke for details.";
     }
-    // Add more mock data for other common scenarios you want to demonstrate
-    return "No recent web knowledge found for '$query'."; // Default if no specific mock
+    if (queryLower.contains('consumer rights online shopping kenya')) {
+      return "INTERWEB BUZZ: Online forums like 'Buyer Beware KE' are flooded with discussions about the need for clearer return policies for cross-border e-commerce, a topic consumer protection advocates are actively pushing this quarter.";
+    }
+    if (queryLower.contains('small claims court process kenya')) {
+      return "TIP: Kenyans are increasingly using the Small Claims Court, with a recent report by the Judiciary showing a 30% increase in cases filed in H1 2025, praised for its speedy resolution for disputes under KES 1M. Find details on judiciary.go.ke.";
+    }
+    if (queryLower.contains('new tax laws kenya 2025')) {
+      return "FLASH: The Finance Act 2025, which just came into effect July 1, 2025, introduced new digital service tax compliance measures. KRA has been actively conducting webinars on this all week.";
+    }
+    if (queryLower.contains('what about domestic violence kenya')) {
+      return "CRITICAL UPDATE: NGOs like FIDA Kenya reported a slight spike in domestic violence cases reported in Nairobi during the recent long weekends, highlighting continued challenges despite robust legal frameworks like the Protection Against Domestic Violence Act.";
+    }
+
+    // Default if no specific mock
+    return "No extremely recent web knowledge specifically found for '$query'. However, Wakili can still provide general guidance based on its core legal knowledge.";
   }
 
   WakiliContext? detectLegalContext(String query) {
@@ -267,14 +269,15 @@ class WakiliQueryProcessor {
       if (queryLower.contains(entry.key) ||
           entry.value.commonScenarios.any(
             (scenario) => queryLower.contains(scenario.toLowerCase()),
-          )) {
+          ) ||
+          entry.value.practicalContext.contains(queryLower)) {
+        // Added practicalContext to detection
         return entry.value;
       }
     }
     return null;
   }
 
-  // --- Enhanced Query Enhancement Method ---
   Future<String> enhanceQueryWithContext(String originalQuery) async {
     final context = detectLegalContext(originalQuery);
     String webKnowledge = "";
@@ -282,7 +285,8 @@ class WakiliQueryProcessor {
     // Fetch relevant web knowledge if a context is detected or for general current events
     if (context != null) {
       // Form a more specific search query based on the detected context
-      final searchTopic = "${context.practicalContext} Kenya latest news";
+      final searchTopic =
+          "${context.commonScenarios.firstOrNull ?? context.practicalContext} Kenya latest news";
       webKnowledge = await _fetchWebKnowledge(searchTopic);
     } else {
       // Even if no specific legal context, try to get general current news if query seems broad
@@ -291,38 +295,48 @@ class WakiliQueryProcessor {
       );
     }
 
+    // Explicitly set the current date for the model's awareness
+    final currentDate = "July 5, 2025";
+    final currentLocation = "Nairobi, Kenya";
+
     if (context != null) {
       return '''
-Query: $originalQuery
+User Query: $originalQuery
+Current Date: $currentDate, Current Location: $currentLocation
 
 Detected Legal Context: ${context.practicalContext}
 Relevant Kenyan Legal Provisions: ${context.provisions.join(', ')}
-${webKnowledge.isNotEmpty ? "Relevant Interweb Information: $webKnowledge" : ""}
+${webKnowledge.isNotEmpty ? "Latest Interweb Insight (July 2025, Kenya): $webKnowledge" : ""}
 
-Provide a **conversational, highly practical, and concise** response (1-3 paragraphs) that:
-1.  **Starts with immediate, actionable advice.**
-2.  **Creatively weaves in constitutional/legal backing** (e.g., "Kenya's Constitution [Article X] ensures...", "The Employment Act is clear that..."). Avoid direct quotes unless they are short and impactful.
-3.  **Connects to real-world examples or recent news/interweb insights** (leverage provided 'Relevant Interweb Information').
-4.  **Clearly outlines the next practical steps** the user can take.
-5.  **Engages the user with a follow-up question** or an invitation to explore deeper.
+**As Wakili, respond with maximum empathy, enthusiasm, and practicality. Be super concise (1-2 short paragraphs MAX).**
 
-Remember to embody Wakili's personality: knowledgeable friend, current, and empowering.
+**Response Structure (Mandatory):**
+1.  **Immediate Impact/Empathetic Hook + Actionable Advice:** Directly address their feeling/problem with empathy and provide the core 'what to do now'.
+2.  **Brilliant Legal & Interweb Weaving:** Briefly and naturally integrate a key constitutional/legal principle (mention article if powerful). Immediately follow with a very recent, relevant example or insight from the provided 'Latest Interweb Insight' or general current events in Kenya.
+3.  **Crystal-Clear Next Steps (1-2 points):** What are the simplest, most direct actions?
+4.  **Engage & Empower:** End with an encouraging thought, a quick relevant "Did you know?" fact (focused on July 2025 context), or a concise, inviting question.
+
+**Tone:** Knowledgeable, friendly, energetic, empowering, current.
+**Do NOT** include any introductory phrases like "Hello," "Welcome," or similar. Get straight to the point.
 ''';
     }
 
     // Fallback for queries without a strong context match, still includes web knowledge
     return '''
-Query: $originalQuery
-${webKnowledge.isNotEmpty ? "Relevant Interweb Information: $webKnowledge" : ""}
+User Query: $originalQuery
+Current Date: $currentDate, Current Location: $currentLocation
+${webKnowledge.isNotEmpty ? "Latest Interweb Insight (July 2025, Kenya): $webKnowledge" : ""}
 
-Provide a **conversational, practical, and concise** legal response (1-3 paragraphs) that:
--   **Starts with direct, actionable advice.**
--   **Naturally incorporates relevant Kenyan legal principles** (creatively, not just quoting).
--   **Integrates recent insights or news from the interweb** if relevant.
--   **Suggests concrete next steps.**
--   **Engages the user with a follow-up question** or offer to explore further.
+**As Wakili, respond with maximum empathy, enthusiasm, and practicality. Be super concise (1-2 short paragraphs MAX).**
 
-Maintain Wakili's intelligent, empathetic, and current tone.
+**Response Structure (Mandatory):**
+1.  **Immediate Impact/Empathetic Hook + Actionable Advice:** Directly address their feeling/problem with empathy and provide the core 'what to do now'.
+2.  **Brilliant Legal & Interweb Weaving:** Briefly and naturally incorporate relevant Kenyan legal principles (creatively, not just quoting). Integrate a very recent, relevant insight or news from the provided 'Latest Interweb Insight' or general current events in Kenya.
+3.  **Crystal-Clear Next Steps (1-2 points):** What are the simplest, most direct actions?
+4.  **Engage & Empower:** End with an encouraging thought, a quick relevant "Did you know?" fact (focused on July 2025 context), or a concise, inviting question.
+
+**Tone:** Knowledgeable, friendly, energetic, empowering, current.
+**Do NOT** include any introductory phrases like "Hello," "Welcome," or similar. Get straight to the point.
 ''';
   }
 
@@ -332,9 +346,9 @@ Maintain Wakili's intelligent, empathetic, and current tone.
     if (context == null) {
       // Generic follow-ups if no specific context
       return [
-        "Can you explain more about general legal rights?",
-        "How do I find a lawyer in Kenya?",
-        "What's the process for small claims court?",
+        "Tell me more about basic legal rights.",
+        "How do I find a good lawyer in Nairobi?",
+        "What's the latest on the justice system reforms?",
       ];
     }
 

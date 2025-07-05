@@ -71,7 +71,6 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState> {
     ));
   }
 
-
   List<LegalDocument> _getMockDocuments() {
     return [
       LegalDocument(
