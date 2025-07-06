@@ -5,4 +5,6 @@ abstract class ChatHistoryRepository {
   Future<void> saveChatConversation(ChatConversation conversation);
   Future<void> deleteChatConversation(String conversationId);
   Future<void> updateChatConversation(ChatConversation conversation);
+  Future<void> clearChatHistory();
+  Future<ChatConversation?> searchChatHistory(ChatConversation conversation);
 }

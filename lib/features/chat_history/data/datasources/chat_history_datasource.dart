@@ -7,6 +7,8 @@ abstract class ChatHistoryLocalDataSource {
   Future<void> saveChatConversation(ChatConversation conversation);
   Future<void> deleteChatConversation(String conversationId);
   Future<void> updateChatConversation(ChatConversation conversation);
+  Future<void> clearChatHistory();
+  Future<ChatConversation?> searchChatHistory(ChatConversation conversation);
 }
 
 @LazySingleton(as: ChatHistoryLocalDataSource)
@@ -42,5 +44,28 @@ class ChatHistoryLocalDataSourceImpl implements ChatHistoryLocalDataSource {
   Future<void> updateChatConversation(ChatConversation conversation) async {
     final box = await _openBox();
     await box.put(conversation.id, conversation);
+  }
+
+  @override
+  Future<void> clearChatHistory() async {
+    final box = await _openBox();
+    await box.clear();
+  }
+
+  @override
+  Future<ChatConversation?> searchChatHistory(
+      ChatConversation conversation) async {
+    final box = await _openBox();
+    try {
+      try {
+        return box.values.firstWhere(
+          (c) => c.id == conversation.id,
+        );
+      } catch (_) {
+        return null;
+      }
+    } catch (_) {
+      return null;
+    }
   }
 }

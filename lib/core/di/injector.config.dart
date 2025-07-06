@@ -46,6 +46,8 @@ import '../../features/chat_history/domain/usecases/get_chat_history_usecase.dar
     as _i217;
 import '../../features/chat_history/domain/usecases/save_chat_conversation_usecase.dart'
     as _i11;
+import '../../features/chat_history/domain/usecases/search_chat_history_usecase.dart'
+    as _i1036;
 import '../../features/chat_history/presentation/bloc/chat_history_bloc.dart'
     as _i393;
 import '../../features/wakili/data/datasources/wakili_chat_remote_datasource.dart'
@@ -114,8 +116,6 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i578.ChatHistoryLocalDataSource>()));
     gh.lazySingleton<_i1067.AccountRepository>(
         () => _i857.AccountRepositoryImpl(gh<_i29.AccountLocalDatasource>()));
-    gh.factory<_i701.GenerateChatTitleUseCase>(() =>
-        _i701.GenerateChatTitleUseCase(gh<_i106.WakiliChatRemoteDataSource>()));
     gh.lazySingleton<_i361.Dio>(
         () => registerModules.dio(gh<String>(instanceName: 'BaseUrl')));
     gh.factory<_i217.GetChatHistoryUseCase>(
@@ -124,27 +124,20 @@ extension GetItInjectableX on _i174.GetIt {
         _i11.SaveChatConversationUseCase(gh<_i371.ChatHistoryRepository>()));
     gh.factory<_i295.DeleteChatConversationUseCase>(() =>
         _i295.DeleteChatConversationUseCase(gh<_i371.ChatHistoryRepository>()));
+    gh.factory<_i1036.SearchChatHistoryUseCase>(() =>
+        _i1036.SearchChatHistoryUseCase(gh<_i371.ChatHistoryRepository>()));
     gh.lazySingleton<_i626.AuthRepository>(() => _i877.AuthRepositoryImpl(
         remoteDataSource: gh<_i167.AuthRemoteDataSource>()));
     gh.lazySingleton<_i313.WakiliChatRepository>(() =>
         _i644.WakiliChatRepositoryImpl(gh<_i106.WakiliChatRemoteDataSource>()));
-    gh.factory<_i393.ChatHistoryBloc>(() => _i393.ChatHistoryBloc(
-          gh<_i217.GetChatHistoryUseCase>(),
-          gh<_i11.SaveChatConversationUseCase>(),
-          gh<_i295.DeleteChatConversationUseCase>(),
-          gh<_i701.GenerateChatTitleUseCase>(),
-        ));
+    gh.factory<_i701.GenerateChatTitleUseCase>(
+        () => _i701.GenerateChatTitleUseCase(gh<_i313.WakiliChatRepository>()));
     gh.factory<_i536.SendMessageStreamUseCase>(
         () => _i536.SendMessageStreamUseCase(gh<_i313.WakiliChatRepository>()));
     gh.factory<_i872.SendMessageUseCase>(
         () => _i872.SendMessageUseCase(gh<_i313.WakiliChatRepository>()));
     gh.lazySingleton<_i993.ChangeLanguageUsecase>(
         () => _i993.ChangeLanguageUsecase(gh<_i1067.AccountRepository>()));
-    gh.factory<_i69.WakiliBloc>(() => _i69.WakiliBloc(
-          gh<_i872.SendMessageUseCase>(),
-          gh<_i536.SendMessageStreamUseCase>(),
-          gh<_i393.ChatHistoryBloc>(),
-        ));
     gh.lazySingleton<_i758.DioClient>(() => _i758.DioClient(
           gh<_i361.Dio>(),
           gh<String>(instanceName: 'ApiKey'),
@@ -175,6 +168,17 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i546.ClientProvider(gh<_i758.DioClient>()));
     gh.factory<_i708.AccountBloc>(
         () => _i708.AccountBloc(gh<_i993.ChangeLanguageUsecase>()));
+    gh.factory<_i393.ChatHistoryBloc>(() => _i393.ChatHistoryBloc(
+          gh<_i217.GetChatHistoryUseCase>(),
+          gh<_i11.SaveChatConversationUseCase>(),
+          gh<_i295.DeleteChatConversationUseCase>(),
+          gh<_i701.GenerateChatTitleUseCase>(),
+        ));
+    gh.factory<_i69.WakiliBloc>(() => _i69.WakiliBloc(
+          gh<_i872.SendMessageUseCase>(),
+          gh<_i536.SendMessageStreamUseCase>(),
+          gh<_i393.ChatHistoryBloc>(),
+        ));
     return this;
   }
 }

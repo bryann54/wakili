@@ -28,4 +28,14 @@ class ChatHistoryRepositoryImpl implements ChatHistoryRepository {
   Future<void> updateChatConversation(ChatConversation conversation) {
     return _localDataSource.updateChatConversation(conversation);
   }
+
+  @override
+  Future<void> clearChatHistory() {
+    return _localDataSource.clearChatHistory();
+  }
+
+  @override
+  Future<ChatConversation?> searchChatHistory(ChatConversation conversation) {
+    return _localDataSource.searchChatHistory(conversation);
+  }
 }

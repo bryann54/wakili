@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
 import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
-// ... other imports
 
 @RoutePage()
 class ChatScreen extends StatefulWidget {
@@ -34,8 +33,6 @@ class _ChatScreenState extends State<ChatScreen> {
       context.read<WakiliBloc>().add(const ClearChatEvent());
     }
   }
-
-  // ... rest of your ChatScreen code
 
   @override
   Widget build(BuildContext context) {
