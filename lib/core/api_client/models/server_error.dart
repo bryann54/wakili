@@ -5,58 +5,68 @@ part 'server_error.g.dart';
 
 @JsonSerializable()
 class ServerError implements Exception {
-  int? _errorCode;
-  String _errorMessage = "";
+  // ServerError should implement Exception
+  final String message;
+  final int? statusCode; // Add statusCode for more detail
 
-  ServerError();
+  ServerError({required this.message, this.statusCode});
 
-  ServerError.withError({required DioException error}) {
-    _handleError(error);
-  }
+  // Factory constructor to create ServerError from DioException
+  factory ServerError.withError({required DioException error}) {
+    String errorMessage = "Something went wrong.";
+    int? statusCode;
 
-  ServerError setErrorCode(int errorCode) {
-    _errorCode = errorCode;
-    return this;
-  }
-
-  ServerError setErrorMessage(String errorMessage) {
-    _errorMessage = errorMessage;
-    return this;
-  }
-
-  getErrorCode() {
-    return _errorCode;
-  }
-
-  getErrorMessage() {
-    return _errorMessage;
-  }
-
-  _handleError(DioException error) {
     switch (error.type) {
       case DioExceptionType.cancel:
-        _errorMessage = "Request was cancelled";
+        errorMessage = "Request was cancelled.";
         break;
       case DioExceptionType.connectionTimeout:
-        _errorMessage = "Connection timeout";
+        errorMessage = "Connection timeout.";
         break;
       case DioExceptionType.receiveTimeout:
-        _errorMessage = "Server Error. Please try again later...";
+        errorMessage = "Receive timeout in connection with API server.";
         break;
       case DioExceptionType.badResponse:
-        _errorMessage = '${error.response?.data}';
+        statusCode = error.response?.statusCode;
+        // Attempt to parse a specific error message from the response data
+        try {
+          if (error.response?.data is Map &&
+              error.response?.data.containsKey('message')) {
+            errorMessage = error.response?.data['message'] as String;
+          } else if (error.response?.data is String) {
+            errorMessage = error.response?.data as String;
+          } else {
+            errorMessage = "Server responded with an error: ${statusCode}";
+          }
+        } catch (e) {
+          errorMessage = "Failed to parse server error: ${statusCode}";
+        }
         break;
       case DioExceptionType.sendTimeout:
-        _errorMessage = "Please check your internet connection";
+        errorMessage = "Send timeout in connection with API server.";
         break;
-      default:
-        _errorMessage = "Connection failed due to internet connection";
+      case DioExceptionType.badCertificate:
+        errorMessage = "Bad SSL certificate.";
+        break;
+      case DioExceptionType.connectionError:
+        errorMessage =
+            "Failed to connect to the internet. Please check your network connection.";
+        break;
+      case DioExceptionType.unknown:
+      errorMessage = "An unexpected error occurred: ${error.message}";
+        break;
     }
-    return _errorMessage;
+    return ServerError(message: errorMessage, statusCode: statusCode);
   }
 
-  Map<String, dynamic> toJson() => _$ServerErrorToJson(this);
+  String getErrorMessage() => message;
 
+  // Needed for JsonSerializable
+  Map<String, dynamic> toJson() => _$ServerErrorToJson(this);
   factory ServerError.fromJson(Map<String, dynamic> json) =>
       _$ServerErrorFromJson(json);
+
+  @override
+  String toString() =>
+      'ServerError(message: $message, statusCode: $statusCode)';
 }

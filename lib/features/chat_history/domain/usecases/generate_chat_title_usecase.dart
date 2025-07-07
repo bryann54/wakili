@@ -1,6 +1,8 @@
 import 'package:injectable/injectable.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
 import 'package:wakili/features/wakili/domain/repositories/wakili_chat_repository.dart';
+import 'package:dartz/dartz.dart'; // Import dartz for Either
+import 'package:wakili/core/errors/failures.dart'; // Import failures
 
 @injectable
 class GenerateChatTitleUseCase {
@@ -8,8 +10,11 @@ class GenerateChatTitleUseCase {
 
   GenerateChatTitleUseCase(this._repository);
 
-  Future<String> call(List<ChatMessage> messages) async {
-    if (messages.isEmpty) return 'Empty Chat';
+  // Changed to return Either<Failure, String> to propagate potential errors
+  // from the repository's sendMessage method, allowing for more granular error handling
+  // in the BLoC if needed, though current implementation handles fallbacks internally.
+  Future<Either<Failure, String>> call(List<ChatMessage> messages) async {
+    if (messages.isEmpty) return right('Empty Chat');
 
     final firstUserMessage = messages.firstWhere(
       (message) => message.isUser,
@@ -17,21 +22,32 @@ class GenerateChatTitleUseCase {
     );
 
     if (firstUserMessage.content.length <= 50) {
-      return _cleanupTitle(firstUserMessage.content);
+      return right(_cleanupTitle(firstUserMessage.content));
     }
 
     try {
       final titlePrompt = _buildTitlePrompt(messages);
-      final generatedTitle = await _repository.sendMessage(titlePrompt);
-      final cleanTitle = _cleanupGeneratedTitle(generatedTitle);
+      final result = await _repository.sendMessage(
+          titlePrompt); // This should return Either<Failure, String>
 
-      if (cleanTitle.length > 60 || cleanTitle.contains('\n')) {
-        return _generateFallbackTitle(firstUserMessage.content);
-      }
+      return result.fold(
+        (failure) {
+          // If sendMessage failed, use a fallback title
+          return right(_generateFallbackTitle(firstUserMessage.content));
+        },
+        (generatedTitle) {
+          final cleanTitle = _cleanupGeneratedTitle(generatedTitle.toString());
 
-      return cleanTitle;
-    } catch (_) {
-      return _generateFallbackTitle(firstUserMessage.content);
+          if (cleanTitle.length > 60 || cleanTitle.contains('\n')) {
+            return right(_generateFallbackTitle(firstUserMessage.content));
+          }
+          return right(cleanTitle);
+        },
+      );
+    } catch (e) {
+      // This catch block handles unexpected exceptions during the process,
+      // though ideally, the repository should return an Either.
+      return right(_generateFallbackTitle(firstUserMessage.content));
     }
   }
 
@@ -42,7 +58,7 @@ class GenerateChatTitleUseCase {
         .join('\n');
 
     return '''
-Generate a concise, descriptive title (maximum 50 characters) for this legal consultation chat. 
+Generate a concise, descriptive title (maximum 50 characters) for this legal consultation chat.
 The title should capture the main legal topic or question being discussed.
 
 Conversation:
@@ -148,17 +164,30 @@ Title:''';
     return 'Legal Chat ${timestamp.day}/${timestamp.month}';
   }
 
-  Future<String> generateSummary(List<ChatMessage> messages) async {
+  // The generateSummary methods should also ideally return Either<Failure, String>
+  // if they interact with a repository that can fail.
+  Future<Either<Failure, String>> generateSummary(
+      List<ChatMessage> messages) async {
     if (messages.length < 4) {
-      return 'Brief legal consultation chat';
+      return right('Brief legal consultation chat');
     }
 
     try {
       final summaryPrompt = _buildSummaryPrompt(messages);
-      final generatedSummary = await _repository.sendMessage(summaryPrompt);
-      return _cleanupSummary(generatedSummary);
-    } catch (_) {
-      return _generateFallbackSummary(messages);
+      final result = await _repository.sendMessage(
+          summaryPrompt); // This should return Either<Failure, String>
+
+      return result.fold(
+        (failure) {
+          // If sendMessage failed, use a fallback summary
+          return right(_generateFallbackSummary(messages));
+        },
+        (generatedSummary) {
+          return right(_cleanupSummary(generatedSummary.toString()));
+        },
+      );
+    } catch (e) {
+      return right(_generateFallbackSummary(messages));
     }
   }
 

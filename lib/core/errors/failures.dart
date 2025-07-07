@@ -55,3 +55,12 @@ class GeneralFailure extends Failure {
   @override
   String toString() => error;
 }
+
+class ValidationFailure extends Failure {
+  final String message;
+
+  const ValidationFailure(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

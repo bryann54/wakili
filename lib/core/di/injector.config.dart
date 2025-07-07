@@ -132,10 +132,10 @@ extension GetItInjectableX on _i174.GetIt {
         _i644.WakiliChatRepositoryImpl(gh<_i106.WakiliChatRemoteDataSource>()));
     gh.factory<_i701.GenerateChatTitleUseCase>(
         () => _i701.GenerateChatTitleUseCase(gh<_i313.WakiliChatRepository>()));
-    gh.factory<_i536.SendMessageStreamUseCase>(
-        () => _i536.SendMessageStreamUseCase(gh<_i313.WakiliChatRepository>()));
-    gh.factory<_i872.SendMessageUseCase>(
-        () => _i872.SendMessageUseCase(gh<_i313.WakiliChatRepository>()));
+    gh.factory<_i536.SendMessageUseCase>(
+        () => _i536.SendMessageUseCase(gh<_i313.WakiliChatRepository>()));
+    gh.factory<_i872.SendMessageStreamUseCase>(
+        () => _i872.SendMessageStreamUseCase(gh<_i313.WakiliChatRepository>()));
     gh.lazySingleton<_i993.ChangeLanguageUsecase>(
         () => _i993.ChangeLanguageUsecase(gh<_i1067.AccountRepository>()));
     gh.lazySingleton<_i758.DioClient>(() => _i758.DioClient(
@@ -175,8 +175,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i701.GenerateChatTitleUseCase>(),
         ));
     gh.factory<_i69.WakiliBloc>(() => _i69.WakiliBloc(
-          gh<_i872.SendMessageUseCase>(),
-          gh<_i536.SendMessageStreamUseCase>(),
+          gh<_i536.SendMessageUseCase>(),
+          gh<_i872.SendMessageStreamUseCase>(),
           gh<_i393.ChatHistoryBloc>(),
         ));
     return this;

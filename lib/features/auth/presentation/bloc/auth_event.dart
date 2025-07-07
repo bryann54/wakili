@@ -62,3 +62,11 @@ class AuthResetPassword extends AuthEvent {
   @override
   List<Object> get props => [email];
 }
+class AuthStatusChanged extends AuthEvent {
+  final UserEntity? user;
+
+  const AuthStatusChanged(this.user);
+
+  @override
+  List<Object> get props => [user ?? Object()];
+}

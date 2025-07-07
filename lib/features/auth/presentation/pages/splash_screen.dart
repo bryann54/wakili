@@ -1,4 +1,3 @@
-// lib/features/auth/presentation/pages/splash_screen.dart
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -70,14 +69,16 @@ class _SplashScreenState extends State<SplashScreen>
       if (currentAuthState is AuthAuthenticated) {
         context.router.replace(const MainRoute());
       } else if (currentAuthState is AuthUnauthenticated) {
-        context.router.replace(const LoginRoute());
+        // Redirect to GetStartedRoute for new/logged out users
+        context.router.replace(const GetStartedRoute());
       } else if (currentAuthState is AuthError) {
+        // For errors, still go to Get Started or Login
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content:
                   Text('Authentication Error: ${currentAuthState.message}')),
         );
-        context.router.replace(const LoginRoute());
+        context.router.replace(const GetStartedRoute()); // Or LoginRoute
       }
     }
   }
@@ -105,17 +106,14 @@ class _SplashScreenState extends State<SplashScreen>
           builder: (context, child) {
             return Stack(
               children: [
-                // Split screen background
                 Row(
                   children: [
-                    // Left half - Dark
                     Expanded(
                       child: Container(
                         color:
                             isDark ? Colors.grey[900] : const Color(0xFF1A1A1A),
                       ),
                     ),
-                    // Right half - Light
                     Expanded(
                       child: Container(
                         color: isDark ? Colors.grey[100] : Colors.white,
@@ -123,8 +121,6 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ],
                 ),
-
-                // Center vertical divider (subtle)
                 Positioned(
                   left: MediaQuery.of(context).size.width / 2 - 0.5,
                   top: 0,
@@ -134,8 +130,6 @@ class _SplashScreenState extends State<SplashScreen>
                     color: Colors.grey.withValues(alpha: 0.2),
                   ),
                 ),
-
-                // Main content
                 Center(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
@@ -144,7 +138,6 @@ class _SplashScreenState extends State<SplashScreen>
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Logo with dual-colored border
                           Hero(
                             tag: 'app_logo',
                             child: Container(
@@ -161,20 +154,16 @@ class _SplashScreenState extends State<SplashScreen>
                                 ],
                                 gradient: LinearGradient(
                                   colors: [
-                                    Colors.white.withValues(
-                                        alpha:
-                                            0.3), // Light border on dark side
-                                    const Color(0xFF1A1A1A).withValues(
-                                        alpha:
-                                            0.3), // Dark border on light side
+                                    Colors.white.withValues(alpha: 0.3),
+                                    const Color(0xFF1A1A1A)
+                                        .withValues(alpha: 0.3),
                                   ],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                   stops: const [0.5, 0.5],
                                 ),
                               ),
-                              padding:
-                                  const EdgeInsets.all(3), // Border thickness
+                              padding: const EdgeInsets.all(3),
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(17),
@@ -190,23 +179,16 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 32),
-
-                          // App name with dual colors for split visibility
                           ShaderMask(
                             shaderCallback: (bounds) => LinearGradient(
                               colors: [
-                                Colors.white, // 'Wak' on dark side - white
-                                const Color(
-                                    0xFF1A1A1A), // 'ili' on light side - dark
+                                Colors.white,
+                                const Color(0xFF1A1A1A),
                               ],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
-                              stops: const [
-                                0.5,
-                                0.5
-                              ], // Sharp transition at center
+                              stops: const [0.5, 0.5],
                             ).createShader(bounds),
                             child: Text(
                               'Wakili',
@@ -218,24 +200,16 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 8),
-
-                          // Tagline with dual colors
                           ShaderMask(
                             shaderCallback: (bounds) => LinearGradient(
                               colors: [
-                                Colors
-                                    .white70, // 'Legal AI' on dark side - light
-                                Colors.grey[
-                                    600]!, // 'Assistant' on light side - dark
+                                Colors.white70,
+                                Colors.grey[600]!,
                               ],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
-                              stops: const [
-                                0.55,
-                                0.55
-                              ], // Adjusted for 'Legal AI' portion
+                              stops: const [0.55, 0.55],
                             ).createShader(bounds),
                             child: Text(
                               'Legal AI Assistant',
@@ -252,8 +226,6 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                 ),
-
-                // Minimal loading indicator
                 if (!_authCheckCompleted)
                   Positioned(
                     bottom: 60,

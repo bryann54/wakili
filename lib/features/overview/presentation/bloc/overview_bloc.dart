@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:wakili/features/overview/domain/entities/legal_document.dart';
@@ -12,7 +14,7 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState> {
     on<RequestDocumentExplanation>(_onRequestDocumentExplanation);
   }
 
-  Future<void> _onLoadLegalDocuments(
+  FutureOr<void> _onLoadLegalDocuments(
       LoadLegalDocuments event, Emitter<OverviewState> emit) async {
     emit(OverviewLoading());
 
@@ -50,7 +52,7 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState> {
     }
   }
 
-  Future<void> _onRefreshDocuments(
+  FutureOr<void> _onRefreshDocuments(
       RefreshDocuments event, Emitter<OverviewState> emit) async {
     if (state is OverviewLoaded) {
       final currentState = state as OverviewLoaded;

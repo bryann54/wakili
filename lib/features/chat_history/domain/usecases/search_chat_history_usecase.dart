@@ -1,6 +1,8 @@
 import 'package:injectable/injectable.dart';
 import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
 import 'package:wakili/features/chat_history/domain/repositories/chat_history_repository.dart';
+import 'package:dartz/dartz.dart';
+import 'package:wakili/core/errors/failures.dart';
 
 enum SearchSortOption {
   relevance,
@@ -26,35 +28,41 @@ class SearchChatHistoryUseCase {
 
   SearchChatHistoryUseCase(this._repository);
 
-  Future<List<ChatConversation>> call({
+  Future<Either<Failure, List<ChatConversation>>> call({
     required String query,
     SearchSortOption sortBy = SearchSortOption.relevance,
     SearchFilter filter = SearchFilter.all,
     String? category,
     int limit = 50,
   }) async {
-    final allConversations = await _repository.getChatHistory();
+    final historyResult = await _repository.getChatHistory();
 
-    // Apply search query
-    List<ChatConversation> filteredConversations = query.isEmpty
-        ? allConversations
-        : allConversations
-            .where((conversation) => conversation.matchesSearch(query))
-            .toList();
+    return historyResult.fold(
+      (failure) => left(failure), // Propagate the failure
+      (allConversations) {
+        // Apply search query
+        List<ChatConversation> filteredConversations = query.isEmpty
+            ? allConversations
+            : allConversations
+                .where((conversation) => conversation.matchesSearch(query))
+                .toList();
 
-    // Apply filters
-    filteredConversations =
-        _applyFilters(filteredConversations, filter, category);
+        // Apply filters
+        filteredConversations =
+            _applyFilters(filteredConversations, filter, category);
 
-    // Apply sorting
-    filteredConversations = _applySorting(filteredConversations, sortBy, query);
+        // Apply sorting
+        filteredConversations =
+            _applySorting(filteredConversations, sortBy, query);
 
-    // Apply limit
-    if (limit > 0 && filteredConversations.length > limit) {
-      filteredConversations = filteredConversations.take(limit).toList();
-    }
+        // Apply limit
+        if (limit > 0 && filteredConversations.length > limit) {
+          filteredConversations = filteredConversations.take(limit).toList();
+        }
 
-    return filteredConversations;
+        return right(filteredConversations);
+      },
+    );
   }
 
   List<ChatConversation> _applyFilters(
@@ -201,107 +209,111 @@ class SearchChatHistoryUseCase {
     return score;
   }
 
-  // Get search suggestions based on existing conversations
-  Future<List<String>> getSearchSuggestions({String? partialQuery}) async {
-    final conversations = await _repository.getChatHistory();
-    final suggestions = <String>{};
+  Future<Either<Failure, List<String>>> getSearchSuggestions(
+      {String? partialQuery}) async {
+    final historyResult = await _repository.getChatHistory();
+    return historyResult.fold(
+      (failure) => left(failure),
+      (conversations) {
+        final suggestions = <String>{};
 
-    // Add popular keywords
-    final allKeywords = <String>[];
-    for (final conv in conversations) {
-      allKeywords.addAll(conv.searchKeywords);
-    }
-
-    // Count keyword frequency
-    final keywordCount = <String, int>{};
-    for (final keyword in allKeywords) {
-      keywordCount[keyword] = (keywordCount[keyword] ?? 0) + 1;
-    }
-
-    // Get top keywords
-    final topKeywords = keywordCount.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    // Add suggestions based on partial query
-    if (partialQuery != null && partialQuery.isNotEmpty) {
-      final lowerQuery = partialQuery.toLowerCase();
-
-      // Add matching keywords
-      for (final entry in topKeywords) {
-        if (entry.key.contains(lowerQuery)) {
-          suggestions.add(entry.key);
+        final allKeywords = <String>[];
+        for (final conv in conversations) {
+          allKeywords.addAll(conv.searchKeywords);
         }
-      }
 
-      // Add matching titles
-      for (final conv in conversations) {
-        if (conv.title.toLowerCase().contains(lowerQuery)) {
-          suggestions.add(conv.title);
+        final keywordCount = <String, int>{};
+        for (final keyword in allKeywords) {
+          keywordCount[keyword] = (keywordCount[keyword] ?? 0) + 1;
         }
-      }
 
-      // Add matching categories
-      for (final conv in conversations) {
-        if (conv.category != null &&
-            conv.category!.toLowerCase().contains(lowerQuery)) {
-          suggestions.add(conv.category!);
+        final topKeywords = keywordCount.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+        if (partialQuery != null && partialQuery.isNotEmpty) {
+          final lowerQuery = partialQuery.toLowerCase();
+
+          for (final entry in topKeywords) {
+            if (entry.key.contains(lowerQuery)) {
+              suggestions.add(entry.key);
+            }
+          }
+
+          for (final conv in conversations) {
+            if (conv.title.toLowerCase().contains(lowerQuery)) {
+              suggestions.add(conv.title);
+            }
+          }
+
+          for (final conv in conversations) {
+            if (conv.category != null &&
+                conv.category!.toLowerCase().contains(lowerQuery)) {
+              suggestions.add(conv.category!);
+            }
+          }
+        } else {
+          suggestions.addAll(topKeywords.take(10).map((e) => e.key));
         }
-      }
-    } else {
-      // Add top keywords as general suggestions
-      suggestions.addAll(topKeywords.take(10).map((e) => e.key));
-    }
 
-    return suggestions.take(8).toList();
+        return right(suggestions.take(8).toList());
+      },
+    );
   }
 
-  // Get available categories for filtering
-  Future<List<String>> getAvailableCategories() async {
-    final conversations = await _repository.getChatHistory();
-    final categories = conversations
-        .where((conv) => conv.category != null)
-        .map((conv) => conv.category!)
-        .toSet()
-        .toList();
+  Future<Either<Failure, List<String>>> getAvailableCategories() async {
+    final historyResult = await _repository.getChatHistory();
+    return historyResult.fold(
+      (failure) => left(failure),
+      (conversations) {
+        final categories = conversations
+            .where((conv) => conv.category != null)
+            .map((conv) => conv.category!)
+            .toSet()
+            .toList();
 
-    categories.sort();
-    return categories;
+        categories.sort();
+        return right(categories);
+      },
+    );
   }
 
-  // Get search analytics
-  Future<Map<String, dynamic>> getSearchAnalytics() async {
-    final conversations = await _repository.getChatHistory();
+  Future<Either<Failure, Map<String, dynamic>>> getSearchAnalytics() async {
+    final historyResult = await _repository.getChatHistory();
+    return historyResult.fold(
+      (failure) => left(failure),
+      (conversations) {
+        final now = DateTime.now();
+        final thisMonth = conversations
+            .where((conv) =>
+                conv.timestamp.isAfter(DateTime(now.year, now.month, 1)))
+            .length;
+        final thisWeek = conversations
+            .where((conv) =>
+                conv.timestamp.isAfter(now.subtract(const Duration(days: 7))))
+            .length;
 
-    final now = DateTime.now();
-    final thisMonth = conversations
-        .where(
-            (conv) => conv.timestamp.isAfter(DateTime(now.year, now.month, 1)))
-        .length;
-    final thisWeek = conversations
-        .where((conv) =>
-            conv.timestamp.isAfter(now.subtract(const Duration(days: 7))))
-        .length;
+        final categories = <String, int>{};
+        for (final conv in conversations) {
+          if (conv.category != null) {
+            categories[conv.category!] = (categories[conv.category!] ?? 0) + 1;
+          }
+        }
 
-    final categories = <String, int>{};
-    for (final conv in conversations) {
-      if (conv.category != null) {
-        categories[conv.category!] = (categories[conv.category!] ?? 0) + 1;
-      }
-    }
-
-    return {
-      'totalConversations': conversations.length,
-      'thisMonth': thisMonth,
-      'thisWeek': thisWeek,
-      'favorites': conversations.where((conv) => conv.isFavorite).length,
-      'archived': conversations.where((conv) => conv.isArchived).length,
-      'categories': categories,
-      'averageMessagesPerConversation': conversations.isEmpty
-          ? 0
-          : conversations
-                  .map((conv) => conv.messageCount)
-                  .reduce((a, b) => a + b) /
-              conversations.length,
-    };
+        return right({
+          'totalConversations': conversations.length,
+          'thisMonth': thisMonth,
+          'thisWeek': thisWeek,
+          'favorites': conversations.where((conv) => conv.isFavorite).length,
+          'archived': conversations.where((conv) => conv.isArchived).length,
+          'categories': categories,
+          'averageMessagesPerConversation': conversations.isEmpty
+              ? 0
+              : conversations
+                      .map((conv) => conv.messageCount)
+                      .reduce((a, b) => a + b) /
+                  conversations.length,
+        });
+      },
+    );
   }
 }
