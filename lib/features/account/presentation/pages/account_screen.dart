@@ -49,8 +49,7 @@ class AccountScreen extends StatelessWidget {
             },
           ),
           BlocListener<AccountBloc, AccountState>(
-            listener: (context, state) {
-            },
+            listener: (context, state) {},
           ),
         ],
         child: BlocBuilder<AuthBloc, AuthState>(
@@ -76,7 +75,6 @@ class AccountScreen extends StatelessWidget {
               );
             }
 
-           
             return ProfileScreenShimmer();
           },
         ),

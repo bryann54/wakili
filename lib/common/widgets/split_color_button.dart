@@ -8,8 +8,7 @@ class SplitColorButton extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final BorderRadiusGeometry? borderRadius;
   final List<BoxShadow>? boxShadow;
-  final bool
-      isPrimaryButton;
+  final bool isPrimaryButton;
 
   const SplitColorButton({
     super.key,
@@ -27,9 +26,7 @@ class SplitColorButton extends StatelessWidget {
     final Color darkSideBg = AppColors.visualDarkBackgroundHalf;
     final Color lightSideBg = AppColors.visualLightBackgroundHalf;
 
-
-    final Color textOnDarkBackground =
-        AppColors.textOnPrimary; 
+    final Color textOnDarkBackground = AppColors.textOnPrimary;
     final Color textOnLightBackground = AppColors.textPrimary;
     final Color textOnLightBackgroundSecondary = AppColors.textSecondary;
 
@@ -49,8 +46,7 @@ class SplitColorButton extends StatelessWidget {
         text,
         textAlign: TextAlign.center,
         style: textStyle.copyWith(
-          color: AppColors
-              .textOnPrimary, 
+          color: AppColors.textOnPrimary,
         ),
       ),
     );

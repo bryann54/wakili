@@ -1,7 +1,7 @@
-import 'package:auto_route/auto_route.dart'; 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakili/common/helpers/app_router.gr.dart'; 
+import 'package:wakili/common/helpers/app_router.gr.dart';
 import 'package:wakili/common/res/colors.dart';
 import 'package:wakili/features/account/presentation/widgets/logout_dialog.dart';
 import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
@@ -21,13 +21,11 @@ class _LogOutButtonState extends State<LogOutButton> {
       builder: (BuildContext context) {
         return CustomLogoutDialog(
           onConfirm: () {
-            Navigator.of(context).pop(); 
-            context
-                .read<AuthBloc>()
-                .add(AuthSignOut());
+            Navigator.of(context).pop();
+            context.read<AuthBloc>().add(AuthSignOut());
           },
           onCancel: () {
-            Navigator.of(context).pop(); 
+            Navigator.of(context).pop();
           },
         );
       },
@@ -57,8 +55,8 @@ class _LogOutButtonState extends State<LogOutButton> {
         child: Material(
           elevation: 5,
           shadowColor: isLightMode
-              ? Colors.black.withValues(alpha:0.3)
-              : Colors.white.withValues(alpha:0.1),
+              ? Colors.black.withValues(alpha: 0.3)
+              : Colors.white.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
           color: Colors.transparent,
           child: BlocBuilder<AuthBloc, AuthState>(

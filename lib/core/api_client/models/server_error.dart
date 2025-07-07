@@ -36,10 +36,10 @@ class ServerError implements Exception {
           } else if (error.response?.data is String) {
             errorMessage = error.response?.data as String;
           } else {
-            errorMessage = "Server responded with an error: ${statusCode}";
+            errorMessage = "Server responded with an error: $statusCode";
           }
         } catch (e) {
-          errorMessage = "Failed to parse server error: ${statusCode}";
+          errorMessage = "Failed to parse server error: $statusCode";
         }
         break;
       case DioExceptionType.sendTimeout:
@@ -53,7 +53,7 @@ class ServerError implements Exception {
             "Failed to connect to the internet. Please check your network connection.";
         break;
       case DioExceptionType.unknown:
-      errorMessage = "An unexpected error occurred: ${error.message}";
+        errorMessage = "An unexpected error occurred: ${error.message}";
         break;
     }
     return ServerError(message: errorMessage, statusCode: statusCode);

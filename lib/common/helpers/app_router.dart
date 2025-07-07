@@ -41,18 +41,17 @@ class AuthGuard extends AutoRouteGuard {
 class AppRouter extends RootStackRouter {
   final AuthBloc authBloc;
 
-  AppRouter({required this.authBloc}); 
+  AppRouter({required this.authBloc});
 
   @override
   List<AutoRoute> get routes => [
-        AutoRoute(
-            page: SplashRoute.page, initial: true), 
-             AutoRoute(page: GetStartedRoute.page), 
+        AutoRoute(page: SplashRoute.page, initial: true),
+        AutoRoute(page: GetStartedRoute.page),
         AutoRoute(page: LoginRoute.page),
         AutoRoute(page: RegisterRoute.page),
         AutoRoute(
           page: MainRoute.page,
-          guards: [AuthGuard(authBloc)], 
+          guards: [AuthGuard(authBloc)],
           children: [
             AutoRoute(page: OverviewRoute.page),
             AutoRoute(page: WakiliChatRoute.page),

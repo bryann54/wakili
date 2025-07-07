@@ -1,14 +1,13 @@
+import 'package:flutter/widgets.dart';
 
 class IntroScreenContent {
-  final String imageUrl;
+  final IconData icon;
   final String title;
   final String description;
 
-
   IntroScreenContent({
-    required this.imageUrl,
+    required this.icon,
     required this.title,
     required this.description,
-   
   });
 }

@@ -31,10 +31,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthSignInWithGoogle>(_onAuthSignInWithGoogle);
     on<AuthSignOut>(_onAuthSignOut);
     on<AuthResetPassword>(_onAuthResetPassword);
-    on<AuthStatusChanged>(_onAuthStatusChanged); 
+    on<AuthStatusChanged>(_onAuthStatusChanged);
 
     getAuthStateChangesUseCase().listen((user) {
-      add(AuthStatusChanged(user)); 
+      add(AuthStatusChanged(user));
     });
   }
 

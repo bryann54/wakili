@@ -1,6 +1,3 @@
-// register_screen.dart
-// ignore_for_file: deprecated_member_use
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
 import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
-// Import your app colors and widgets if available
-// import 'package:wakili/core/utils/colors.dart';
-// import 'package:wakili/features/auth/presentation/widgets/app_logo_widget.dart';
-// import 'package:wakili/features/auth/presentation/widgets/google_signin_button.dart';
 
 @RoutePage()
 class RegisterScreen extends StatefulWidget {
