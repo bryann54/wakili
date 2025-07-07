@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
 import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:wakili/common/res/colors.dart'; // Import AppColors
 
 @RoutePage()
 class SplashScreen extends StatefulWidget {
@@ -91,7 +92,8 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness ==
+        Brightness.dark; // Still useful for other elements
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
@@ -106,30 +108,33 @@ class _SplashScreenState extends State<SplashScreen>
           builder: (context, child) {
             return Stack(
               children: [
+                // Consistent Split screen background using AppColors (fixed visual halves)
                 Row(
                   children: [
                     Expanded(
                       child: Container(
-                        color:
-                            isDark ? Colors.grey[900] : const Color(0xFF1A1A1A),
+                        color: AppColors.visualDarkBackgroundHalf,
                       ),
                     ),
                     Expanded(
                       child: Container(
-                        color: isDark ? Colors.grey[100] : Colors.white,
+                        color: AppColors.visualLightBackgroundHalf,
                       ),
                     ),
                   ],
                 ),
+                // Center vertical divider
                 Positioned(
                   left: MediaQuery.of(context).size.width / 2 - 0.5,
                   top: 0,
                   bottom: 0,
                   child: Container(
                     width: 1,
-                    color: Colors.grey.withValues(alpha: 0.2),
+                    color: Colors.grey.withValues(
+                        alpha: 0.2), // Using opacity for the divider color
                   ),
                 ),
+                // Main content
                 Center(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
@@ -152,11 +157,15 @@ class _SplashScreenState extends State<SplashScreen>
                                     offset: const Offset(0, 10),
                                   ),
                                 ],
+                                // Logo gradient should reflect the fixed visual background halves
                                 gradient: LinearGradient(
                                   colors: [
-                                    Colors.white.withValues(alpha: 0.3),
-                                    const Color(0xFF1A1A1A)
-                                        .withValues(alpha: 0.3),
+                                    AppColors.visualLightBackgroundHalf
+                                        .withValues(
+                                            alpha: 0.3), // Light side of logo
+                                    AppColors.visualDarkBackgroundHalf
+                                        .withValues(
+                                            alpha: 0.3), // Dark side of logo
                                   ],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
@@ -167,7 +176,8 @@ class _SplashScreenState extends State<SplashScreen>
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(17),
-                                  color: Colors.white,
+                                  color: Colors
+                                      .white, // Inner color of the logo border
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(17),
@@ -180,15 +190,21 @@ class _SplashScreenState extends State<SplashScreen>
                             ),
                           ),
                           const SizedBox(height: 32),
+                          // ShaderMask for text to match split background
                           ShaderMask(
                             shaderCallback: (bounds) => LinearGradient(
                               colors: [
-                                Colors.white,
-                                const Color(0xFF1A1A1A),
+                                Colors
+                                    .white, // Text on the dark side should be white
+                                AppColors
+                                    .textPrimary, // Text on the light side should be dark
                               ],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
-                              stops: const [0.5, 0.5],
+                              stops: const [
+                                0.5,
+                                0.5
+                              ], // Split precisely in the middle
                             ).createShader(bounds),
                             child: Text(
                               'Wakili',
@@ -196,7 +212,8 @@ class _SplashScreenState extends State<SplashScreen>
                                 fontSize: 32,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: -0.5,
-                                color: Colors.white,
+                                color: Colors
+                                    .white, // This color is masked, but a fallback is good practice
                               ),
                             ),
                           ),
@@ -204,12 +221,17 @@ class _SplashScreenState extends State<SplashScreen>
                           ShaderMask(
                             shaderCallback: (bounds) => LinearGradient(
                               colors: [
-                                Colors.white70,
-                                Colors.grey[600]!,
+                                Colors
+                                    .white70, // Text on the dark side should be light
+                                AppColors
+                                    .textSecondary, // Text on the light side should be secondary dark
                               ],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
-                              stops: const [0.55, 0.55],
+                              stops: const [
+                                0.55,
+                                0.55
+                              ], // Slightly offset for effect
                             ).createShader(bounds),
                             child: Text(
                               'Legal AI Assistant',
@@ -217,7 +239,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                                 letterSpacing: 0.5,
-                                color: Colors.white,
+                                color: Colors.white, // This color is masked
                               ),
                             ),
                           ),
@@ -237,8 +259,11 @@ class _SplashScreenState extends State<SplashScreen>
                         height: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
+                          // Progress indicator color can still adapt to overall theme
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            isDark ? Colors.white54 : Colors.grey[400]!,
+                            isDark
+                                ? AppColors.textLightDark
+                                : AppColors.textLight,
                           ),
                         ),
                       ),

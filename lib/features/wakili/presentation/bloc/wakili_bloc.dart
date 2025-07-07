@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:wakili/core/errors/failures.dart';
 import 'package:wakili/features/chat_history/presentation/bloc/chat_history_bloc.dart';
