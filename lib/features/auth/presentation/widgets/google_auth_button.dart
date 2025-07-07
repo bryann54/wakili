@@ -25,7 +25,7 @@ class GoogleAuthButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           side: BorderSide(
-            color: Theme.of(context).dividerColor.withOpacity(0.3),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
           ),
           backgroundColor: Theme.of(context).colorScheme.surface,
         ),

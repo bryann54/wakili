@@ -31,7 +31,7 @@ class AuthBottomBar extends StatelessWidget {
                     .textTheme
                     .bodyLarge
                     ?.color
-                    ?.withOpacity(0.7),
+                    ?.withValues(alpha: 0.7),
               ),
             ),
             Hero(

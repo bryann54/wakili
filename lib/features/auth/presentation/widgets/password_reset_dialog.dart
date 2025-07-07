@@ -82,7 +82,7 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.15),
+                color: Colors.black.withValues(alpha: 0.15),
                 blurRadius: 24,
                 offset: const Offset(0, 12),
               ),
@@ -98,7 +98,7 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                 height: 72,
                 decoration: BoxDecoration(
                   color: _isEmailValid
-                      ? theme.primaryColor.withOpacity(0.1)
+                      ? theme.primaryColor.withValues(alpha: 0.1)
                       : theme.colorScheme.surfaceContainerHighest,
                   shape: BoxShape.circle,
                 ),
@@ -107,7 +107,7 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                   size: 32,
                   color: _isEmailValid
                       ? theme.primaryColor
-                      : theme.colorScheme.onSurface.withOpacity(0.5),
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
               ),
               const SizedBox(height: 24),
@@ -130,7 +130,7 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(height: 28),
@@ -196,7 +196,7 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                                 ? LinearGradient(
                                     colors: [
                                       theme.primaryColor,
-                                      theme.primaryColor.withOpacity(0.8),
+                                      theme.primaryColor.withValues(alpha: 0.8),
                                     ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -245,7 +245,7 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                                       color: _isEmailValid
                                           ? Colors.white
                                           : theme.colorScheme.onSurface
-                                              .withOpacity(0.4),
+                                              .withValues(alpha: 0.4),
                                     ),
                                   ),
                           ),
