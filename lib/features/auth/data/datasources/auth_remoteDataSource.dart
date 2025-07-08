@@ -148,6 +148,4 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
               'An unexpected error occurred during password reset: ${e.toString()}');
     }
   }
-
-
 }

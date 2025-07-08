@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
-import 'package:wakili/common/res/colors.dart';
+
 import 'package:wakili/features/account/presentation/widgets/logout_dialog.dart';
 import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
 
@@ -34,9 +34,6 @@ class _LogOutButtonState extends State<LogOutButton> {
 
   @override
   Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    final isLightMode = brightness == Brightness.light;
-
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthUnauthenticated) {
@@ -51,54 +48,50 @@ class _LogOutButtonState extends State<LogOutButton> {
         }
       },
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Material(
-          elevation: 5,
-          shadowColor: isLightMode
-              ? Colors.black.withValues(alpha: 0.3)
-              : Colors.white.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.transparent,
-          child: BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              final bool isLoading = state is AuthLoading;
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            final bool isLoading = state is AuthLoading;
 
-              return InkWell(
-                onTap: isLoading ? null : _showLogoutConfirmationDialog,
-                borderRadius: BorderRadius.circular(10),
-                child: Ink(
-                  height: 50,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: isLightMode
-                        ? AppColors.primaryButtonGradient
-                        : AppColors.accentButtonGradient,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    child: isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : Text(
-                            'logout',
-                            style: TextStyle(
-                              color: AppColors.textPrimaryDark,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                            ),
-                          ),
-                  ),
+            return ElevatedButton(
+              onPressed: isLoading ? null : _showLogoutConfirmationDialog,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(204, 2, 15, 49),
+                foregroundColor: Colors.white,
+                elevation: 2,
+                shadowColor: Colors.black.withValues(alpha: 0.2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              );
-            },
-          ),
+                minimumSize: const Size(double.infinity, 50),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+              ),
+              child: isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.logout, size: 20),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Log Out',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+            );
+          },
         ),
       ),
     );

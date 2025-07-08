@@ -1,13 +1,17 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:wakili/common/res/l10n.dart';
+import 'package:wakili/features/account/presentation/widgets/buy_me_a_coffee_button.dart';
 import 'package:wakili/features/account/presentation/widgets/profile_shimmer.dart';
 import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:wakili/features/account/presentation/bloc/account_bloc.dart';
 import 'package:wakili/features/account/presentation/widgets/logout_button_widget.dart';
 import 'package:wakili/features/account/presentation/widgets/edit_profile_dialog.dart';
 import 'package:wakili/features/account/presentation/widgets/change_password.dart';
-import 'package:wakili/common/helpers/app_router.gr.dart'; // Ensure this is imported for navigation
+import 'package:wakili/common/helpers/app_router.gr.dart';
+import 'package:wakili/common/res/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 @RoutePage()
@@ -17,19 +21,18 @@ class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text(
-          'Account',
-          style: GoogleFonts.montaga(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+        title: Expanded(
+          child: Text(
+            toBeginningOfSentenceCase(
+                    AppLocalizations.getString(context, 'account details')) ??
+                '',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
           ),
         ),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
       ),
       body: MultiBlocListener(
         listeners: [
@@ -60,22 +63,27 @@ class AccountScreen extends StatelessWidget {
 
             if (authState is AuthAuthenticated) {
               return SingleChildScrollView(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
                     _buildProfileHeader(context, authState.user),
-                    const SizedBox(height: 40),
-                    _buildProfileFields(context, authState.user),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 22),
+                    _buildProfileSection(context, authState.user),
+                    const SizedBox(height: 24),
                     _buildSupportSection(context),
-                    const SizedBox(height: 150),
-                    _buildLogoutSection(context),
+                    const SizedBox(height: 24),
+                    BuyMeCoffeeButton(
+                      onPressed: () {
+                        // Handle coffee purchase
+                      },
+                    ),
+                    const LogOutButton(),
                   ],
                 ),
               );
             }
 
-            return ProfileScreenShimmer();
+            return const ProfileScreenShimmer();
           },
         ),
       ),
@@ -83,199 +91,235 @@ class AccountScreen extends StatelessWidget {
   }
 
   Widget _buildProfileHeader(BuildContext context, user) {
-    return Column(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        GestureDetector(
-          onTap: () => _showEditProfileDialog(context, user),
-          child: Stack(
-            children: [
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.orange,
-                    width: 3,
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.brandPrimary.withValues(alpha: 0.5),
+                  width: 2.0,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.shadowColor.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
                   ),
-                ),
-                child: CircleAvatar(
-                  radius: 57,
-                  backgroundColor: Colors.grey[200],
-                  backgroundImage: user.photoUrl != null
-                      ? NetworkImage(user.photoUrl!)
-                      : null,
-                  child: user.photoUrl == null
-                      ? Icon(
-                          Icons.person,
-                          size: 60,
-                          color: Colors.grey[600],
-                        )
-                      : null,
-                ),
+                ],
               ),
-              Positioned(
-                bottom: 8,
-                right: 8,
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(
-                    Icons.edit,
-                    size: 16,
-                    color: Colors.white,
-                  ),
+              child: CircleAvatar(
+                radius: 48,
+                backgroundColor: AppColors.cardColor,
+                backgroundImage:
+                    user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+                child: user.photoUrl == null
+                    ? Icon(
+                        Icons.person,
+                        size: 50,
+                        color: AppColors.textSecondary,
+                      )
+                    : null,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(width: 20),
+
+        // User Name and Email
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                user.displayName ?? 'User',
+                style: GoogleFonts.montserrat(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
                 ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                user.email ?? 'email@example.com',
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
+                overflow:
+                    TextOverflow.ellipsis, // Prevents overflow for long emails
+                maxLines: 1,
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        Text(
-          user.displayName ?? 'User',
-          style: GoogleFonts.montaga(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
+      ],
+    );
+  }
+
+  Widget _buildProfileSection(BuildContext context, user) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(
+            'Profile',
+            style: GoogleFonts.montserrat(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: Colors.grey.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            children: [
+              _buildProfileListItem(
+                context,
+                icon: Icons.person_outline,
+                title: 'Name',
+                value: user.displayName ?? 'Not set',
+                onTap: () => _showEditProfileDialog(context, user),
+              ),
+              const Divider(height: 1, indent: 16),
+              _buildProfileListItem(
+                context,
+                icon: Icons.email_outlined,
+                title: 'Email',
+                value: user.email ?? 'Not set',
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Email editing not available yet'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                },
+              ),
+              const Divider(height: 1, indent: 16),
+              _buildProfileListItem(
+                context,
+                icon: Icons.lock_outline,
+                title: 'Password',
+                value: '••••••••••',
+                onTap: () => _showChangePasswordDialog(context),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildProfileFields(BuildContext context, user) {
-    return Column(
-      children: [
-        _buildProfileField(
-          context,
-          icon: Icons.person_outline,
-          label: user.displayName ?? '',
-          onTap: () => _showEditProfileDialog(context, user),
-        ),
-        const SizedBox(height: 10),
-        _buildProfileField(
-          context,
-          icon: Icons.email_outlined,
-          label: user.email ?? 'nasirahamed4488@gmail.com',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Email editing not available yet'),
-                backgroundColor: Colors.orange,
-              ),
-            );
-          },
-        ),
-        const SizedBox(height: 10),
-        _buildProfileField(
-          context,
-          icon: Icons.lock_outline,
-          label: '••••••••••',
-          onTap: () => _showChangePasswordDialog(context),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProfileField(
+  Widget _buildProfileListItem(
     BuildContext context, {
     required IconData icon,
-    required String label,
+    required String title,
+    required String value,
     required VoidCallback onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black
-                .withValues(alpha: 0.05), // Using opacity for brevity
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: AppColors.brandPrimary,
+        size: 24,
       ),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: Colors.grey[600],
-            size: 24,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              label,
-              style: GoogleFonts.acme(
-                fontSize: 16,
-                color: Colors.black87,
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: onTap,
-            child: Icon(
-              Icons.edit_outlined,
-              color: Colors.grey[600],
-              size: 20,
-            ),
-          ),
-        ],
+      title: Text(
+        title,
+        style: GoogleFonts.montserrat(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: Colors.grey[700],
+        ),
       ),
+      subtitle: Text(
+        value,
+        style: GoogleFonts.montserrat(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+        ),
+      ),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: Colors.grey[400],
+      ),
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      minVerticalPadding: 0,
     );
   }
 
   Widget _buildSupportSection(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.support_agent_outlined,
-            color: Colors.grey[600],
-            size: 24,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              'Support',
-              style: GoogleFonts.acme(
-                fontSize: 16,
-                color: Colors.black87,
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(
+            'Support',
+            style: GoogleFonts.montserrat(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
             ),
           ),
-          Icon(
-            Icons.arrow_forward_ios,
-            color: Colors.grey[600],
-            size: 16,
+        ),
+        const SizedBox(height: 8),
+        Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: Colors.grey.withValues(alpha: 0.2),
+              width: 1,
+            ),
           ),
-        ],
-      ),
+          child: ListTile(
+            leading: Icon(
+              Icons.support_agent_outlined,
+              color: AppColors.brandPrimary,
+              size: 24,
+            ),
+            title: Text(
+              'Help & Support',
+              style: GoogleFonts.montserrat(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[700],
+              ),
+            ),
+            trailing: Icon(
+              Icons.chevron_right,
+              color: Colors.grey[400],
+            ),
+            onTap: () {
+              // Navigate to support
+            },
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        ),
+      ],
     );
-  }
-
-  Widget _buildLogoutSection(BuildContext context) {
-    // Directly use the LogOutButton widget, it handles its own BlocListener
-    return const LogOutButton();
   }
 
   void _showEditProfileDialog(BuildContext context, user) {

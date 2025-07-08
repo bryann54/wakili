@@ -67,4 +67,9 @@ class AppColors {
       Color(0xFF1A1A1A); // Always the dark side of the split
   static const Color visualLightBackgroundHalf =
       Colors.white; // Always the light side of the split
+  static const Color coffeeBrownDark = Color(0xFF6F4E37); // Dark Coffee Brown
+  static const Color coffeeBrownMedium = Color(0xFF8B4513); // Saddle Brown
+  static const Color coffeeBrownLight = Color(0xFFA0522D); // Sienna
+  static const Color coffeeCrema = Color(0xFFD2B48C); // Tan/Crema color
+  static const Color coffeeLiquid = Color(0xFF3C2415); // Dark coffee liquid
 }
