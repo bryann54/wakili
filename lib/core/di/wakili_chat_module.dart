@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:injectable/injectable.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -228,7 +230,7 @@ class WakiliQueryProcessor {
     ),
   };
 
-  Future<String> _fetchWebKnowledge(String query) async {
+  FutureOr<String> _fetchWebKnowledge(String query) async {
     // Current date: July 5, 2025. Use this for "current" references.
     await Future.delayed(
       const Duration(milliseconds: 200),
@@ -278,7 +280,7 @@ class WakiliQueryProcessor {
     return null;
   }
 
-  Future<String> enhanceQueryWithContext(String originalQuery) async {
+  FutureOr<String> enhanceQueryWithContext(String originalQuery) async {
     final context = detectLegalContext(originalQuery);
     String webKnowledge = "";
 

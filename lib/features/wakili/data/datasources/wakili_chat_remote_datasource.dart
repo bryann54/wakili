@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:injectable/injectable.dart';
 
 abstract class WakiliChatRemoteDataSource {
-  Future<String> sendMessage(String message);
+  FutureOr<String> sendMessage(String message);
   Stream<String> sendMessageStream(String message);
 }
 
@@ -13,7 +15,7 @@ class GeminiWakiliChatRemoteDataSource implements WakiliChatRemoteDataSource {
   GeminiWakiliChatRemoteDataSource(this._model);
 
   @override
-  Future<String> sendMessage(String message) async {
+  FutureOr<String> sendMessage(String message) async {
     try {
       final content = [Content.text(message)];
       final response = await _model.generateContent(content);
