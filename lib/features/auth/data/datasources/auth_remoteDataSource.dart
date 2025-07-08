@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:wakili/common/utils/google_sign_in.dart';
 
 import 'package:wakili/core/errors/exceptions.dart';
 import 'package:wakili/features/auth/data/models/user_model.dart';
@@ -47,13 +48,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: password,
       );
       if (userCredential.user == null) {
-        throw ServerException();
+        throw ServerException(
+            message: 'User credential is null after sign-in.');
       }
       return UserModel.fromFirebaseUser(userCredential.user!);
-    } on auth.FirebaseAuthException {
-      throw ServerException(); // Map Firebase errors to your exceptions
+    } on auth.FirebaseAuthException catch (e) {
+      // Map Firebase specific error codes to custom messages
+      throw ServerException(message: getFirebaseAuthErrorMessage(e.code));
     } catch (e) {
-      throw ServerException();
+      // Catch any other unexpected errors
+      throw ServerException(
+          message: 'An unexpected error occurred: ${e.toString()}');
     }
   }
 
@@ -70,14 +75,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: password,
       );
       if (userCredential.user == null) {
-        throw ServerException();
+        throw ServerException(
+            message: 'User credential is null after sign-up.');
       }
       await userCredential.user!.updateDisplayName('$firstName $lastName');
       return UserModel.fromFirebaseUser(userCredential.user!);
-    } on auth.FirebaseAuthException {
-      throw ServerException();
+    } on auth.FirebaseAuthException catch (e) {
+      throw ServerException(message: getFirebaseAuthErrorMessage(e.code));
     } catch (e) {
-      throw ServerException();
+      throw ServerException(
+          message: 'An unexpected error occurred: ${e.toString()}');
     }
   }
 
@@ -86,7 +93,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
-        throw ClientException(message: 'Google Sign In cancelled.');
+        // User cancelled the sign-in flow
+        throw ClientException(message: 'Google Sign In cancelled by user.');
       }
 
       final GoogleSignInAuthentication googleAuth =
@@ -100,15 +108,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         credential,
       );
       if (userCredential.user == null) {
-        throw ServerException();
+        throw ServerException(
+            message: 'User credential is null after Google sign-in.');
       }
       return UserModel.fromFirebaseUser(userCredential.user!);
-    } on auth.FirebaseAuthException {
-      throw ServerException(); // Map Firebase errors to your exceptions
+    } on auth.FirebaseAuthException catch (e) {
+      throw ServerException(message: getFirebaseAuthErrorMessage(e.code));
     } on ClientException {
       rethrow; // Re-throw the specific client cancellation
     } catch (e) {
-      throw ServerException();
+      throw ServerException(
+          message: 'An unexpected error occurred: ${e.toString()}');
     }
   }
 
@@ -117,8 +127,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       await _firebaseAuth.signOut();
       await _googleSignIn.signOut();
+    } on auth.FirebaseAuthException catch (e) {
+      throw ServerException(message: getFirebaseAuthErrorMessage(e.code));
     } catch (e) {
-      throw ServerException();
+      throw ServerException(
+          message:
+              'An unexpected error occurred during sign out: ${e.toString()}');
     }
   }
 
@@ -126,10 +140,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> resetPassword(String email) async {
     try {
       await _firebaseAuth.sendPasswordResetEmail(email: email);
-    } on auth.FirebaseAuthException {
-      throw ServerException();
+    } on auth.FirebaseAuthException catch (e) {
+      throw ServerException(message: getFirebaseAuthErrorMessage(e.code));
     } catch (e) {
-      throw ServerException();
+      throw ServerException(
+          message:
+              'An unexpected error occurred during password reset: ${e.toString()}');
     }
   }
+
+
 }

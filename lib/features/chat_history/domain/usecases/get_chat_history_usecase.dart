@@ -1,4 +1,6 @@
+import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
+import 'package:wakili/core/errors/failures.dart';
 import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
 import 'package:wakili/features/chat_history/domain/repositories/chat_history_repository.dart';
 
@@ -8,7 +10,7 @@ class GetChatHistoryUseCase {
 
   GetChatHistoryUseCase(this._repository);
 
-  Future<List<ChatConversation>> call() {
+  Future<Either<Failure, List<ChatConversation>>> call() {
     return _repository.getChatHistory();
   }
 }

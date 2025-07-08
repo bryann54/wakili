@@ -6,8 +6,8 @@ import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:wakili/features/account/presentation/bloc/account_bloc.dart';
 import 'package:wakili/features/account/presentation/widgets/logout_button_widget.dart';
 import 'package:wakili/features/account/presentation/widgets/edit_profile_dialog.dart';
-import 'package:wakili/features/account/presentation/widgets/change_password.dart'; // Add this import
-import 'package:wakili/features/auth/presentation/pages/splash_screen.dart';
+import 'package:wakili/features/account/presentation/widgets/change_password.dart';
+import 'package:wakili/common/helpers/app_router.gr.dart'; // Ensure this is imported for navigation
 import 'package:google_fonts/google_fonts.dart';
 
 @RoutePage()
@@ -35,12 +35,7 @@ class AccountScreen extends StatelessWidget {
         listeners: [
           BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
-              if (state is AuthCheckStatus) {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const SplashScreen()),
-                  (route) => false,
-                );
-              } else if (state is AuthError) {
+              if (state is AuthError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(state.message),
@@ -48,12 +43,13 @@ class AccountScreen extends StatelessWidget {
                   ),
                 );
               }
+              if (state is AuthUnauthenticated) {
+                context.router.replaceAll([const SplashRoute()]);
+              }
             },
           ),
           BlocListener<AccountBloc, AccountState>(
-            listener: (context, state) {
-              // Handle any account state changes if needed
-            },
+            listener: (context, state) {},
           ),
         ],
         child: BlocBuilder<AuthBloc, AuthState>(
@@ -79,9 +75,7 @@ class AccountScreen extends StatelessWidget {
               );
             }
 
-            return const Center(
-              child: Text('Please sign in to view account details'),
-            );
+            return ProfileScreenShimmer();
           },
         ),
       ),
@@ -169,7 +163,6 @@ class AccountScreen extends StatelessWidget {
           icon: Icons.email_outlined,
           label: user.email ?? 'nasirahamed4488@gmail.com',
           onTap: () {
-            // Handle email edit - you might want to add this functionality later
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Email editing not available yet'),
@@ -183,8 +176,7 @@ class AccountScreen extends StatelessWidget {
           context,
           icon: Icons.lock_outline,
           label: '••••••••••',
-          onTap: () => _showChangePasswordDialog(
-              context), // Updated to show password dialog
+          onTap: () => _showChangePasswordDialog(context),
         ),
       ],
     );
@@ -203,7 +195,8 @@ class AccountScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black
+                .withValues(alpha: 0.05), // Using opacity for brevity
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -281,12 +274,8 @@ class AccountScreen extends StatelessWidget {
   }
 
   Widget _buildLogoutSection(BuildContext context) {
-    return GestureDetector(
-        onTap: () {
-          // Handle logout
-          context.read<AuthBloc>().add(const AuthSignOut());
-        },
-        child: LogOutButton());
+    // Directly use the LogOutButton widget, it handles its own BlocListener
+    return const LogOutButton();
   }
 
   void _showEditProfileDialog(BuildContext context, user) {
@@ -308,13 +297,10 @@ class AccountScreen extends StatelessWidget {
             backgroundColor: Colors.green,
           ),
         );
-        // Optionally refresh the user data here
-        // context.read<AuthBloc>().add(AuthCheckRequested());
       }
     });
   }
 
-  // New method to show change password dialog
   void _showChangePasswordDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -324,7 +310,6 @@ class AccountScreen extends StatelessWidget {
     ).then((result) {
       if (result == true) {
         // Password was successfully changed
-        // The ChangePassword dialog already shows its own success message
       }
     });
   }

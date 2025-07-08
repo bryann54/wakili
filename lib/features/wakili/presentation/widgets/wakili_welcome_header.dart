@@ -26,7 +26,7 @@ class _WakiliWelcomeHeaderState extends State<WakiliWelcomeHeader>
       duration: const Duration(seconds: 3),
       vsync: this,
     );
-    
+
     // Start continuous animations
     _pulseController.repeat(reverse: true);
     _floatingController.repeat(reverse: true);
@@ -47,19 +47,19 @@ class _WakiliWelcomeHeaderState extends State<WakiliWelcomeHeader>
         children: [
           // Animated Avatar with multiple effects
           AnimatedBuilder(
-            animation: Listenable.merge([_pulseController, _floatingController]),
+            animation:
+                Listenable.merge([_pulseController, _floatingController]),
             builder: (context, child) {
               return Transform.translate(
-                offset: Offset(0, math.sin(_floatingController.value * 2 * math.pi) * 3),
+                offset: Offset(
+                    0, math.sin(_floatingController.value * 2 * math.pi) * 3),
                 child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withValues(alpha: 0.2 + (_pulseController.value * 0.1)),
+                        color: Theme.of(context).colorScheme.primary.withValues(
+                            alpha: 0.2 + (_pulseController.value * 0.1)),
                         blurRadius: 12 + (_pulseController.value * 8),
                         offset: const Offset(0, 4),
                         spreadRadius: _pulseController.value * 2,
@@ -86,7 +86,7 @@ class _WakiliWelcomeHeaderState extends State<WakiliWelcomeHeader>
               .animate(onPlay: (controller) => controller.repeat())
               .shimmer(
                 duration: 2000.ms,
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 angle: 45,
               )
               .then(delay: 1000.ms)
@@ -135,12 +135,13 @@ class _WakiliWelcomeHeaderState extends State<WakiliWelcomeHeader>
                 )
                     .animate()
                     .fadeIn(duration: 800.ms, curve: Curves.easeOut)
-                    .slideX(begin: -0.3, duration: 800.ms, curve: Curves.easeOut)
+                    .slideX(
+                        begin: -0.3, duration: 800.ms, curve: Curves.easeOut)
                     .then(delay: 200.ms)
                     .animate(onPlay: (controller) => controller.repeat())
                     .shimmer(
                       duration: 3000.ms,
-                      color: Colors.lightGreen.withOpacity(0.3),
+                      color: Colors.lightGreen.withValues(alpha: 0.3),
                       angle: 0,
                     ),
 
@@ -168,9 +169,7 @@ class _WakiliWelcomeHeaderState extends State<WakiliWelcomeHeader>
                           begin: 0.05,
                           end: -0.05,
                         ),
-                    
                     const SizedBox(width: 6),
-                    
                     Flexible(
                       child: Text(
                         'Your intelligent legal companion',
@@ -183,13 +182,23 @@ class _WakiliWelcomeHeaderState extends State<WakiliWelcomeHeader>
                             ),
                       )
                           .animate()
-                          .fadeIn(duration: 1000.ms, delay: 400.ms, curve: Curves.easeOut)
-                          .slideX(begin: -0.2, duration: 1000.ms, delay: 400.ms, curve: Curves.easeOut)
+                          .fadeIn(
+                              duration: 1000.ms,
+                              delay: 400.ms,
+                              curve: Curves.easeOut)
+                          .slideX(
+                              begin: -0.2,
+                              duration: 1000.ms,
+                              delay: 400.ms,
+                              curve: Curves.easeOut)
                           .then(delay: 2000.ms)
                           .animate(onPlay: (controller) => controller.repeat())
                           .tint(
                             duration: 3000.ms,
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.1),
                           ),
                     ),
                   ],
@@ -205,4 +214,3 @@ class _WakiliWelcomeHeaderState extends State<WakiliWelcomeHeader>
         .slideY(begin: -0.1, duration: 800.ms, curve: Curves.easeOut);
   }
 }
-

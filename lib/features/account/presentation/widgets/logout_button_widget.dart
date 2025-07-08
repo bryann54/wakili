@@ -1,11 +1,10 @@
-// ignore_for_file: deprecated_member_use
-
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakili/common/helpers/app_router.gr.dart';
 import 'package:wakili/common/res/colors.dart';
 import 'package:wakili/features/account/presentation/widgets/logout_dialog.dart';
 import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:wakili/features/auth/presentation/pages/splash_screen.dart';
 
 class LogOutButton extends StatefulWidget {
   const LogOutButton({super.key});
@@ -40,15 +39,12 @@ class _LogOutButtonState extends State<LogOutButton> {
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AuthCheckStatus) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const SplashScreen()),
-            (route) => false,
-          );
+        if (state is AuthUnauthenticated) {
+          context.router.replaceAll([const GetStartedRoute()]);
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.message),
+              content: Text('Logout Error: ${state.message}'),
               backgroundColor: Colors.red,
             ),
           );

@@ -26,18 +26,22 @@ class FilterChipsWidget extends StatelessWidget {
                 context: context,
                 label: 'All',
                 isSelected: selectedFilter == null,
-                onTap: () => context.read<OverviewBloc>().add(const LoadLegalDocuments()),
+                onTap: () => context
+                    .read<OverviewBloc>()
+                    .add(const LoadLegalDocuments()),
               ),
               const SizedBox(width: 8),
               ...DocumentType.values.map((type) => Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: _buildFilterChip(
-                  context: context,
-                  label: _getTypeDisplayName(type),
-                  isSelected: selectedFilter == type,
-                  onTap: () => context.read<OverviewBloc>().add(LoadLegalDocuments(filterType: type)),
-                ),
-              )).toList(),
+                    padding: const EdgeInsets.only(right: 8),
+                    child: _buildFilterChip(
+                      context: context,
+                      label: _getTypeDisplayName(type),
+                      isSelected: selectedFilter == type,
+                      onTap: () => context
+                          .read<OverviewBloc>()
+                          .add(LoadLegalDocuments(filterType: type)),
+                    ),
+                  )),
             ],
           ),
         );
@@ -56,43 +60,42 @@ class FilterChipsWidget extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected 
+          color: isSelected
               ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected 
-                ? Theme.of(context).colorScheme.primary 
-                : Theme.of(context).colorScheme.outline.withOpacity(0.2),
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           ),
         ),
         child: Text(
           label,
           style: GoogleFonts.poppins(
             fontSize: 14,
-            color: isSelected 
-                ? Theme.of(context).colorScheme.onPrimary 
+            color: isSelected
+                ? Theme.of(context).colorScheme.onPrimary
                 : Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),
     );
-    }
-  
-    String _getTypeDisplayName(DocumentType type) {
-      // You can customize the display names as needed
-      switch (type) {
-        case DocumentType.act:
-          return 'Contract';
-        case DocumentType.amendment:
-          return 'Agreement';
-        case DocumentType.law:
-          return 'Policy';
-        case DocumentType.bill:
-          return 'Bill';
-        case DocumentType.regulation:
-          return 'Regulation';
-          
-        }
+  }
+
+  String _getTypeDisplayName(DocumentType type) {
+    // You can customize the display names as needed
+    switch (type) {
+      case DocumentType.act:
+        return 'Contract';
+      case DocumentType.amendment:
+        return 'Agreement';
+      case DocumentType.law:
+        return 'Policy';
+      case DocumentType.bill:
+        return 'Bill';
+      case DocumentType.regulation:
+        return 'Regulation';
     }
   }
+}

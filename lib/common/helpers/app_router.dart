@@ -39,19 +39,19 @@ class AuthGuard extends AutoRouteGuard {
 
 @AutoRouterConfig(replaceInRouteName: 'Screen|Page,Route')
 class AppRouter extends RootStackRouter {
-  final AuthBloc authBloc; // Inject AuthBloc
+  final AuthBloc authBloc;
 
-  AppRouter({required this.authBloc}); // Constructor to receive AuthBloc
+  AppRouter({required this.authBloc});
 
   @override
   List<AutoRoute> get routes => [
-        AutoRoute(
-            page: SplashRoute.page, initial: true), // Set Splash as initial
+        AutoRoute(page: SplashRoute.page, initial: true),
+        AutoRoute(page: GetStartedRoute.page),
         AutoRoute(page: LoginRoute.page),
         AutoRoute(page: RegisterRoute.page),
         AutoRoute(
           page: MainRoute.page,
-          guards: [AuthGuard(authBloc)], // Protect MainRoute and its children
+          guards: [AuthGuard(authBloc)],
           children: [
             AutoRoute(page: OverviewRoute.page),
             AutoRoute(page: WakiliChatRoute.page),
@@ -62,5 +62,7 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: CategoryChatRoute.page, guards: [AuthGuard(authBloc)]),
         AutoRoute(page: GeneralChatRoute.page, guards: [AuthGuard(authBloc)]),
         AutoRoute(page: ChatRoute.page, guards: [AuthGuard(authBloc)]),
+        AutoRoute(
+            page: DocumentDetailRoute.page, guards: [AuthGuard(authBloc)]),
       ];
 }

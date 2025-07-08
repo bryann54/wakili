@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:wakili/core/api_client/models/server_error.dart';
+import 'package:wakili/core/api_client/models/server_error.dart'; // Import ServerError
 import 'package:wakili/core/errors/exceptions.dart';
 import 'package:wakili/core/errors/failures.dart';
 import 'package:wakili/features/auth/data/datasources/auth_remoteDataSource.dart';
@@ -29,9 +29,11 @@ class AuthRepositoryImpl implements AuthRepository {
         password,
       );
       return Right(userModel);
-    } on ServerException {
-      // You can refine this mapping based on Firebase error codes
-      return Left(ServerFailure(badResponse: ServerError()));
+    } on ServerException catch (e) {
+      // Use the message from ServerException for ServerError
+      return Left(ServerFailure(
+          badResponse:
+              ServerError(message: e.message ?? 'Unknown server error')));
     } on ClientException catch (e) {
       return Left(ClientFailure(error: e.message));
     } catch (e) {
@@ -54,8 +56,10 @@ class AuthRepositoryImpl implements AuthRepository {
         lastName,
       );
       return Right(userModel);
-    } on ServerException {
-      return Left(ServerFailure(badResponse: ServerError()));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(
+          badResponse:
+              ServerError(message: e.message ?? 'Unknown server error')));
     } on ClientException catch (e) {
       return Left(ClientFailure(error: e.message));
     } catch (e) {
@@ -68,8 +72,10 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final userModel = await remoteDataSource.signInWithGoogle();
       return Right(userModel);
-    } on ServerException {
-      return Left(ServerFailure(badResponse: ServerError()));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(
+          badResponse:
+              ServerError(message: e.message ?? 'Unknown server error')));
     } on ClientException catch (e) {
       return Left(ClientFailure(error: e.message));
     } catch (e) {
@@ -81,9 +87,11 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> signOut() async {
     try {
       await remoteDataSource.signOut();
-      return const Right(null);
-    } on ServerException {
-      return const Left(ServerFailure());
+      return const Right(unit); // Use unit from dartz for void returns
+    } on ServerException catch (e) {
+      return Left(ServerFailure(
+          badResponse:
+              ServerError(message: e.message ?? 'Unknown server error')));
     } catch (e) {
       return Left(GeneralFailure(error: e.toString()));
     }
@@ -93,9 +101,11 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> resetPassword(String email) async {
     try {
       await remoteDataSource.resetPassword(email);
-      return const Right(null);
-    } on ServerException {
-      return const Left(ServerFailure());
+      return const Right(unit); // Use unit from dartz for void returns
+    } on ServerException catch (e) {
+      return Left(ServerFailure(
+          badResponse:
+              ServerError(message: e.message ?? 'Unknown server error')));
     } catch (e) {
       return Left(GeneralFailure(error: e.toString()));
     }

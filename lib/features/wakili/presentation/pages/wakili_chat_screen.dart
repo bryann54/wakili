@@ -249,8 +249,10 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                     _searchQuery = value;
                   });
                 },
-                ).animate().slideX(begin: 1, end: 0, curve: Curves.easeOut)
-                .fadeIn(duration: 500.ms, delay: 500.ms),
+              )
+                  .animate()
+                  .slideX(begin: 1, end: 0, curve: Curves.easeOut)
+                  .fadeIn(duration: 500.ms, delay: 500.ms),
               const SizedBox(height: 16),
               Expanded(
                 child: Padding(

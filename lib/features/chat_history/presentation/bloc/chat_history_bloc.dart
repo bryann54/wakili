@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
@@ -29,20 +31,19 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
     on<DeleteChatConversation>(_onDeleteChatConversation);
   }
 
-  Future<void> _onLoadChatHistory(
+  FutureOr<void> _onLoadChatHistory(
     LoadChatHistory event,
     Emitter<ChatHistoryState> emit,
   ) async {
     emit(ChatHistoryLoading());
-    try {
-      final conversations = await _getChatHistoryUseCase();
-      emit(ChatHistoryLoaded(conversations: conversations));
-    } catch (e) {
-      emit(ChatHistoryError(message: 'Failed to load chat history: $e'));
-    }
+    final failureOrConversations = await _getChatHistoryUseCase();
+    failureOrConversations.fold(
+      (failure) => emit(ChatHistoryError(message: failure.toString())),
+      (conversations) => emit(ChatHistoryLoaded(conversations: conversations)),
+    );
   }
 
-  Future<void> _onSaveCurrentChatConversation(
+  FutureOr<void> _onSaveCurrentChatConversation(
     SaveCurrentChatConversation event,
     Emitter<ChatHistoryState> emit,
   ) async {
@@ -51,7 +52,11 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
     }
 
     // Generate title before saving
-    final title = await _generateChatTitleUseCase(event.messages);
+    final failureOrTitle = await _generateChatTitleUseCase(event.messages);
+    final title = failureOrTitle.fold(
+      (failure) => 'Untitled Chat', // Fallback title on failure
+      (generatedTitle) => generatedTitle,
+    );
 
     final newConversation = ChatConversation(
       title: title,
@@ -59,26 +64,36 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
       timestamp: DateTime.now(),
     );
 
-    try {
-      await _saveChatConversationUseCase(newConversation);
-      // After saving, reload the history to reflect the new conversation
-      final conversations = await _getChatHistoryUseCase();
-      emit(ChatHistoryLoaded(conversations: conversations));
-    } catch (e) {
-      if (state is ChatHistoryLoaded) {
-        emit(
-          ChatHistoryError(
-            message: 'Failed to save conversation: $e',
-            conversations: (state as ChatHistoryLoaded).conversations,
-          ),
+    final failureOrUnit = await _saveChatConversationUseCase(newConversation);
+    failureOrUnit.fold(
+      (failure) {
+        if (state is ChatHistoryLoaded) {
+          emit(
+            ChatHistoryError(
+              message: 'Failed to save conversation: ${failure.toString()}',
+              conversations: (state as ChatHistoryLoaded).conversations,
+            ),
+          );
+        } else {
+          emit(ChatHistoryError(
+              message: 'Failed to save conversation: ${failure.toString()}'));
+        }
+      },
+      (_) async {
+        // After saving, reload the history to reflect the new conversation
+        final updatedHistoryResult = await _getChatHistoryUseCase();
+        updatedHistoryResult.fold(
+          (failure) => emit(ChatHistoryError(
+              message:
+                  'Failed to refresh chat history after save: ${failure.toString()}')),
+          (conversations) =>
+              emit(ChatHistoryLoaded(conversations: conversations)),
         );
-      } else {
-        emit(ChatHistoryError(message: 'Failed to save conversation: $e'));
-      }
-    }
+      },
+    );
   }
 
-  Future<void> _onDeleteChatConversation(
+  FutureOr<void> _onDeleteChatConversation(
     DeleteChatConversation event,
     Emitter<ChatHistoryState> emit,
   ) async {
@@ -91,20 +106,24 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
       emit(ChatHistoryLoaded(conversations: updatedConversations));
     }
 
-    try {
-      await _deleteChatConversationUseCase(event.id);
-      // If the deletion fails, reload to revert the optimistic update
-    } catch (e) {
-      emit(
-        ChatHistoryError(
-          message: 'Failed to delete conversation: $e',
-          conversations: currentState is ChatHistoryLoaded
-              ? currentState.conversations
-              : [],
-        ),
-      );
-      // Re-fetch to ensure state consistency if optimistic update failed
-      add(LoadChatHistory());
-    }
+    final failureOrUnit = await _deleteChatConversationUseCase(event.id);
+    failureOrUnit.fold(
+      (failure) {
+        // If the deletion fails, revert the optimistic update and emit an error
+        emit(
+          ChatHistoryError(
+            message: 'Failed to delete conversation: ${failure.toString()}',
+            conversations: currentState is ChatHistoryLoaded
+                ? currentState.conversations // Revert to previous state
+                : [],
+          ),
+        );
+        // Re-fetch to ensure state consistency if optimistic update failed
+        add(LoadChatHistory());
+      },
+      (_) {
+        // Deletion successful, state is already updated optimistically
+      },
+    );
   }
 }

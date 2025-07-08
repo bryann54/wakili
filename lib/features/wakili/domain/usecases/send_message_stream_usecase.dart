@@ -1,17 +1,20 @@
+import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
-
+import 'package:wakili/core/errors/failures.dart';
+import 'package:wakili/common/helpers/base_usecase.dart';
 import '../repositories/wakili_chat_repository.dart';
 
 @injectable
-class SendMessageStreamUseCase {
+class SendMessageUseCase implements UseCase<NoParams, String> {
   final WakiliChatRepository _repository;
 
-  SendMessageStreamUseCase(this._repository);
+  SendMessageUseCase(this._repository);
 
-  Stream<String> call(String message) {
+  @override
+  Future<Either<Failure, NoParams>> call(String message) {
     if (message.trim().isEmpty) {
-      throw Exception('Message cannot be empty');
+      return Future.value(left(ValidationFailure('Message cannot be empty')));
     }
-    return _repository.sendMessageStream(message);
+    return _repository.sendMessage(message);
   }
 }

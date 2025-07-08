@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:wakili/features/auth/domain/entities/user_entity.dart';
 import 'package:wakili/features/auth/domain/usecases/auth_usecases.dart';
-
 part 'auth_event.dart';
 part 'auth_state.dart';
 
@@ -30,32 +31,38 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthSignInWithGoogle>(_onAuthSignInWithGoogle);
     on<AuthSignOut>(_onAuthSignOut);
     on<AuthResetPassword>(_onAuthResetPassword);
+    on<AuthStatusChanged>(_onAuthStatusChanged);
 
-    // Listen to Firebase auth state changes
     getAuthStateChangesUseCase().listen((user) {
-      if (user != null) {
-        add(AuthCheckStatus());
-      } else {
-        add(AuthSignOut());
-      }
+      add(AuthStatusChanged(user));
     });
   }
 
-  Future<void> _onAuthCheckStatus(
+  FutureOr<void> _onAuthStatusChanged(
+    AuthStatusChanged event,
+    Emitter<AuthState> emit,
+  ) async {
+    if (event.user != null) {
+      emit(AuthAuthenticated(user: event.user!));
+    } else {
+      emit(AuthUnauthenticated());
+    }
+  }
+
+  FutureOr<void> _onAuthCheckStatus(
     AuthCheckStatus event,
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    await getAuthStateChangesUseCase().first.then((user) {
-      if (user != null) {
-        emit(AuthAuthenticated(user: user));
-      } else {
-        emit(AuthUnauthenticated());
-      }
-    });
+    final user = await getAuthStateChangesUseCase().first;
+    if (user != null) {
+      emit(AuthAuthenticated(user: user));
+    } else {
+      emit(AuthUnauthenticated());
+    }
   }
 
-  Future<void> _onAuthSignInWithEmailAndPassword(
+  FutureOr<void> _onAuthSignInWithEmailAndPassword(
     AuthSignInWithEmailAndPassword event,
     Emitter<AuthState> emit,
   ) async {
@@ -70,7 +77,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onAuthSignUpWithEmailAndPassword(
+  FutureOr<void> _onAuthSignUpWithEmailAndPassword(
     AuthSignUpWithEmailAndPassword event,
     Emitter<AuthState> emit,
   ) async {
@@ -78,8 +85,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await signUpWithEmailAndPasswordUseCase(
       event.email,
       event.password,
-      event.firstName, // ADDED
-      event.lastName, // ADDED
+      event.firstName,
+      event.lastName,
     );
     result.fold(
       (failure) => emit(AuthError(message: failure.toString())),
@@ -87,7 +94,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onAuthSignInWithGoogle(
+  FutureOr<void> _onAuthSignInWithGoogle(
     AuthSignInWithGoogle event,
     Emitter<AuthState> emit,
   ) async {
@@ -99,7 +106,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onAuthSignOut(
+  FutureOr<void> _onAuthSignOut(
     AuthSignOut event,
     Emitter<AuthState> emit,
   ) async {
@@ -111,7 +118,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onAuthResetPassword(
+  FutureOr<void> _onAuthResetPassword(
     AuthResetPassword event,
     Emitter<AuthState> emit,
   ) async {
