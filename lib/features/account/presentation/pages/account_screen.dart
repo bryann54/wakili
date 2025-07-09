@@ -73,9 +73,7 @@ class AccountScreen extends StatelessWidget {
                     _buildSupportSection(context),
                     const SizedBox(height: 24),
                     BuyMeCoffeeButton(
-                      onPressed: () {
-                        // Handle coffee purchase
-                      },
+                    
                     ),
                     const LogOutButton(),
                   ],

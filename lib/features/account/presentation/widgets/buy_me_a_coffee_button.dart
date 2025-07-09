@@ -2,7 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:wakili/common/res/colors.dart';
+import 'package:wakili/common/helpers/app_router.gr.dart';
 
 class BuyMeCoffeeButton extends StatefulWidget {
   final VoidCallback? onPressed;
@@ -44,95 +46,90 @@ class _BuyMeCoffeeButtonState extends State<BuyMeCoffeeButton>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        gradient: const LinearGradient(
-          colors: [
-            AppColors.coffeeBrownDark,
-            AppColors.coffeeBrownMedium,
-            AppColors.coffeeBrownLight,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.coffeeBrownDark.withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
+    return Hero(
+      tag: 'buy-me-coffee-button',
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          onTap: widget.onPressed ??
-              () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Cheers! Thanks for the coffee!',
-                      style: GoogleFonts.montserrat(color: Colors.white),
+          gradient: const LinearGradient(
+            colors: [
+              AppColors.coffeeBrownDark,
+              AppColors.coffeeBrownMedium,
+              AppColors.coffeeBrownLight,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.coffeeBrownDark.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: widget.onPressed ??
+                () {
+                  // Navigate to PaymentScreen with hero animation
+                  context.router.push(const PaymentRoute());
+                },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Coffee Cup with Steam Animation
+                  SizedBox(
+                    width: 36,
+                    height: 36,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Coffee cup
+                        const Text(
+                          '☕',
+                          style: TextStyle(fontSize: 32),
+                        ),
+                        // Steam animations
+                        _buildSteamPuff(offset: -4, delayFactor: 0),
+                        _buildSteamPuff(offset: 0, delayFactor: 0.3),
+                        _buildSteamPuff(offset: 4, delayFactor: 0.6),
+                      ],
                     ),
-                    backgroundColor: AppColors.brandPrimary,
-                    duration: const Duration(seconds: 2),
                   ),
-                );
-              },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Coffee Cup with Steam Animation
-                SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: Stack(
-                    alignment: Alignment.center,
+                  const SizedBox(width: 16),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Coffee cup
-                      const Text(
-                        '☕',
-                        style: TextStyle(fontSize: 32),
+                      Text(
+                        'Buy Me a Coffee',
+                        style: GoogleFonts.montserrat(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                      // Steam animations
-                      _buildSteamPuff(offset: -4, delayFactor: 0),
-                      _buildSteamPuff(offset: 0, delayFactor: 0.3),
-                      _buildSteamPuff(offset: 4, delayFactor: 0.6),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Support the developer',
+                        style: GoogleFonts.montserrat(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontWeight: FontWeight.w400,
+                          fontSize: 11,
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Buy Me a Coffee',
-                      style: GoogleFonts.montserrat(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Support the developer',
-                      style: GoogleFonts.montserrat(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontWeight: FontWeight.w400,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
