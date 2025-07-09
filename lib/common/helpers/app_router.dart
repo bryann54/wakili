@@ -64,6 +64,6 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: ChatRoute.page, guards: [AuthGuard(authBloc)]),
         AutoRoute(
             page: DocumentDetailRoute.page, guards: [AuthGuard(authBloc)]),
-        AutoRoute(page:PaymentRoute.page, guards: [AuthGuard(authBloc)]),
+        AutoRoute(page: PaymentRoute.page, guards: [AuthGuard(authBloc)]),
       ];
 }

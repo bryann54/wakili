@@ -47,7 +47,39 @@ class _BuyMeCoffeeButtonState extends State<BuyMeCoffeeButton>
   @override
   Widget build(BuildContext context) {
     return Hero(
-      tag: 'buy-me-coffee-button',
+      tag: 'buy-me-coffee-hero',
+      flightShuttleBuilder: (flightContext, animation, flightDirection,
+          fromHeroContext, toHeroContext) {
+        // Custom flight animation
+        final Widget toHero = toHeroContext.widget;
+
+        if (flightDirection == HeroFlightDirection.push) {
+          return AnimatedBuilder(
+            animation: animation,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: Tween<double>(begin: 0.8, end: 1.0)
+                    .animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.fastOutSlowIn,
+                    ))
+                    .value,
+                child: Opacity(
+                  opacity: Tween<double>(begin: 0.0, end: 1.0)
+                      .animate(CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeIn,
+                      ))
+                      .value,
+                  child: toHero,
+                ),
+              );
+            },
+          );
+        } else {
+          return toHero;
+        }
+      },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
@@ -76,8 +108,19 @@ class _BuyMeCoffeeButtonState extends State<BuyMeCoffeeButton>
             borderRadius: BorderRadius.circular(12),
             onTap: widget.onPressed ??
                 () {
-                  // Navigate to PaymentScreen with hero animation
-                  context.router.push(const PaymentRoute());
+                  context.router.push(
+                    const PaymentRoute(),
+                    onFailure: (failure) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Failed to navigate to payment screen',
+                            style: GoogleFonts.montserrat(),
+                          ),
+                        ),
+                      );
+                    },
+                  );
                 },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -109,7 +152,7 @@ class _BuyMeCoffeeButtonState extends State<BuyMeCoffeeButton>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Buy Me a Coffee',
+                        'Buy Wakili Coffee',
                         style: GoogleFonts.montserrat(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,

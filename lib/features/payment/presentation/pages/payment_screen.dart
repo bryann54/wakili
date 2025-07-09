@@ -1,8 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wakili/common/res/colors.dart';
+import 'package:wakili/features/payment/presentation/widgets/coffee_option_card.dart';
+import 'package:wakili/features/payment/presentation/widgets/custom_amount_input.dart';
+import 'package:wakili/features/payment/presentation/widgets/mpesa_phone_input.dart';
+import 'package:wakili/features/payment/presentation/widgets/payment_button.dart';
 
 @RoutePage()
 class PaymentScreen extends StatefulWidget {
@@ -40,8 +43,31 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   bool get _isValidPhoneNumber {
     final phone = _phoneController.text.trim();
-    final kenyanPhoneRegex = RegExp(r'^(\+?254|0)?[17]\d{8}$');
-    return kenyanPhoneRegex.hasMatch(phone);
+    // Check if it's exactly 9 digits and starts with 7 or 1
+    return phone.length == 9 &&
+        (phone.startsWith('7') || phone.startsWith('1'));
+  }
+
+  String _formatPhoneNumber(String phone) {
+    // Since we already have 9 digits starting with 7 or 1, just add +254
+    return '+254$phone';
+  }
+
+  void _validatePhone() {
+    setState(() {
+      final phone = _phoneController.text.trim();
+      if (phone.isEmpty) {
+        _phoneError = 'Phone number is required';
+      } else if (phone.length < 9) {
+        _phoneError = 'Phone number must be 9 digits';
+      } else if (!phone.startsWith('7') && !phone.startsWith('1')) {
+        _phoneError = 'Number must start with 7 or 1';
+      } else if (phone.length != 9) {
+        _phoneError = 'Phone number must be exactly 9 digits';
+      } else {
+        _phoneError = '';
+      }
+    });
   }
 
   bool get _isValidAmount {
@@ -54,34 +80,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return _selectedAmount != null;
   }
 
-  bool get _canProceed {
-    return _isValidPhoneNumber && _isValidAmount;
-  }
-
-  String _formatPhoneNumber(String phone) {
-    phone = phone.replaceAll(RegExp(r'[^\d+]'), '');
-    if (phone.startsWith('0')) {
-      phone = '+254${phone.substring(1)}';
-    } else if (phone.startsWith('254')) {
-      phone = '+$phone';
-    } else if (!phone.startsWith('+254')) {
-      phone = '+254$phone';
-    }
-    return phone;
-  }
-
-  void _validatePhone() {
-    setState(() {
-      final phone = _phoneController.text.trim();
-      if (phone.isEmpty) {
-        _phoneError = 'Phone number is required';
-      } else if (!_isValidPhoneNumber) {
-        _phoneError = 'Enter a valid Kenyan phone number';
-      } else {
-        _phoneError = '';
-      }
-    });
-  }
+  bool get _canProceed => _isValidPhoneNumber && _isValidAmount;
 
   void _validateCustomAmount() {
     setState(() {
@@ -160,8 +159,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
             const SizedBox(height: 12),
             Text(
               'Check your phone for the M-Pesa prompt and enter your PIN to complete the payment.',
-              style:
-                  GoogleFonts.montserrat(fontSize: 12, color: Colors.grey[600]),
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
             ),
           ],
         ),
@@ -184,20 +185,62 @@ class _PaymentScreenState extends State<PaymentScreen> {
       appBar: AppBar(
         title: Column(
           children: [
-            Text(
-              'Buy Me a Coffee',
-              style: GoogleFonts.montserrat(
-                fontWeight: FontWeight.w700,
-                fontSize: 20,
-                color: Colors.white,
-              ),
-            ),
-            Text(
-              'Support helps keep this app running ☕',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                color: Colors.white.withValues(alpha: 0.9),
-                fontWeight: FontWeight.w400,
+            Hero(
+              tag: 'buy-me-coffee-hero',
+              flightShuttleBuilder: (flightContext, animation, flightDirection,
+                  fromHeroContext, toHeroContext) {
+                // Custom return animation
+                final Widget toHero = toHeroContext.widget;
+
+                if (flightDirection == HeroFlightDirection.pop) {
+                  return AnimatedBuilder(
+                    animation: animation,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: Tween<double>(begin: 1.0, end: 0.8)
+                            .animate(CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.fastOutSlowIn,
+                            ))
+                            .value,
+                        child: Opacity(
+                          opacity: Tween<double>(begin: 1.0, end: 0.0)
+                              .animate(CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeOut,
+                              ))
+                              .value,
+                          child: toHero,
+                        ),
+                      );
+                    },
+                  );
+                } else {
+                  return toHero;
+                }
+              },
+              child: Material(
+                color: Colors.transparent,
+                child: Column(
+                  children: [
+                    Text(
+                      'Buy Wakili Coffee',
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      'Support helps keep WAKILI running ☕',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -214,8 +257,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 16),
-
-            // Coffee options section
             Text(
               'Choose your support',
               style: GoogleFonts.montserrat(
@@ -224,143 +265,43 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 color: Colors.grey[800],
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // Coffee amount options in a row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ..._coffeeOptions.map((option) => _buildCoffeeOptionSquare(
-                      amount: option['amount'],
-                      title: option['title'],
-                      icon: option['icon'],
-                    )),
-              ],
+              children: _coffeeOptions
+                  .map((option) => CoffeeOptionCard(
+                        amount: option['amount'],
+                        title: option['title'],
+                        icon: option['icon'],
+                        isSelected: _selectedAmount == option['amount'] &&
+                            !_isCustomAmount,
+                        onTap: () => _selectAmount(option['amount']),
+                      ))
+                  .toList(),
             ),
-
             const SizedBox(height: 16),
-
-            // Custom amount option
-            _buildCustomAmountOption(),
-
+            CustomAmountInput(
+              controller: _customAmountController,
+              focusNode: _customAmountFocusNode,
+              isSelected: _isCustomAmount,
+              errorText: _amountError,
+              onTap: _selectCustomAmount,
+              onChanged: (_) => _validateCustomAmount(),
+            ),
             const SizedBox(height: 32),
-
-            // Phone number input
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'M-Pesa Phone Number',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[800],
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                TextFormField(
-                  controller: _phoneController,
-                  focusNode: _phoneFocusNode,
-                  keyboardType: TextInputType.phone,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[\d+\-\s()]')),
-                    LengthLimitingTextInputFormatter(15),
-                  ],
-                  onChanged: (_) => _validatePhone(),
-                  decoration: InputDecoration(
-                    hintText: '0712345678 or +254712345678',
-                    prefixIcon: Container(
-                      padding: const EdgeInsets.all(8),
-                      child: Image.asset(
-                        'assets/M-PESA.png',
-                        height: 24,
-                        width: 24,
-                      ),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Colors.green, width: 2),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.red, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[50],
-                    errorText: _phoneError.isEmpty ? null : _phoneError,
-                  ),
-                  style: GoogleFonts.montserrat(),
-                ),
-
-                const SizedBox(height: 8),
-
-                // M-Pesa info
-                Row(
-                  children: [
-                    Icon(Icons.security, size: 16, color: Colors.green[700]),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Secure M-Pesa payment',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+            MpesaPhoneInput(
+              controller: _phoneController,
+              focusNode: _phoneFocusNode,
+              errorText: _phoneError.isEmpty ? null : _phoneError,
+              onChanged: (_) => _validatePhone(),
             ),
-
             const SizedBox(height: 40),
-
-            // Buy button
-            SizedBox(
-              height: 56,
-              child: ElevatedButton(
-                onPressed: _canProceed ? _processPurchase : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _canProceed ? Colors.green : Colors.grey[300],
-                  foregroundColor: Colors.white,
-                  elevation: _canProceed ? 4 : 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/M-PESA.png',
-                      height: 28,
-                      width: 28,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      _canProceed
-                          ? 'Pay KSH ${_finalAmount.toStringAsFixed(0)}'
-                          : 'Select amount and enter phone',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: _canProceed ? Colors.white : Colors.grey[500],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            PaymentButton(
+              isEnabled: _canProceed,
+              amount: _finalAmount,
+              onPressed: _processPurchase,
             ),
-
             const SizedBox(height: 24),
-
-            // Footer info
             Center(
               child: Text(
                 'Secure payment powered by M-Pesa',
@@ -372,158 +313,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildCoffeeOptionSquare({
-    required int amount,
-    required String title,
-    required String icon,
-  }) {
-    final isSelected = _selectedAmount == amount && !_isCustomAmount;
-
-    return GestureDetector(
-      onTap: () => _selectAmount(amount),
-      child: Container(
-        width: 100,
-        height: 100,
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.green[50] : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? Colors.green : Colors.grey[300]!,
-            width: isSelected ? 2 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              icon,
-              style: const TextStyle(fontSize: 24),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: isSelected ? Colors.green[700] : Colors.grey[700],
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'KSH ${amount.toStringAsFixed(0)}',
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.green[700] : AppColors.brandPrimary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCustomAmountOption() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _isCustomAmount ? Colors.green[50] : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: _isCustomAmount ? Colors.green : Colors.grey[300]!,
-          width: _isCustomAmount ? 2 : 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: _selectCustomAmount,
-            child: Row(
-              children: [
-                const Text('💰', style: TextStyle(fontSize: 24)),
-                const SizedBox(width: 12),
-                Text(
-                  'Custom Amount',
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    color:
-                        _isCustomAmount ? Colors.green[700] : Colors.grey[800],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (_isCustomAmount) ...[
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _customAmountController,
-              focusNode: _customAmountFocusNode,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(6),
-              ],
-              onChanged: (_) => _validateCustomAmount(),
-              decoration: InputDecoration(
-                hintText: 'Enter amount (50-50,000)',
-                prefixText: 'KSH ',
-                prefixStyle: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Colors.green, width: 2),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 12,
-                ),
-              ),
-              style: GoogleFonts.montserrat(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
-            if (_amountError.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  _amountError,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-          ],
-        ],
       ),
     );
   }

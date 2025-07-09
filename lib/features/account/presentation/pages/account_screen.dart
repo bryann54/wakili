@@ -72,9 +72,7 @@ class AccountScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildSupportSection(context),
                     const SizedBox(height: 24),
-                    BuyMeCoffeeButton(
-                    
-                    ),
+                    BuyMeCoffeeButton(),
                     const LogOutButton(),
                   ],
                 ),
