@@ -43,13 +43,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   bool get _isValidPhoneNumber {
     final phone = _phoneController.text.trim();
-    // Check if it's exactly 9 digits and starts with 7 or 1
     return phone.length == 9 &&
         (phone.startsWith('7') || phone.startsWith('1'));
   }
 
   String _formatPhoneNumber(String phone) {
-    // Since we already have 9 digits starting with 7 or 1, just add +254
     return '+254$phone';
   }
 
