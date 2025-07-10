@@ -5,13 +5,13 @@ import 'package:wakili/common/helpers/base_usecase.dart';
 import '../repositories/wakili_chat_repository.dart';
 
 @injectable
-class SendMessageUseCase implements UseCase<NoParams, String> {
+class SendMessageUseCase implements UseCase<String, String> {
   final WakiliChatRepository _repository;
 
   SendMessageUseCase(this._repository);
 
   @override
-  Future<Either<Failure, NoParams>> call(String message) {
+  Future<Either<Failure, String>> call(String message) {
     if (message.trim().isEmpty) {
       return Future.value(left(ValidationFailure('Message cannot be empty')));
     }

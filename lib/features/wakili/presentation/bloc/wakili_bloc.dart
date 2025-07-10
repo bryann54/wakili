@@ -31,7 +31,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     on<LoadExistingChatWithCategory>(_onLoadExistingChatWithCategory);
   }
 
-  FutureOr<void> _onSendMessage(
+FutureOr<void> _onSendMessage(
     SendMessageEvent event,
     Emitter<WakiliState> emit,
   ) async {
@@ -59,10 +59,11 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
         messages: [...current.messages, userMessage],
         selectedCategory: current.category,
       )),
-      (_) {
+      (response) {
+       
         final aiMessage = ChatMessage(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
-          content: _.toString(),
+          content: response,
           isUser: false,
           timestamp: DateTime.now(),
         );
@@ -108,8 +109,8 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
             selectedCategory: current.category,
           ));
         },
-        (_) {
-          accumulated += _.toString();
+        (chunkContent) {
+          accumulated += chunkContent;
           final aiMessage = ChatMessage(
             id: aiId,
             content: accumulated,

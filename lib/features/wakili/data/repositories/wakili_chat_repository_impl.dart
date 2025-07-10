@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
-import 'package:wakili/common/helpers/base_usecase.dart';
 import 'package:wakili/core/errors/failures.dart';
 import 'package:wakili/core/api_client/models/server_error.dart';
 import 'package:wakili/features/wakili/data/datasources/wakili_chat_remote_datasource.dart';
@@ -13,10 +12,10 @@ class WakiliChatRepositoryImpl implements WakiliChatRepository {
   WakiliChatRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<Either<Failure, NoParams>> sendMessage(String message) async {
+  Future<Either<Failure, String>> sendMessage(String message) async {
     try {
-      await _remoteDataSource.sendMessage(message);
-      return right(NoParams());
+      final response = await _remoteDataSource.sendMessage(message);
+      return right(response); 
     } catch (e) {
       final failure = _mapErrorToFailure(e);
       return left(failure);
@@ -24,10 +23,10 @@ class WakiliChatRepositoryImpl implements WakiliChatRepository {
   }
 
   @override
-  Stream<Either<Failure, NoParams>> sendMessageStream(String message) async* {
+  Stream<Either<Failure, String>> sendMessageStream(String message) async* {
     try {
-      await for (final _ in _remoteDataSource.sendMessageStream(message)) {
-        yield right(NoParams());
+      await for (final chunk in _remoteDataSource.sendMessageStream(message)) {
+        yield right(chunk); 
       }
     } catch (e) {
       yield left(_mapErrorToFailure(e));

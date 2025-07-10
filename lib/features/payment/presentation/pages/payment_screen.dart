@@ -28,8 +28,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   final List<Map<String, dynamic>> _coffeeOptions = [
     {'amount': 250, 'title': 'Single', 'icon': '☕'},
-    {'amount': 500, 'title': 'Double', 'icon': '☕☕'},
-    {'amount': 1000, 'title': 'Iced', 'icon': '🧊☕'},
+    {'amount': 500, 'title': 'Double', 'icon': '☕'},
+    {'amount': 1000, 'title': 'Iced', 'icon': '☕'},
   ];
 
   @override
