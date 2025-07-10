@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:wakili/features/payment/presentation/widgets/steam_animation_widget.dart';
 
 class CoffeeOptionCard extends StatelessWidget {
   final int amount;
@@ -7,6 +8,7 @@ class CoffeeOptionCard extends StatelessWidget {
   final String icon;
   final bool isSelected;
   final VoidCallback onTap;
+  final bool showSteamAnimation;
 
   const CoffeeOptionCard({
     super.key,
@@ -15,6 +17,7 @@ class CoffeeOptionCard extends StatelessWidget {
     required this.icon,
     required this.isSelected,
     required this.onTap,
+    this.showSteamAnimation = false,
   });
 
   @override
@@ -42,7 +45,21 @@ class CoffeeOptionCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(icon, style: const TextStyle(fontSize: 24)),
+            // Conditionally wrap icon with steam animation
+            showSteamAnimation && icon == '☕'
+                ? SteamAnimation(
+                    steamColor: Colors.grey[600] ?? Colors.grey,
+                    steamOpacity: 0.5,
+                    steamHeight: 16.0,
+                    steamWidth: 1.5,
+                    steamCount: 2,
+                    duration: const Duration(seconds: 3),
+                    child: Text(
+                      icon,
+                      style: const TextStyle(fontSize: 24),
+                    ),
+                  )
+                : Text(icon, style: const TextStyle(fontSize: 24)),
             const SizedBox(height: 4),
             Text(
               title,

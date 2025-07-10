@@ -271,6 +271,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         amount: option['amount'],
                         title: option['title'],
                         icon: option['icon'],
+                        showSteamAnimation: true,
                         isSelected: _selectedAmount == option['amount'] &&
                             !_isCustomAmount,
                         onTap: () => _selectAmount(option['amount']),

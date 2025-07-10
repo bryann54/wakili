@@ -1,48 +1,14 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:wakili/common/res/colors.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
+import 'package:wakili/features/payment/presentation/widgets/steam_animation_widget.dart';
 
-class BuyMeCoffeeButton extends StatefulWidget {
+class BuyMeCoffeeButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
   const BuyMeCoffeeButton({super.key, this.onPressed});
-
-  @override
-  State<BuyMeCoffeeButton> createState() => _BuyMeCoffeeButtonState();
-}
-
-class _BuyMeCoffeeButtonState extends State<BuyMeCoffeeButton>
-    with TickerProviderStateMixin {
-  late AnimationController _steamController;
-  late Animation<double> _steamAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _steamController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat();
-
-    _steamAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _steamController,
-      curve: Curves.easeInOutSine,
-    ));
-  }
-
-  @override
-  void dispose() {
-    _steamController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +16,6 @@ class _BuyMeCoffeeButtonState extends State<BuyMeCoffeeButton>
       tag: 'buy-me-coffee-hero',
       flightShuttleBuilder: (flightContext, animation, flightDirection,
           fromHeroContext, toHeroContext) {
-        // Custom flight animation
         final Widget toHero = toHeroContext.widget;
 
         if (flightDirection == HeroFlightDirection.push) {
@@ -106,7 +71,7 @@ class _BuyMeCoffeeButtonState extends State<BuyMeCoffeeButton>
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: widget.onPressed ??
+            onTap: onPressed ??
                 () {
                   context.router.push(
                     const PaymentRoute(),
@@ -127,23 +92,18 @@ class _BuyMeCoffeeButtonState extends State<BuyMeCoffeeButton>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Coffee Cup with Steam Animation
-                  SizedBox(
-                    width: 36,
-                    height: 36,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Coffee cup
-                        const Text(
-                          '☕',
-                          style: TextStyle(fontSize: 32),
-                        ),
-                        // Steam animations
-                        _buildSteamPuff(offset: -4, delayFactor: 0),
-                        _buildSteamPuff(offset: 0, delayFactor: 0.3),
-                        _buildSteamPuff(offset: 4, delayFactor: 0.6),
-                      ],
+                  // Coffee Cup with Steam Animation using the reusable widget
+                  SteamAnimation(
+                    steamColor: Colors.white,
+                    steamOpacity: 0.7,
+                    steamHeight: 18.0,
+                    steamWidth: 2.0,
+                    steamCount: 3,
+                    steamOffsetRange: 4.0,
+                    duration: const Duration(seconds: 2),
+                    child: const Text(
+                      '☕',
+                      style: TextStyle(fontSize: 32),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -177,41 +137,6 @@ class _BuyMeCoffeeButtonState extends State<BuyMeCoffeeButton>
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSteamPuff(
-      {required double offset, required double delayFactor}) {
-    return AnimatedBuilder(
-      animation: _steamAnimation,
-      builder: (context, child) {
-        final double animationValue =
-            (_steamAnimation.value + delayFactor) % 1.0;
-        final double translateY = -animationValue * 18;
-        final double translateX =
-            offset * math.sin(animationValue * 2 * math.pi);
-        final double opacity = (1 - animationValue).clamp(0.0, 0.6);
-        final double height = 6 + (animationValue * 4);
-
-        return Positioned(
-          top: 4,
-          left: 16 + offset,
-          child: Opacity(
-            opacity: opacity,
-            child: Transform.translate(
-              offset: Offset(translateX, translateY),
-              child: Container(
-                width: 2,
-                height: height,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }
