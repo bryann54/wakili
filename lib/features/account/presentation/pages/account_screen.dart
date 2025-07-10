@@ -1,8 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-import 'package:wakili/common/res/l10n.dart';
 import 'package:wakili/features/account/presentation/widgets/buy_me_a_coffee_button.dart';
 import 'package:wakili/features/account/presentation/widgets/profile_shimmer.dart';
 import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
@@ -21,19 +19,6 @@ class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Expanded(
-          child: Text(
-            toBeginningOfSentenceCase(
-                    AppLocalizations.getString(context, 'account details')) ??
-                '',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-          ),
-        ),
-      ),
       body: MultiBlocListener(
         listeners: [
           BlocListener<AuthBloc, AuthState>(
@@ -66,17 +51,14 @@ class AccountScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
+                    const SizedBox(height: 100),
                     _buildProfileHeader(context, authState.user),
                     const SizedBox(height: 22),
                     _buildProfileSection(context, authState.user),
                     const SizedBox(height: 24),
                     _buildSupportSection(context),
                     const SizedBox(height: 24),
-                    BuyMeCoffeeButton(
-                      onPressed: () {
-                        // Handle coffee purchase
-                      },
-                    ),
+                    BuyMeCoffeeButton(),
                     const LogOutButton(),
                   ],
                 ),
@@ -103,7 +85,7 @@ class AccountScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppColors.brandPrimary.withValues(alpha: 0.5),
+                  color: AppColors.brandPrimary.withValues(alpha: 0.2),
                   width: 2.0,
                 ),
                 boxShadow: [
@@ -116,7 +98,7 @@ class AccountScreen extends StatelessWidget {
               ),
               child: CircleAvatar(
                 radius: 48,
-                backgroundColor: AppColors.cardColor,
+                backgroundColor: AppColors.dividerColor,
                 backgroundImage:
                     user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
                 child: user.photoUrl == null
@@ -154,8 +136,7 @@ class AccountScreen extends StatelessWidget {
                   fontSize: 14,
                   color: AppColors.textSecondary,
                 ),
-                overflow:
-                    TextOverflow.ellipsis, // Prevents overflow for long emails
+                overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
             ],
@@ -335,12 +316,14 @@ class AccountScreen extends StatelessWidget {
       },
     ).then((result) {
       if (result == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile updated successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       }
     });
   }
@@ -353,7 +336,9 @@ class AccountScreen extends StatelessWidget {
       },
     ).then((result) {
       if (result == true) {
-        // Password was successfully changed
+        if (context.mounted) {
+          // Handle success UI updates
+        }
       }
     });
   }

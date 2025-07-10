@@ -8,8 +8,8 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i14;
-import 'package:flutter/material.dart' as _i15;
+import 'package:auto_route/auto_route.dart' as _i15;
+import 'package:flutter/material.dart' as _i16;
 import 'package:wakili/features/account/presentation/pages/account_screen.dart'
     as _i1;
 import 'package:wakili/features/auth/presentation/pages/get_started_screen.dart'
@@ -17,33 +17,35 @@ import 'package:wakili/features/auth/presentation/pages/get_started_screen.dart'
 import 'package:wakili/features/auth/presentation/pages/login_screen.dart'
     as _i8;
 import 'package:wakili/features/auth/presentation/pages/register_screen.dart'
-    as _i11;
-import 'package:wakili/features/auth/presentation/pages/splash_screen.dart'
     as _i12;
+import 'package:wakili/features/auth/presentation/pages/splash_screen.dart'
+    as _i13;
 import 'package:wakili/features/chat_history/presentation/pages/chat_history_screen.dart'
     as _i3;
 import 'package:wakili/features/chat_history/presentation/pages/chat_screen.dart'
     as _i4;
 import 'package:wakili/features/overview/domain/entities/legal_document.dart'
-    as _i18;
+    as _i19;
 import 'package:wakili/features/overview/presentation/pages/document_detail_screen.dart'
     as _i5;
 import 'package:wakili/features/overview/presentation/pages/overview_screen.dart'
     as _i10;
-import 'package:wakili/features/wakili/data/models/chat_message.dart' as _i17;
-import 'package:wakili/features/wakili/data/models/legal_category.dart' as _i16;
+import 'package:wakili/features/payment/presentation/pages/payment_screen.dart'
+    as _i11;
+import 'package:wakili/features/wakili/data/models/chat_message.dart' as _i18;
+import 'package:wakili/features/wakili/data/models/legal_category.dart' as _i17;
 import 'package:wakili/features/wakili/presentation/pages/category_chat_screen.dart'
     as _i2;
 import 'package:wakili/features/wakili/presentation/pages/general_chat_screen.dart'
     as _i6;
 import 'package:wakili/features/wakili/presentation/pages/wakili_chat_screen.dart'
-    as _i13;
+    as _i14;
 import 'package:wakili/main_screen.dart' as _i9;
 
 /// generated route for
 /// [_i1.AccountScreen]
-class AccountRoute extends _i14.PageRouteInfo<void> {
-  const AccountRoute({List<_i14.PageRouteInfo>? children})
+class AccountRoute extends _i15.PageRouteInfo<void> {
+  const AccountRoute({List<_i15.PageRouteInfo>? children})
       : super(
           AccountRoute.name,
           initialChildren: children,
@@ -51,7 +53,7 @@ class AccountRoute extends _i14.PageRouteInfo<void> {
 
   static const String name = 'AccountRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
       return const _i1.AccountScreen();
@@ -61,13 +63,13 @@ class AccountRoute extends _i14.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i2.CategoryChatScreen]
-class CategoryChatRoute extends _i14.PageRouteInfo<CategoryChatRouteArgs> {
+class CategoryChatRoute extends _i15.PageRouteInfo<CategoryChatRouteArgs> {
   CategoryChatRoute({
-    _i15.Key? key,
-    required _i16.LegalCategory category,
-    List<_i17.ChatMessage>? initialMessages,
+    _i16.Key? key,
+    required _i17.LegalCategory category,
+    List<_i18.ChatMessage>? initialMessages,
     String? conversationId,
-    List<_i14.PageRouteInfo>? children,
+    List<_i15.PageRouteInfo>? children,
   }) : super(
           CategoryChatRoute.name,
           args: CategoryChatRouteArgs(
@@ -81,7 +83,7 @@ class CategoryChatRoute extends _i14.PageRouteInfo<CategoryChatRouteArgs> {
 
   static const String name = 'CategoryChatRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<CategoryChatRouteArgs>();
@@ -103,11 +105,11 @@ class CategoryChatRouteArgs {
     this.conversationId,
   });
 
-  final _i15.Key? key;
+  final _i16.Key? key;
 
-  final _i16.LegalCategory category;
+  final _i17.LegalCategory category;
 
-  final List<_i17.ChatMessage>? initialMessages;
+  final List<_i18.ChatMessage>? initialMessages;
 
   final String? conversationId;
 
@@ -119,8 +121,8 @@ class CategoryChatRouteArgs {
 
 /// generated route for
 /// [_i3.ChatHistoryScreen]
-class ChatHistoryRoute extends _i14.PageRouteInfo<void> {
-  const ChatHistoryRoute({List<_i14.PageRouteInfo>? children})
+class ChatHistoryRoute extends _i15.PageRouteInfo<void> {
+  const ChatHistoryRoute({List<_i15.PageRouteInfo>? children})
       : super(
           ChatHistoryRoute.name,
           initialChildren: children,
@@ -128,7 +130,7 @@ class ChatHistoryRoute extends _i14.PageRouteInfo<void> {
 
   static const String name = 'ChatHistoryRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
       return const _i3.ChatHistoryScreen();
@@ -138,12 +140,12 @@ class ChatHistoryRoute extends _i14.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i4.ChatScreen]
-class ChatRoute extends _i14.PageRouteInfo<ChatRouteArgs> {
+class ChatRoute extends _i15.PageRouteInfo<ChatRouteArgs> {
   ChatRoute({
-    _i15.Key? key,
-    List<_i17.ChatMessage>? initialMessages,
+    _i16.Key? key,
+    List<_i18.ChatMessage>? initialMessages,
     String? conversationId,
-    List<_i14.PageRouteInfo>? children,
+    List<_i15.PageRouteInfo>? children,
   }) : super(
           ChatRoute.name,
           args: ChatRouteArgs(
@@ -156,7 +158,7 @@ class ChatRoute extends _i14.PageRouteInfo<ChatRouteArgs> {
 
   static const String name = 'ChatRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
       final args =
@@ -177,9 +179,9 @@ class ChatRouteArgs {
     this.conversationId,
   });
 
-  final _i15.Key? key;
+  final _i16.Key? key;
 
-  final List<_i17.ChatMessage>? initialMessages;
+  final List<_i18.ChatMessage>? initialMessages;
 
   final String? conversationId;
 
@@ -191,11 +193,11 @@ class ChatRouteArgs {
 
 /// generated route for
 /// [_i5.DocumentDetailScreen]
-class DocumentDetailRoute extends _i14.PageRouteInfo<DocumentDetailRouteArgs> {
+class DocumentDetailRoute extends _i15.PageRouteInfo<DocumentDetailRouteArgs> {
   DocumentDetailRoute({
-    _i15.Key? key,
-    required _i18.LegalDocument document,
-    List<_i14.PageRouteInfo>? children,
+    _i16.Key? key,
+    required _i19.LegalDocument document,
+    List<_i15.PageRouteInfo>? children,
   }) : super(
           DocumentDetailRoute.name,
           args: DocumentDetailRouteArgs(
@@ -207,7 +209,7 @@ class DocumentDetailRoute extends _i14.PageRouteInfo<DocumentDetailRouteArgs> {
 
   static const String name = 'DocumentDetailRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<DocumentDetailRouteArgs>();
@@ -225,9 +227,9 @@ class DocumentDetailRouteArgs {
     required this.document,
   });
 
-  final _i15.Key? key;
+  final _i16.Key? key;
 
-  final _i18.LegalDocument document;
+  final _i19.LegalDocument document;
 
   @override
   String toString() {
@@ -237,13 +239,13 @@ class DocumentDetailRouteArgs {
 
 /// generated route for
 /// [_i6.GeneralChatScreen]
-class GeneralChatRoute extends _i14.PageRouteInfo<GeneralChatRouteArgs> {
+class GeneralChatRoute extends _i15.PageRouteInfo<GeneralChatRouteArgs> {
   GeneralChatRoute({
-    _i15.Key? key,
+    _i16.Key? key,
     String? initialMessage,
-    List<_i17.ChatMessage>? initialMessages,
+    List<_i18.ChatMessage>? initialMessages,
     String? conversationId,
-    List<_i14.PageRouteInfo>? children,
+    List<_i15.PageRouteInfo>? children,
   }) : super(
           GeneralChatRoute.name,
           args: GeneralChatRouteArgs(
@@ -257,7 +259,7 @@ class GeneralChatRoute extends _i14.PageRouteInfo<GeneralChatRouteArgs> {
 
   static const String name = 'GeneralChatRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<GeneralChatRouteArgs>(
@@ -280,11 +282,11 @@ class GeneralChatRouteArgs {
     this.conversationId,
   });
 
-  final _i15.Key? key;
+  final _i16.Key? key;
 
   final String? initialMessage;
 
-  final List<_i17.ChatMessage>? initialMessages;
+  final List<_i18.ChatMessage>? initialMessages;
 
   final String? conversationId;
 
@@ -296,8 +298,8 @@ class GeneralChatRouteArgs {
 
 /// generated route for
 /// [_i7.GetStartedScreen]
-class GetStartedRoute extends _i14.PageRouteInfo<void> {
-  const GetStartedRoute({List<_i14.PageRouteInfo>? children})
+class GetStartedRoute extends _i15.PageRouteInfo<void> {
+  const GetStartedRoute({List<_i15.PageRouteInfo>? children})
       : super(
           GetStartedRoute.name,
           initialChildren: children,
@@ -305,7 +307,7 @@ class GetStartedRoute extends _i14.PageRouteInfo<void> {
 
   static const String name = 'GetStartedRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
       return const _i7.GetStartedScreen();
@@ -315,8 +317,8 @@ class GetStartedRoute extends _i14.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i8.LoginScreen]
-class LoginRoute extends _i14.PageRouteInfo<void> {
-  const LoginRoute({List<_i14.PageRouteInfo>? children})
+class LoginRoute extends _i15.PageRouteInfo<void> {
+  const LoginRoute({List<_i15.PageRouteInfo>? children})
       : super(
           LoginRoute.name,
           initialChildren: children,
@@ -324,7 +326,7 @@ class LoginRoute extends _i14.PageRouteInfo<void> {
 
   static const String name = 'LoginRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
       return const _i8.LoginScreen();
@@ -334,8 +336,8 @@ class LoginRoute extends _i14.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i9.MainScreen]
-class MainRoute extends _i14.PageRouteInfo<void> {
-  const MainRoute({List<_i14.PageRouteInfo>? children})
+class MainRoute extends _i15.PageRouteInfo<void> {
+  const MainRoute({List<_i15.PageRouteInfo>? children})
       : super(
           MainRoute.name,
           initialChildren: children,
@@ -343,7 +345,7 @@ class MainRoute extends _i14.PageRouteInfo<void> {
 
   static const String name = 'MainRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
       return const _i9.MainScreen();
@@ -353,8 +355,8 @@ class MainRoute extends _i14.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i10.OverviewScreen]
-class OverviewRoute extends _i14.PageRouteInfo<void> {
-  const OverviewRoute({List<_i14.PageRouteInfo>? children})
+class OverviewRoute extends _i15.PageRouteInfo<void> {
+  const OverviewRoute({List<_i15.PageRouteInfo>? children})
       : super(
           OverviewRoute.name,
           initialChildren: children,
@@ -362,7 +364,7 @@ class OverviewRoute extends _i14.PageRouteInfo<void> {
 
   static const String name = 'OverviewRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
       return const _i10.OverviewScreen();
@@ -371,9 +373,28 @@ class OverviewRoute extends _i14.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i11.RegisterScreen]
-class RegisterRoute extends _i14.PageRouteInfo<void> {
-  const RegisterRoute({List<_i14.PageRouteInfo>? children})
+/// [_i11.PaymentScreen]
+class PaymentRoute extends _i15.PageRouteInfo<void> {
+  const PaymentRoute({List<_i15.PageRouteInfo>? children})
+      : super(
+          PaymentRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'PaymentRoute';
+
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      return const _i11.PaymentScreen();
+    },
+  );
+}
+
+/// generated route for
+/// [_i12.RegisterScreen]
+class RegisterRoute extends _i15.PageRouteInfo<void> {
+  const RegisterRoute({List<_i15.PageRouteInfo>? children})
       : super(
           RegisterRoute.name,
           initialChildren: children,
@@ -381,18 +402,18 @@ class RegisterRoute extends _i14.PageRouteInfo<void> {
 
   static const String name = 'RegisterRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
-      return const _i11.RegisterScreen();
+      return const _i12.RegisterScreen();
     },
   );
 }
 
 /// generated route for
-/// [_i12.SplashScreen]
-class SplashRoute extends _i14.PageRouteInfo<void> {
-  const SplashRoute({List<_i14.PageRouteInfo>? children})
+/// [_i13.SplashScreen]
+class SplashRoute extends _i15.PageRouteInfo<void> {
+  const SplashRoute({List<_i15.PageRouteInfo>? children})
       : super(
           SplashRoute.name,
           initialChildren: children,
@@ -400,18 +421,18 @@ class SplashRoute extends _i14.PageRouteInfo<void> {
 
   static const String name = 'SplashRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
-      return const _i12.SplashScreen();
+      return const _i13.SplashScreen();
     },
   );
 }
 
 /// generated route for
-/// [_i13.WakiliChatScreen]
-class WakiliChatRoute extends _i14.PageRouteInfo<void> {
-  const WakiliChatRoute({List<_i14.PageRouteInfo>? children})
+/// [_i14.WakiliChatScreen]
+class WakiliChatRoute extends _i15.PageRouteInfo<void> {
+  const WakiliChatRoute({List<_i15.PageRouteInfo>? children})
       : super(
           WakiliChatRoute.name,
           initialChildren: children,
@@ -419,10 +440,10 @@ class WakiliChatRoute extends _i14.PageRouteInfo<void> {
 
   static const String name = 'WakiliChatRoute';
 
-  static _i14.PageInfo page = _i14.PageInfo(
+  static _i15.PageInfo page = _i15.PageInfo(
     name,
     builder: (data) {
-      return const _i13.WakiliChatScreen();
+      return const _i14.WakiliChatScreen();
     },
   );
 }
