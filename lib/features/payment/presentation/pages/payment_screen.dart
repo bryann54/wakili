@@ -27,9 +27,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String _amountError = '';
 
   final List<Map<String, dynamic>> _coffeeOptions = [
-    {'amount': 250, 'title': 'Single', 'icon': '☕'},
-    {'amount': 500, 'title': 'Double', 'icon': '☕'},
-    {'amount': 1000, 'title': 'Iced', 'icon': '☕'},
+    {'amount': 250, 'title': 'esspresso', 'icon': '☕'},
+    {'amount': 500, 'title': 'mocha', 'icon': '☕'},
+    {'amount': 1000, 'title': 'latte', 'icon': '☕'},
   ];
 
   @override
@@ -129,13 +129,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     final formattedPhone = _formatPhoneNumber(_phoneController.text.trim());
     final amount = _finalAmount;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
         title: Text(
           'Payment Initiated',
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w600,
+            color: isDarkMode ? Colors.white : Colors.black,
+          ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -143,23 +148,31 @@ class _PaymentScreenState extends State<PaymentScreen> {
           children: [
             Text(
               'M-Pesa payment request sent!',
-              style: GoogleFonts.montserrat(),
+              style: GoogleFonts.montserrat(
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'Amount: KSH ${amount.toStringAsFixed(0)}',
-              style: GoogleFonts.montserrat(fontWeight: FontWeight.w500),
+              style: GoogleFonts.montserrat(
+                fontWeight: FontWeight.w500,
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
             ),
             Text(
               'Phone: $formattedPhone',
-              style: GoogleFonts.montserrat(fontWeight: FontWeight.w500),
+              style: GoogleFonts.montserrat(
+                fontWeight: FontWeight.w500,
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
               'Check your phone for the M-Pesa prompt and enter your PIN to complete the payment.',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
-                color: Colors.grey[600],
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
               ),
             ),
           ],
@@ -179,106 +192,78 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          children: [
-            Hero(
-              tag: 'buy-me-coffee-hero',
-              flightShuttleBuilder: (flightContext, animation, flightDirection,
-                  fromHeroContext, toHeroContext) {
-                // Custom return animation
-                final Widget toHero = toHeroContext.widget;
-
-                if (flightDirection == HeroFlightDirection.pop) {
-                  return AnimatedBuilder(
-                    animation: animation,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: Tween<double>(begin: 1.0, end: 0.8)
-                            .animate(CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.fastOutSlowIn,
-                            ))
-                            .value,
-                        child: Opacity(
-                          opacity: Tween<double>(begin: 1.0, end: 0.0)
-                              .animate(CurvedAnimation(
-                                parent: animation,
-                                curve: Curves.easeOut,
-                              ))
-                              .value,
-                          child: toHero,
-                        ),
-                      );
-                    },
-                  );
-                } else {
-                  return toHero;
-                }
-              },
-              child: Material(
-                color: Colors.transparent,
-                child: Column(
-                  children: [
-                    Text(
-                      'Buy Wakili Coffee',
-                      style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      'Support helps keep WAKILI running ☕',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        color: Colors.white.withValues(alpha: 0.9),
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
+        title: Hero(
+          tag: 'buy-me-coffee-hero',
+          child: Material(
+            color: Colors.transparent,
+            child: Column(
+              children: [
+                Text(
+                  'Support Wakili',
+                  style: GoogleFonts.playfairDisplay(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 24,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 4),
+                Text(
+                  'Buy me a coffee to keep WAKILI brewing',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.9),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
         centerTitle: true,
-        backgroundColor: AppColors.coffeeBrownDark,
+        backgroundColor:
+            isDarkMode ? Colors.grey[900] : AppColors.coffeeBrownDark,
         foregroundColor: Colors.white,
         elevation: 0,
-        toolbarHeight: 80,
+        toolbarHeight: 100,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 16),
-            Text(
-              'Choose your support',
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[800],
+            // Coffee options with improved layout
+            SizedBox(
+              height: 160,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: _coffeeOptions.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 16),
+                itemBuilder: (context, index) => CoffeeOptionCard(
+                  amount: _coffeeOptions[index]['amount'],
+                  title: _coffeeOptions[index]['title'],
+                  icon: _coffeeOptions[index]['icon'],
+                  // description: _coffeeOptions[index]['desc'],
+                  showSteamAnimation: true,
+                  isSelected:
+                      _selectedAmount == _coffeeOptions[index]['amount'] &&
+                          !_isCustomAmount,
+                  onTap: () => _selectAmount(_coffeeOptions[index]['amount']),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: _coffeeOptions
-                  .map((option) => CoffeeOptionCard(
-                        amount: option['amount'],
-                        title: option['title'],
-                        icon: option['icon'],
-                        showSteamAnimation: true,
-                        isSelected: _selectedAmount == option['amount'] &&
-                            !_isCustomAmount,
-                        onTap: () => _selectAmount(option['amount']),
-                      ))
-                  .toList(),
-            ),
-            const SizedBox(height: 16),
+
+            const SizedBox(height: 14),
+
+            // Custom amount input
             CustomAmountInput(
               controller: _customAmountController,
               focusNode: _customAmountFocusNode,
@@ -287,28 +272,82 @@ class _PaymentScreenState extends State<PaymentScreen> {
               onTap: _selectCustomAmount,
               onChanged: (_) => _validateCustomAmount(),
             ),
-            const SizedBox(height: 32),
-            MpesaPhoneInput(
-              controller: _phoneController,
-              focusNode: _phoneFocusNode,
-              errorText: _phoneError.isEmpty ? null : _phoneError,
-              onChanged: (_) => _validatePhone(),
+
+            const SizedBox(height: 12),
+
+            // Payment section
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: isDarkMode ? Colors.grey[850] : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Payment Details',
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: isDarkMode ? Colors.white : Colors.brown[800],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Complete your purchase with M-Pesa',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  MpesaPhoneInput(
+                    controller: _phoneController,
+                    focusNode: _phoneFocusNode,
+                    errorText: _phoneError.isEmpty ? null : _phoneError,
+                    onChanged: (_) => _validatePhone(),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 40),
+
+            const SizedBox(height: 22),
+
+            // Payment button with improved design
             PaymentButton(
               isEnabled: _canProceed,
               amount: _finalAmount,
               onPressed: _processPurchase,
             ),
-            const SizedBox(height: 24),
-            Center(
-              child: Text(
-                'Secure payment powered by M-Pesa',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  color: Colors.grey[600],
+
+            const SizedBox(height: 14),
+
+            // Footer with security info
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.security,
+                  size: 16,
+                  color: isDarkMode ? Colors.green[300] : Colors.green[700],
                 ),
-              ),
+                const SizedBox(width: 8),
+                Text(
+                  'Secure payment powered by M-Pesa',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+              ],
             ),
           ],
         ),

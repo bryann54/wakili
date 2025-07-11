@@ -73,6 +73,8 @@ class AccountScreen extends StatelessWidget {
   }
 
   Widget _buildProfileHeader(BuildContext context, user) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -90,7 +92,9 @@ class AccountScreen extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.shadowColor.withValues(alpha: 0.3),
+                    color: isDarkMode
+                        ? Colors.black.withValues(alpha: 0.3)
+                        : AppColors.shadowColor.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -98,14 +102,17 @@ class AccountScreen extends StatelessWidget {
               ),
               child: CircleAvatar(
                 radius: 48,
-                backgroundColor: AppColors.dividerColor,
+                backgroundColor:
+                    isDarkMode ? Colors.grey[800] : AppColors.dividerColor,
                 backgroundImage:
                     user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
                 child: user.photoUrl == null
                     ? Icon(
                         Icons.person,
                         size: 50,
-                        color: AppColors.textSecondary,
+                        color: isDarkMode
+                            ? Colors.grey[400]
+                            : AppColors.textSecondary,
                       )
                     : null,
               ),
@@ -124,7 +131,7 @@ class AccountScreen extends StatelessWidget {
                 style: GoogleFonts.montserrat(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: isDarkMode ? Colors.white : AppColors.textPrimary,
                 ),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
@@ -134,7 +141,8 @@ class AccountScreen extends StatelessWidget {
                 user.email ?? 'email@example.com',
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color:
+                      isDarkMode ? Colors.grey[400] : AppColors.textSecondary,
                 ),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
@@ -147,6 +155,8 @@ class AccountScreen extends StatelessWidget {
   }
 
   Widget _buildProfileSection(BuildContext context, user) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -157,17 +167,20 @@ class AccountScreen extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Colors.grey[600],
+              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
             ),
           ),
         ),
         const SizedBox(height: 8),
         Card(
           elevation: 0,
+          color: isDarkMode ? Colors.grey[900] : null,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: Colors.grey.withValues(alpha: 0.2),
+              color: isDarkMode
+                  ? Colors.grey[700]!.withValues(alpha: 0.5)
+                  : Colors.grey.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -180,7 +193,11 @@ class AccountScreen extends StatelessWidget {
                 value: user.displayName ?? 'Not set',
                 onTap: () => _showEditProfileDialog(context, user),
               ),
-              const Divider(height: 1, indent: 16),
+              Divider(
+                height: 1,
+                indent: 16,
+                color: isDarkMode ? Colors.grey[700] : null,
+              ),
               _buildProfileListItem(
                 context,
                 icon: Icons.email_outlined,
@@ -195,7 +212,11 @@ class AccountScreen extends StatelessWidget {
                   );
                 },
               ),
-              const Divider(height: 1, indent: 16),
+              Divider(
+                height: 1,
+                indent: 16,
+                color: isDarkMode ? Colors.grey[700] : null,
+              ),
               _buildProfileListItem(
                 context,
                 icon: Icons.lock_outline,
@@ -217,6 +238,8 @@ class AccountScreen extends StatelessWidget {
     required String value,
     required VoidCallback onTap,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return ListTile(
       leading: Icon(
         icon,
@@ -228,7 +251,7 @@ class AccountScreen extends StatelessWidget {
         style: GoogleFonts.montserrat(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: Colors.grey[700],
+          color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
         ),
       ),
       subtitle: Text(
@@ -236,12 +259,12 @@ class AccountScreen extends StatelessWidget {
         style: GoogleFonts.montserrat(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Colors.black87,
+          color: isDarkMode ? Colors.white : Colors.black87,
         ),
       ),
       trailing: Icon(
         Icons.chevron_right,
-        color: Colors.grey[400],
+        color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
       ),
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -250,6 +273,8 @@ class AccountScreen extends StatelessWidget {
   }
 
   Widget _buildSupportSection(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -260,17 +285,20 @@ class AccountScreen extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Colors.grey[600],
+              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
             ),
           ),
         ),
         const SizedBox(height: 8),
         Card(
           elevation: 0,
+          color: isDarkMode ? Colors.grey[900] : null,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: Colors.grey.withValues(alpha: 0.2),
+              color: isDarkMode
+                  ? Colors.grey[700]!.withValues(alpha: 0.5)
+                  : Colors.grey.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -285,12 +313,12 @@ class AccountScreen extends StatelessWidget {
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
               ),
             ),
             trailing: Icon(
               Icons.chevron_right,
-              color: Colors.grey[400],
+              color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
             ),
             onTap: () {
               // Navigate to support

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class MpesaPhoneInput extends StatelessWidget {
+class MpesaPhoneInput extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final String? errorText;
@@ -17,91 +17,214 @@ class MpesaPhoneInput extends StatelessWidget {
   });
 
   @override
+  State<MpesaPhoneInput> createState() => _MpesaPhoneInputState();
+}
+
+class _MpesaPhoneInputState extends State<MpesaPhoneInput>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _focusAnimation;
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _focusAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+
+    widget.focusNode.addListener(() {
+      setState(() {
+        _isFocused = widget.focusNode.hasFocus;
+        if (_isFocused) {
+          _controller.forward();
+        } else {
+          _controller.reverse();
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'M-Pesa Phone Number',
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[800],
-          ),
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          keyboardType: TextInputType.phone,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(9),
-            // Custom formatter to ensure it starts with 7 or 1
-            _KenyanPhoneFormatter(),
-          ],
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            hintText: '712345678',
-            prefixIcon: Container(
+        Row(
+          children: [
+            Container(
               padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isDarkMode ? Colors.green[900] : Colors.green[50],
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Image.asset(
                 'assets/M-PESA.png',
                 height: 24,
                 width: 24,
               ),
             ),
-            prefix: Container(
-              padding: const EdgeInsets.only(right: 8),
-              child: Text(
-                '+254',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
-                ),
-              ),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.green, width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red, width: 2),
-            ),
-            filled: true,
-            fillColor: Colors.grey[50],
-            errorText: errorText,
-            helperText: 'Enter 9 digits starting with 7 or 1',
-            helperStyle: GoogleFonts.montserrat(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-          ),
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Icon(Icons.security, size: 16, color: Colors.green[700]),
-            const SizedBox(width: 4),
-            Text(
-              'Secure M-Pesa payment',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                color: Colors.grey[600],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'M-Pesa Phone Number',
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: isDarkMode ? Colors.grey[200] : Colors.grey[800],
+                    ),
+                  ),
+                  Text(
+                    'Enter your mobile number',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
+        const SizedBox(height: 16),
+        AnimatedBuilder(
+          animation: _focusAnimation,
+          builder: (context, child) {
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: _isFocused
+                      ? [
+                          const Color(0xFF4CAF50).withValues(alpha: 0.1),
+                          const Color(0xFF81C784).withValues(alpha: 0.05),
+                        ]
+                      : [
+                          isDarkMode ? Colors.grey[900]! : Colors.white,
+                          isDarkMode ? Colors.grey[850]! : Colors.grey[50]!,
+                        ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: _isFocused
+                      ? const Color(0xFF4CAF50)
+                      : (isDarkMode ? Colors.grey[700]! : Colors.grey[200]!),
+                  width: _isFocused ? 2.5 : 1.5,
+                ),
+                boxShadow: [
+                  if (_isFocused) ...[
+                    BoxShadow(
+                      color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ] else ...[
+                    BoxShadow(
+                      color: (isDarkMode ? Colors.black : Colors.grey[400]!)
+                          .withValues(alpha: isDarkMode ? 0.4 : 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ],
+              ),
+              child: TextFormField(
+                controller: widget.controller,
+                focusNode: widget.focusNode,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(9),
+                  _KenyanPhoneFormatter(),
+                ],
+                onChanged: widget.onChanged,
+                decoration: InputDecoration(
+                  hintText: '712 345 678',
+                  hintStyle: GoogleFonts.inter(
+                    color: isDarkMode ? Colors.grey[500] : Colors.grey[600],
+                    fontSize: 16,
+                  ),
+                  prefixIcon: Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '🇰🇪',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '+254',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: isDarkMode
+                                ? Colors.grey[400]
+                                : Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.all(20),
+                ),
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 1.2,
+                  color: isDarkMode ? Colors.white : Colors.black,
+                ),
+              ),
+            );
+          },
+        ),
+        if (widget.errorText?.isNotEmpty ?? false) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.red.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.red.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.red, size: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    widget.errorText!,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -115,19 +238,16 @@ class _KenyanPhoneFormatter extends TextInputFormatter {
   ) {
     final String newText = newValue.text;
 
-    // If empty, allow it
     if (newText.isEmpty) {
       return newValue;
     }
 
-    // Only allow numbers starting with 7 or 1 (Kenyan mobile prefixes)
     if (newText.isNotEmpty &&
         !newText.startsWith('7') &&
         !newText.startsWith('1')) {
       return oldValue;
     }
 
-    // Limit to 9 digits
     if (newText.length > 9) {
       return oldValue;
     }
