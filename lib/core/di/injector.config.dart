@@ -107,8 +107,6 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.lazySingleton<_i934.SharedPreferencesManager>(
         () => _i934.SharedPreferencesManager(gh<_i460.SharedPreferences>()));
-    gh.lazySingleton<_i106.WakiliChatRemoteDataSource>(() =>
-        _i106.GeminiWakiliChatRemoteDataSource(gh<_i656.GenerativeModel>()));
     gh.lazySingleton<_i29.AccountLocalDatasource>(() =>
         _i29.AccountLocalDatasource(gh<_i934.SharedPreferencesManager>()));
     gh.lazySingleton<_i371.ChatHistoryRepository>(() =>
@@ -116,6 +114,11 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i578.ChatHistoryLocalDataSource>()));
     gh.lazySingleton<_i1067.AccountRepository>(
         () => _i857.AccountRepositoryImpl(gh<_i29.AccountLocalDatasource>()));
+    gh.factory<_i106.WakiliChatRemoteDataSource>(
+        () => _i106.WakiliChatRemoteDataSource(
+              gh<_i656.GenerativeModel>(),
+              gh<_i307.WakiliQueryProcessor>(),
+            ));
     gh.lazySingleton<_i361.Dio>(
         () => registerModules.dio(gh<String>(instanceName: 'BaseUrl')));
     gh.factory<_i217.GetChatHistoryUseCase>(

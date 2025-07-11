@@ -43,6 +43,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   provider: ^6.1.2
+  flashy_tab_bar2: ^0.0.10
 
 dev_dependencies:
   flutter_test:

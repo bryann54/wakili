@@ -52,7 +52,10 @@ FutureOr<void> _onSendMessage(
       selectedCategory: current.category,
     ));
 
-    final result = await _sendMessage(contextMessage);
+    final result = await _sendMessage(
+      contextMessage,
+      conversationHistory: current.messages,
+    );
     result.fold(
       (failure) => emit(WakiliChatErrorState(
         message: _mapFailure(failure),
@@ -100,7 +103,9 @@ FutureOr<void> _onSendMessage(
     final aiId = DateTime.now().millisecondsSinceEpoch.toString();
     String accumulated = '';
 
-    await for (final chunk in _sendStreamMessage(contextMessage)) {
+    await for (final chunk in _sendStreamMessage(contextMessage,
+      conversationHistory: current.messages,
+    )) {
       chunk.fold(
         (failure) {
           emit(WakiliChatErrorState(

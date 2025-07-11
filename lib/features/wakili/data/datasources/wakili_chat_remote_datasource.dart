@@ -1,50 +1,86 @@
-import 'dart:async';
-
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:injectable/injectable.dart';
+import 'package:wakili/core/di/wakili_chat_module.dart';
+import 'package:wakili/features/wakili/data/models/chat_message.dart';
 
-abstract class WakiliChatRemoteDataSource {
-  FutureOr<String> sendMessage(String message);
-  Stream<String> sendMessageStream(String message);
-}
-
-@LazySingleton(as: WakiliChatRemoteDataSource)
-class GeminiWakiliChatRemoteDataSource implements WakiliChatRemoteDataSource {
+@injectable
+class WakiliChatRemoteDataSource {
   final GenerativeModel _model;
+  final WakiliQueryProcessor _queryProcessor;
 
-  GeminiWakiliChatRemoteDataSource(this._model);
+  WakiliChatRemoteDataSource(this._model, this._queryProcessor);
 
-  @override
-  FutureOr<String> sendMessage(String message) async {
+  Future<String> sendMessage(
+    String message, {
+    List<ChatMessage>? conversationHistory,
+  }) async {
     try {
-      final content = [Content.text(message)];
-      final response = await _model.generateContent(content);
+      final enhancedQuery =
+          await _queryProcessor.enhanceQueryWithContext(message);
 
-      if (response.text == null || response.text!.isEmpty) {
-        throw Exception('Received empty response from Gemini');
-      }
+      // Create chat session with conversation history
+      final chatSession = _model.startChat(
+        history: _buildChatHistory(conversationHistory),
+      );
 
-      return response.text!;
+      final response = await chatSession.sendMessage(
+        Content.text(enhancedQuery),
+      );
+
+      return response.text ?? 'No response generated';
     } catch (e) {
-      throw Exception('Failed to get response from Wakili: ${e.toString()}');
+      throw Exception('Failed to send message: $e');
     }
   }
 
-  @override
-  Stream<String> sendMessageStream(String message) async* {
+  Stream<String> sendMessageStream(
+    String message, {
+    List<ChatMessage>? conversationHistory,
+  }) async* {
     try {
-      final content = [Content.text(message)];
-      final stream = _model.generateContentStream(content);
+      final enhancedQuery =
+          await _queryProcessor.enhanceQueryWithContext(message);
 
-      await for (final chunk in stream) {
-        if (chunk.text != null && chunk.text!.isNotEmpty) {
+      // Create chat session with conversation history
+      final chatSession = _model.startChat(
+        history: _buildChatHistory(conversationHistory),
+      );
+
+      final response = chatSession.sendMessageStream(
+        Content.text(enhancedQuery),
+      );
+
+      await for (final chunk in response) {
+        if (chunk.text != null) {
           yield chunk.text!;
         }
       }
     } catch (e) {
-      throw Exception(
-        'Failed to get streaming response from Wakili: ${e.toString()}',
-      );
+      throw Exception('Failed to send message stream: $e');
     }
+  }
+
+// In _buildChatHistory method, you can limit history:
+  List<Content> _buildChatHistory(List<ChatMessage>? messages) {
+    if (messages == null || messages.isEmpty) {
+      return [];
+    }
+
+    // Keep only last 20 messages for context (adjust as needed)
+    final recentMessages = messages.length > 20
+        ? messages.sublist(messages.length - 20)
+        : messages;
+
+    final history = <Content>[];
+
+    for (final message in recentMessages) {
+      if (message.isUser) {
+        history.add(Content.text(message.content));
+      } else {
+        history.add(Content.model([TextPart(message.content)]));
+      }
+    }
+
+    return history;
   }
 }
