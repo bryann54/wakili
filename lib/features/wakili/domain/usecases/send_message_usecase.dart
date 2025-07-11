@@ -10,13 +10,15 @@ class SendMessageStreamUseCase {
 
   SendMessageStreamUseCase(this._repository);
 
-  Stream<Either<Failure, String>> call(String message, {
+  Stream<Either<Failure, String>> call(
+    String message, {
     List<ChatMessage>? conversationHistory,
   }) {
     if (message.trim().isEmpty) {
       return Stream.value(left(ValidationFailure('Message cannot be empty')));
     }
-    return _repository.sendMessageStream(message,
+    return _repository.sendMessageStream(
+      message,
       conversationHistory: conversationHistory,
     );
   }

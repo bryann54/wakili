@@ -17,7 +17,8 @@ class SendMessageUseCase implements UseCase<String, String> {
     if (message.trim().isEmpty) {
       return Future.value(left(ValidationFailure('Message cannot be empty')));
     }
-    return _repository.sendMessage(message,
+    return _repository.sendMessage(
+      message,
       conversationHistory: conversationHistory,
     );
   }
