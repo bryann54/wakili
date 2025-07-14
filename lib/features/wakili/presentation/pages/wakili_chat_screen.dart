@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
+import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:wakili/features/wakili/data/models/legal_category.dart';
 import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dart';
@@ -11,12 +12,6 @@ import 'package:wakili/features/wakili/presentation/widgets/shimmer/category_shi
 import 'package:wakili/features/wakili/presentation/widgets/wakili_welcome_header.dart';
 import 'package:wakili/features/wakili/presentation/widgets/wakili_search_bar.dart';
 import 'package:wakili/features/wakili/presentation/widgets/category_grid_view.dart';
-
-// No longer needed if image path is directly from LegalCategory
-// String getChatBackgroundImagePath(String categoryTitle) {
-//   // This function will be removed as imagePath is part of LegalCategory
-//   return 'assets/wp.png';
-// }
 
 @RoutePage()
 class WakiliChatScreen extends StatefulWidget {
@@ -34,10 +29,6 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
   late Animation<double> _fadeAnimation;
 
   String _searchQuery = '';
-  // bool _isLoading = false; // Loading state will be managed by BLoC
-
-  // Remove the hardcoded _legalCategories list
-  // final List<LegalCategory> _legalCategories = const [...];
 
   @override
   void initState() {
@@ -64,7 +55,6 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
     AutoRouter.of(context).push(CategoryChatRoute(category: category));
   }
 
-  // This will now filter categories from the BLoC's state
   List<LegalCategory> _getFilteredCategories(
       List<LegalCategory> allCategories) {
     if (_searchQuery.isEmpty) return allCategories;
@@ -147,7 +137,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                 messageController: _messageController,
                 onSendMessage: () => _sendMessage(context, setModalState),
                 hintText: 'Ask wakili any legal related question...',
-                isLoading: isLoading, // Pass isLoading from BLoC state
+                isLoading: isLoading,
               ),
               const SizedBox(height: 20),
             ],
@@ -161,15 +151,9 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
     if (_messageController.text.trim().isEmpty) return;
 
     final message = _messageController.text.trim();
-
-    // Use the BLoC to send the message
     BlocProvider.of<WakiliBloc>(context).add(SendStreamMessageEvent(message));
-
-    // Optimistically close modal if not in loading state,
-    // actual loading will be handled by bloc state listener.
     Navigator.of(context).pop();
     _messageController.clear();
-    // No need for local _isLoading state anymore, BLoC manages it.
   }
 
   @override
@@ -188,73 +172,85 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                 ),
               );
             }
-            // Navigate to chat screen if a general chat is initiated
-            // This part might need adjustment based on how `GeneralChatRoute` handles `initialMessage`
-            // and if you want to navigate immediately after sending.
-            // For now, let's assume the bloc will eventually manage navigation
-            // or the chat screen updates with new messages.
-            // Original code: AutoRouter.of(context).push(GeneralChatRoute(initialMessage: message));
-            // This navigation logic should ideally be triggered by an event in the BLoC
-            // or handled in the `_onCategorySelected` for category-specific chats.
           },
-          builder: (context, state) {
-            List<LegalCategory> categories = [];
-            bool isLoading = false;
+          builder: (context, wakiliState) {
+            // Renamed state to wakiliState to avoid confusion
+            return BlocBuilder<AuthBloc, AuthState>(
+              // New BlocBuilder for AuthBloc
+              builder: (context, authState) {
+                String? firstName;
+                if (authState is AuthAuthenticated) {
+                  // Extract the first name from displayName
+                  firstName = authState.user.displayName?.split(' ').first;
+                }
 
-            if (state is WakiliChatLoaded) {
-              categories = _getFilteredCategories(state.allCategories);
-              isLoading = state.isLoading;
-            } else if (state is WakiliChatErrorState) {
-              categories = _getFilteredCategories(state.allCategories);
-              isLoading = false;
-            }
+                List<LegalCategory> categories = [];
+                bool isLoading = false;
 
-            return FadeTransition(
-              opacity: _fadeAnimation,
-              child: Column(
-                children: [
-                  const SizedBox(height: 55),
-                  const WakiliWelcomeHeader(),
-                  const SizedBox(height: 14),
-                  WakiliSearchBar(
-                    controller: _searchController,
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value;
-                      });
-                    },
-                  )
-                      .animate()
-                      .slideX(begin: 1, end: 0, curve: Curves.easeOut)
-                      .fadeIn(duration: 500.ms, delay: 500.ms),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: categories.isEmpty && isLoading
-                          ? const CategoryShimmerGridView()
-                          : categories.isEmpty && !isLoading
-                              ? const Center(
-                                  child: Text('No categories found.',
-                                      style: TextStyle(
-                                          color: Colors
-                                              .white)), // Added white color for visibility
-                                )
-                              : CategoryGridView(
-                                  categories: categories,
-                                  onCategorySelected: _onCategorySelected,
-                                ),
-                    ),
+                if (wakiliState is WakiliChatLoaded) {
+                  categories =
+                      _getFilteredCategories(wakiliState.allCategories);
+                  isLoading = wakiliState.isLoading;
+                } else if (wakiliState is WakiliChatErrorState) {
+                  categories =
+                      _getFilteredCategories(wakiliState.allCategories);
+                  isLoading = false;
+                }
+
+                return FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 55),
+                      WakiliWelcomeHeader(
+                          firstName: firstName), // Pass the firstName here
+                      const SizedBox(height: 14),
+                      WakiliSearchBar(
+                        controller: _searchController,
+                        onChanged: (value) {
+                          setState(() {
+                            _searchQuery = value;
+                          });
+                        },
+                      )
+                          .animate()
+                          .slideX(begin: 1, end: 0, curve: Curves.easeOut)
+                          .fadeIn(duration: 500.ms, delay: 500.ms),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: categories.isEmpty && isLoading
+                              ? const CategoryShimmerGridView()
+                              : categories.isEmpty && !isLoading
+                                  ? Center(
+                                      child: Text(
+                                        'No categories found.',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge
+                                            ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant, // Use theme colors
+                                            ),
+                                      ),
+                                    )
+                                  : CategoryGridView(
+                                      categories: categories,
+                                      onCategorySelected: _onCategorySelected,
+                                    ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             );
           },
         ),
       ),
-      floatingActionButton:
-          Builder(// Use Builder to get a context within the Scaffold
-              builder: (context) {
+      floatingActionButton: Builder(builder: (context) {
         bool isSendingMessage = false;
         final state = context.watch<WakiliBloc>().state;
         if (state is WakiliChatLoaded) {
@@ -279,9 +275,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                   blurRadius: 12,
                   spreadRadius: 1,
                   offset: const Offset(0, 4),

@@ -1,55 +1,67 @@
 import 'package:flutter/material.dart';
-import 'package:wakili/common/helpers/base_usecase.dart'; // Assuming getImagePath is here
-import 'package:wakili/features/wakili/data/models/legal_category.dart'; // Ensure this path is correct
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:wakili/features/wakili/data/models/legal_category.dart';
 
 class CategoryCard extends StatelessWidget {
   final LegalCategory category;
   final VoidCallback onTap;
 
-  const CategoryCard({super.key, required this.category, required this.onTap});
+  const CategoryCard({
+    super.key,
+    required this.category,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final String imagePath = getImagePath(category.title);
-
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textTheme = theme.textTheme;
 
     return GestureDetector(
       onTap: onTap,
       child: Hero(
-        tag: 'category_card_${category.title}',
+        tag: 'category_${category.id}',
         child: Material(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(16),
           clipBehavior: Clip.antiAlias,
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              color: theme.colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Stack(
               children: [
                 // Background Image
                 Positioned.fill(
                   child: Image.asset(
-                    imagePath,
+                    category.imagePath,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Theme.of(context).colorScheme.surfaceContainer,
-                        child: Center(
-                          child: Icon(
-                            Icons.broken_image,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                    errorBuilder: (_, __, ___) => Container(
+                      color: theme.colorScheme.surfaceContainer,
+                      child: Center(
+                        child: Icon(
+                          Icons.gavel_rounded,
+                          color: theme.colorScheme.onSurfaceVariant,
+                          size: 32,
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
                 ),
-                // Gradient Overlay - ADJUSTED FOR DARK MODE SHADOW
+
+                // Gradient Overlay
                 Positioned.fill(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
@@ -57,63 +69,55 @@ class CategoryCard extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          // Top color: Even more subtle in light mode, less opaque in dark mode
-                          isDarkMode
-                              ? Colors.black.withValues(alpha: 0.2)
-                              : Colors.black.withValues(
-                                  alpha: 0.05,
-                                ), // Reduced dark mode top opacity
-                          // Middle color: Category color with controlled opacity
-                          category.color.withValues(
-                            alpha: isDarkMode ? 0.5 : 0.3,
-                          ), // Slightly reduced dark mode middle opacity
-                          // Bottom color: Still provides good contrast, but slightly less opaque for dark mode
-                          isDarkMode
-                              ? Colors.black.withValues(alpha: 0.7)
-                              : Colors.black.withValues(
-                                  alpha: 0.6,
-                                ), // Reduced dark mode bottom opacity slightly
+                          Colors.transparent,
+                          Colors.black.withOpacity(isDark ? 0.6 : 0.4),
                         ],
-                        stops: const [0.0, 0.6, 1.0],
+                        stops: const [0.5, 1.0],
                       ),
                     ),
                   ),
                 ),
+
+                // Content
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        category.title,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white, // Keep white for readability
-                            ),
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      // Category Title with subtle shine
+                      _ShineText(
+                        text: category.title,
+                        style: textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      // Description
+
+                      const SizedBox(height: 8),
+
+                      // Description with improved readability
                       Text(
                         category.description,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white70, // Keep consistent
-                          shadows: [
-                            Shadow(
-                              blurRadius: 4.0,
-                              color: Colors.black.withValues(alpha: 0.5),
-                              offset: const Offset(1.0, 1.0),
-                            ),
-                          ],
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withOpacity(0.9),
+                          height: 1.3,
                         ),
-                        textAlign: TextAlign.left,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
+                  ),
+                ),
+
+                // Interactive overlay
+                Positioned.fill(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      splashColor: category.color.withOpacity(0.2),
+                      highlightColor: category.color.withOpacity(0.1),
+                    ),
                   ),
                 ),
               ],
@@ -121,6 +125,28 @@ class CategoryCard extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ).animate().scale(
+          begin: const Offset(0.95, 0.95),
+          duration: 300.ms,
+          curve: Curves.easeOut,
+        );
+  }
+}
+
+class _ShineText extends StatelessWidget {
+  final String text;
+  final TextStyle? style;
+
+  const _ShineText({required this.text, this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(text, style: style)
+        .animate(onPlay: (controller) => controller.repeat())
+        .shimmer(
+          duration: 3000.ms,
+          color: Colors.white.withOpacity(0.2),
+          angle: -0.1,
+        );
   }
 }

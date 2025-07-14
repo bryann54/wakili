@@ -18,6 +18,7 @@ class WakiliChatRemoteDataSource {
       final enhancedQuery =
           await _queryProcessor.enhanceQueryWithContext(message);
 
+      // Create chat session with conversation history
       final chatSession = _model.startChat(
         history: _buildChatHistory(conversationHistory),
       );

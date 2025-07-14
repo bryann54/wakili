@@ -98,13 +98,9 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
           centerTitle: false,
           title: Row(
             children: [
-              const CircleAvatar(
-                radius: 18,
-                backgroundImage: AssetImage('assets/dp.png'),
-              ),
-              const SizedBox(width: 12),
+           
               Text(
-                '${widget.category.title} Wakili', // Spacing corrected
+                '${widget.category.title} Wakili', 
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
