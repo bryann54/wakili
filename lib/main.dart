@@ -1,8 +1,7 @@
 // main.dart
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wakili/common/helpers/app_router.dart';
-// import 'package:wakili/common/res/l10n.dart'; // REMOVED: No longer needed for AppLocalizations
-import 'package:wakili/common/notifiers/locale_provider.dart'; // Keep if LocaleProvider is used for other locale-related things, even if not for translations
+import 'package:wakili/common/notifiers/locale_provider.dart'; 
 import 'package:wakili/common/widgets/global_bloc_observer.dart';
 import 'package:wakili/core/di/injector.dart';
 import 'package:flutter/foundation.dart';
@@ -41,7 +40,7 @@ void main() async {
   // Configure dependency injection
   await configureDependencies();
 
-  // Initialize locale provider (Keep this if LocaleProvider manages other non-translation locale settings)
+  // Initialize locale provider
   final localeProvider = LocaleProvider();
   localeProvider.loadLocale();
 
@@ -102,7 +101,7 @@ class MyApp extends StatelessWidget {
               unselectedIconTheme: const IconThemeData(size: 24),
               type: BottomNavigationBarType.fixed,
             )),
-        themeMode: ThemeMode.light,
+        themeMode: ThemeMode.system,
       ),
     );
   }

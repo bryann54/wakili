@@ -8,6 +8,7 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:dio/dio.dart' as _i361;
 import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:get_it/get_it.dart' as _i174;
@@ -50,12 +51,20 @@ import '../../features/chat_history/domain/usecases/search_chat_history_usecase.
     as _i1036;
 import '../../features/chat_history/presentation/bloc/chat_history_bloc.dart'
     as _i393;
+import '../../features/wakili/data/datasources/legal_category_remote_datasource.dart'
+    as _i116;
 import '../../features/wakili/data/datasources/wakili_chat_remote_datasource.dart'
     as _i106;
+import '../../features/wakili/data/repositories/legal_category_repository_impl.dart'
+    as _i909;
 import '../../features/wakili/data/repositories/wakili_chat_repository_impl.dart'
     as _i644;
+import '../../features/wakili/domain/repositories/legal_category_repository.dart'
+    as _i460;
 import '../../features/wakili/domain/repositories/wakili_chat_repository.dart'
     as _i313;
+import '../../features/wakili/domain/usecases/get_legal_categories_usecase.dart'
+    as _i644;
 import '../../features/wakili/domain/usecases/send_message_stream_usecase.dart'
     as _i536;
 import '../../features/wakili/domain/usecases/send_message_usecase.dart'
@@ -88,6 +97,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i116.GoogleSignIn>(() => registerModules.googleSignIn);
     gh.lazySingleton<_i656.GenerativeModel>(
         () => wakiliChatModule.generativeModel);
+    gh.lazySingleton<_i974.FirebaseFirestore>(() => wakiliChatModule.firestore);
     gh.lazySingleton<_i307.WakiliQueryProcessor>(
         () => wakiliChatModule.queryProcessor);
     gh.lazySingleton<_i578.ChatHistoryLocalDataSource>(
@@ -107,6 +117,8 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.lazySingleton<_i934.SharedPreferencesManager>(
         () => _i934.SharedPreferencesManager(gh<_i460.SharedPreferences>()));
+    gh.factory<_i116.LegalCategoryRemoteDataSource>(() =>
+        _i116.LegalCategoryRemoteDataSource(gh<_i974.FirebaseFirestore>()));
     gh.lazySingleton<_i29.AccountLocalDatasource>(() =>
         _i29.AccountLocalDatasource(gh<_i934.SharedPreferencesManager>()));
     gh.lazySingleton<_i371.ChatHistoryRepository>(() =>
@@ -119,6 +131,9 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i656.GenerativeModel>(),
               gh<_i307.WakiliQueryProcessor>(),
             ));
+    gh.lazySingleton<_i460.LegalCategoryRepository>(() =>
+        _i909.LegalCategoryRepositoryImpl(
+            gh<_i116.LegalCategoryRemoteDataSource>()));
     gh.lazySingleton<_i361.Dio>(
         () => registerModules.dio(gh<String>(instanceName: 'BaseUrl')));
     gh.factory<_i217.GetChatHistoryUseCase>(
@@ -139,6 +154,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i536.SendMessageUseCase(gh<_i313.WakiliChatRepository>()));
     gh.factory<_i872.SendMessageStreamUseCase>(
         () => _i872.SendMessageStreamUseCase(gh<_i313.WakiliChatRepository>()));
+    gh.factory<_i644.GetLegalCategoriesUseCase>(() =>
+        _i644.GetLegalCategoriesUseCase(gh<_i460.LegalCategoryRepository>()));
     gh.lazySingleton<_i993.ChangeLanguageUsecase>(
         () => _i993.ChangeLanguageUsecase(gh<_i1067.AccountRepository>()));
     gh.lazySingleton<_i758.DioClient>(() => _i758.DioClient(
@@ -181,6 +198,7 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i536.SendMessageUseCase>(),
           gh<_i872.SendMessageStreamUseCase>(),
           gh<_i393.ChatHistoryBloc>(),
+          gh<_i644.GetLegalCategoriesUseCase>(),
         ));
     return this;
   }

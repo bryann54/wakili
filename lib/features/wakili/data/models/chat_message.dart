@@ -21,7 +21,7 @@ class ChatMessage extends Equatable {
   final String? messageType;
 
   @HiveField(5)
-  final Map<String, dynamic>? metadata; 
+  final Map<String, dynamic>? metadata;
 
   @HiveField(6)
   final String? parentMessageId;
@@ -33,7 +33,7 @@ class ChatMessage extends Equatable {
   final DateTime? editedAt;
 
   @HiveField(9)
-  final String? originalContent; 
+  final String? originalContent;
 
   @HiveField(10)
   final List<String> attachments;

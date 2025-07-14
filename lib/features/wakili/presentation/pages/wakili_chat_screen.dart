@@ -7,9 +7,16 @@ import 'package:wakili/common/helpers/app_router.gr.dart';
 import 'package:wakili/features/wakili/data/models/legal_category.dart';
 import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dart';
+import 'package:wakili/features/wakili/presentation/widgets/shimmer/category_shimmer_grid_view.dart';
 import 'package:wakili/features/wakili/presentation/widgets/wakili_welcome_header.dart';
 import 'package:wakili/features/wakili/presentation/widgets/wakili_search_bar.dart';
 import 'package:wakili/features/wakili/presentation/widgets/category_grid_view.dart';
+
+// No longer needed if image path is directly from LegalCategory
+// String getChatBackgroundImagePath(String categoryTitle) {
+//   // This function will be removed as imagePath is part of LegalCategory
+//   return 'assets/wp.png';
+// }
 
 @RoutePage()
 class WakiliChatScreen extends StatefulWidget {
@@ -27,57 +34,10 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
   late Animation<double> _fadeAnimation;
 
   String _searchQuery = '';
-  bool _isLoading = false;
+  // bool _isLoading = false; // Loading state will be managed by BLoC
 
-  final List<LegalCategory> _legalCategories = const [
-    LegalCategory(
-      title: 'Traffic Law',
-      color: Colors.blue,
-      description: 'Traffic violations, licenses, accidents',
-    ),
-    LegalCategory(
-      title: 'Criminal Law',
-     
-      color: Colors.red,
-      description: 'Criminal offenses, procedures, rights',
-    ),
-    LegalCategory(
-      title: 'Family Law',
-     
-      color: Colors.purple,
-      description: 'Marriage, divorce, custody, inheritance',
-    ),
-    LegalCategory(
-      title: 'Employment',
-     
-      color: Colors.orange,
-      description: 'Labor rights, contracts, disputes',
-    ),
-    LegalCategory(
-      title: 'Property Law',
-     
-      color: Colors.green,
-      description: 'Real estate, land, property rights',
-    ),
-    LegalCategory(
-      title: 'Business Law',
-    
-      color: Colors.indigo,
-      description: 'Company law, contracts, regulations',
-    ),
-    LegalCategory(
-      title: 'Consumer Rights',
-     
-      color: Colors.teal,
-      description: 'Consumer protection, warranties',
-    ),
-    LegalCategory(
-      title: 'Constitutional',
-  
-      color: Colors.brown,
-      description: 'Human rights, civil liberties',
-    ),
-  ];
+  // Remove the hardcoded _legalCategories list
+  // final List<LegalCategory> _legalCategories = const [...];
 
   @override
   void initState() {
@@ -104,9 +64,11 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
     AutoRouter.of(context).push(CategoryChatRoute(category: category));
   }
 
-  List<LegalCategory> get _filteredCategories {
-    if (_searchQuery.isEmpty) return _legalCategories;
-    return _legalCategories
+  // This will now filter categories from the BLoC's state
+  List<LegalCategory> _getFilteredCategories(
+      List<LegalCategory> allCategories) {
+    if (_searchQuery.isEmpty) return allCategories;
+    return allCategories
         .where(
           (category) =>
               category.title.toLowerCase().contains(
@@ -119,16 +81,16 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
         .toList();
   }
 
-  void _showChatInputModal() {
+  void _showChatInputModal(BuildContext context, bool isLoading) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _buildChatInputModal(),
+      builder: (context) => _buildChatInputModal(context, isLoading),
     );
   }
 
-  Widget _buildChatInputModal() {
+  Widget _buildChatInputModal(BuildContext context, bool isLoading) {
     return StatefulBuilder(
       builder: (context, setModalState) {
         return Container(
@@ -160,7 +122,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                     CircleAvatar(
                       radius: 18,
                       backgroundColor: Theme.of(context).colorScheme.primary,
-                      child: CircleAvatar(
+                      child: const CircleAvatar(
                         radius: 18,
                         backgroundImage: AssetImage('assets/dp.png'),
                       ),
@@ -183,9 +145,9 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
               const SizedBox(height: 8),
               ChatInputField(
                 messageController: _messageController,
-                onSendMessage: () => _sendMessage(setModalState),
+                onSendMessage: () => _sendMessage(context, setModalState),
                 hintText: 'Ask wakili any legal related question...',
-                isLoading: _isLoading,
+                isLoading: isLoading, // Pass isLoading from BLoC state
               ),
               const SizedBox(height: 20),
             ],
@@ -195,38 +157,19 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
     );
   }
 
-  void _sendMessage(StateSetter setModalState) async {
+  void _sendMessage(BuildContext context, StateSetter setModalState) async {
     if (_messageController.text.trim().isEmpty) return;
 
     final message = _messageController.text.trim();
 
-    setModalState(() {
-      _isLoading = true;
-    });
+    // Use the BLoC to send the message
+    BlocProvider.of<WakiliBloc>(context).add(SendStreamMessageEvent(message));
 
-    try {
-      await Future.delayed(const Duration(milliseconds: 500));
-      if (mounted) {
-        Navigator.of(context).pop();
-        AutoRouter.of(context).push(GeneralChatRoute(initialMessage: message));
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to process message: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setModalState(() {
-          _isLoading = false;
-        });
-        _messageController.clear();
-      }
-    }
+    // Optimistically close modal if not in loading state,
+    // actual loading will be handled by bloc state listener.
+    Navigator.of(context).pop();
+    _messageController.clear();
+    // No need for local _isLoading state anymore, BLoC manages it.
   }
 
   @override
@@ -234,103 +177,156 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
     return Scaffold(
       body: BlocProvider(
         create: (context) => GetIt.instance<WakiliBloc>(),
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: Column(
-            children: [
-              const SizedBox(height: 55),
-              const WakiliWelcomeHeader(),
-              const SizedBox(height: 14),
-              WakiliSearchBar(
-                controller: _searchController,
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
-              )
-                  .animate()
-                  .slideX(begin: 1, end: 0, curve: Curves.easeOut)
-                  .fadeIn(duration: 500.ms, delay: 500.ms),
-              const SizedBox(height: 16),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: CategoryGridView(
-                    categories: _filteredCategories,
-                    onCategorySelected: _onCategorySelected,
-                  ),
+        child: BlocConsumer<WakiliBloc, WakiliState>(
+          listener: (context, state) {
+            // You can add listeners here for error messages or navigation based on state
+            if (state is WakiliChatErrorState) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Theme.of(context).colorScheme.error,
                 ),
+              );
+            }
+            // Navigate to chat screen if a general chat is initiated
+            // This part might need adjustment based on how `GeneralChatRoute` handles `initialMessage`
+            // and if you want to navigate immediately after sending.
+            // For now, let's assume the bloc will eventually manage navigation
+            // or the chat screen updates with new messages.
+            // Original code: AutoRouter.of(context).push(GeneralChatRoute(initialMessage: message));
+            // This navigation logic should ideally be triggered by an event in the BLoC
+            // or handled in the `_onCategorySelected` for category-specific chats.
+          },
+          builder: (context, state) {
+            List<LegalCategory> categories = [];
+            bool isLoading = false;
+
+            if (state is WakiliChatLoaded) {
+              categories = _getFilteredCategories(state.allCategories);
+              isLoading = state.isLoading;
+            } else if (state is WakiliChatErrorState) {
+              categories = _getFilteredCategories(state.allCategories);
+              isLoading = false;
+            }
+
+            return FadeTransition(
+              opacity: _fadeAnimation,
+              child: Column(
+                children: [
+                  const SizedBox(height: 55),
+                  const WakiliWelcomeHeader(),
+                  const SizedBox(height: 14),
+                  WakiliSearchBar(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                  )
+                      .animate()
+                      .slideX(begin: 1, end: 0, curve: Curves.easeOut)
+                      .fadeIn(duration: 500.ms, delay: 500.ms),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: categories.isEmpty && isLoading
+                          ? const CategoryShimmerGridView()
+                          : categories.isEmpty && !isLoading
+                              ? const Center(
+                                  child: Text('No categories found.',
+                                      style: TextStyle(
+                                          color: Colors
+                                              .white)), // Added white color for visibility
+                                )
+                              : CategoryGridView(
+                                  categories: categories,
+                                  onCategorySelected: _onCategorySelected,
+                                ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
-      floatingActionButton: GestureDetector(
-        onTap: _showChatInputModal,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutQuint,
-          height: 56,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-            gradient: LinearGradient(
-              colors: [
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.tertiary,
-              ],
-              transform: const GradientRotation(0.785),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.3),
-                blurRadius: 12,
-                spreadRadius: 1,
-                offset: const Offset(0, 4),
+      floatingActionButton:
+          Builder(// Use Builder to get a context within the Scaffold
+              builder: (context) {
+        bool isSendingMessage = false;
+        final state = context.watch<WakiliBloc>().state;
+        if (state is WakiliChatLoaded) {
+          isSendingMessage = state.isLoading;
+        }
+
+        return GestureDetector(
+          onTap: () => _showChatInputModal(context, isSendingMessage),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutQuint,
+            height: 56,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.tertiary,
+                ],
+                transform: const GradientRotation(0.785),
               ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Theme.of(context).colorScheme.primary,
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withOpacity(0.3),
+                  blurRadius: 12,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
                   child: CircleAvatar(
                     radius: 18,
-                    backgroundImage: AssetImage('assets/dp.png'),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    child: const CircleAvatar(
+                      radius: 18,
+                      backgroundImage: AssetImage('assets/dp.png'),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              RichText(
-                text: TextSpan(
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        letterSpacing: 0.5,
+                const SizedBox(width: 12),
+                RichText(
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          letterSpacing: 0.5,
+                        ),
+                    children: const [
+                      TextSpan(text: 'Ask '),
+                      TextSpan(
+                        text: 'Wakili',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
-                  children: const [
-                    TextSpan(text: 'Ask '),
-                    TextSpan(
-                      text: 'Wakili',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }

@@ -16,12 +16,14 @@ class WakiliChatLoaded extends WakiliState {
   final bool isLoading;
   final String? error;
   final String? selectedCategory;
+  final List<LegalCategory> allCategories;
 
   const WakiliChatLoaded({
     required this.messages,
     this.isLoading = false,
     this.error,
     this.selectedCategory,
+    this.allCategories = const [],
   });
 
   WakiliChatLoaded copyWith({
@@ -29,30 +31,36 @@ class WakiliChatLoaded extends WakiliState {
     bool? isLoading,
     String? error,
     String? selectedCategory,
+    List<LegalCategory>? allCategories,
   }) {
     return WakiliChatLoaded(
       messages: messages ?? this.messages,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
       selectedCategory: selectedCategory ?? this.selectedCategory,
+      allCategories: allCategories ?? this.allCategories,
     );
   }
 
   @override
-  List<Object?> get props => [messages, isLoading, error, selectedCategory];
+  List<Object?> get props =>
+      [messages, isLoading, error, selectedCategory, allCategories];
 }
 
 class WakiliChatErrorState extends WakiliState {
   final String message;
   final List<ChatMessage> messages;
   final String? selectedCategory;
+  final List<LegalCategory> allCategories;
 
   const WakiliChatErrorState({
     required this.message,
     required this.messages,
     this.selectedCategory,
+    this.allCategories = const [],
   });
 
   @override
-  List<Object?> get props => [message, messages, selectedCategory];
+  List<Object?> get props =>
+      [message, messages, selectedCategory, allCategories];
 }

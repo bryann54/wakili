@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:injectable/injectable.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -29,6 +30,8 @@ abstract class WakiliChatModule {
     );
   }
 
+  @lazySingleton
+  FirebaseFirestore get firestore => FirebaseFirestore.instance;
   Content _createSystemInstruction() {
     // Current date is July 5, 2025. Use this for "current" references.
     return Content.system('''

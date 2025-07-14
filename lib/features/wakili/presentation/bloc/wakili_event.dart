@@ -45,6 +45,10 @@ class ClearCategoryContextEvent extends WakiliEvent {
   List<Object> get props => [];
 }
 
+class LoadLegalCategories extends WakiliEvent {
+  const LoadLegalCategories();
+}
+
 class LoadExistingChat extends WakiliEvent {
   final List<ChatMessage> messages;
 

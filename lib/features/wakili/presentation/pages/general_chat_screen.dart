@@ -5,20 +5,19 @@ import 'package:get_it/get_it.dart';
 import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
-import 'package:wakili/common/helpers/app_router.gr.dart'; 
+import 'package:wakili/common/helpers/app_router.gr.dart';
 
 @RoutePage()
 class GeneralChatScreen extends StatefulWidget {
   final String? initialMessage;
-  final List<ChatMessage>?
-      initialMessages;
+  final List<ChatMessage>? initialMessages;
   final String? conversationId;
 
   const GeneralChatScreen({
     super.key,
     this.initialMessage,
-    this.initialMessages, 
-    this.conversationId, 
+    this.initialMessages,
+    this.conversationId,
   });
 
   @override

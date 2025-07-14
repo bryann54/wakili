@@ -5,6 +5,8 @@ import 'package:injectable/injectable.dart';
 import 'package:wakili/core/errors/failures.dart';
 import 'package:wakili/features/chat_history/presentation/bloc/chat_history_bloc.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
+import 'package:wakili/features/wakili/data/models/legal_category.dart';
+import 'package:wakili/features/wakili/domain/usecases/get_legal_categories_usecase.dart';
 import 'package:wakili/features/wakili/domain/usecases/send_message_usecase.dart';
 import 'package:wakili/features/wakili/domain/usecases/send_message_stream_usecase.dart';
 
@@ -16,11 +18,13 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
   final SendMessageUseCase _sendMessage;
   final SendMessageStreamUseCase _sendStreamMessage;
   final ChatHistoryBloc _chatHistoryBloc;
+  final GetLegalCategoriesUseCase _getLegalCategories;
 
   WakiliBloc(
     this._sendMessage,
     this._sendStreamMessage,
     this._chatHistoryBloc,
+    this._getLegalCategories,
   ) : super(WakiliChatInitial()) {
     on<SendMessageEvent>(_onSendMessage);
     on<SendStreamMessageEvent>(_onSendStreamMessage);
@@ -29,6 +33,8 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     on<ClearCategoryContextEvent>(_onClearCategoryContext);
     on<LoadExistingChat>(_onLoadExistingChat);
     on<LoadExistingChatWithCategory>(_onLoadExistingChatWithCategory);
+    on<LoadLegalCategories>(_onLoadLegalCategories);
+    add(const LoadLegalCategories());
   }
 
   FutureOr<void> _onSendMessage(
@@ -189,6 +195,38 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     ));
   }
 
+  FutureOr<void> _onLoadLegalCategories(
+    LoadLegalCategories event,
+    Emitter<WakiliState> emit,
+  ) async {
+    final current = _extractChatData(state);
+    emit(WakiliChatLoaded(
+      messages: current.messages,
+      isLoading: true,
+      selectedCategory: current.category,
+      allCategories: current.allCategories,
+    ));
+
+    final result = await _getLegalCategories();
+    result.fold(
+      (failure) => emit(WakiliChatErrorState(
+        message: _mapFailure(failure),
+        messages: current.messages,
+        selectedCategory: current.category,
+        allCategories:
+            current.allCategories, // Retain existing categories if any
+      )),
+      (categories) {
+        emit(WakiliChatLoaded(
+          messages: current.messages,
+          isLoading: false,
+          selectedCategory: current.category,
+          allCategories: categories, // Set the fetched categories
+        ));
+      },
+    );
+  }
+
   void _onLoadExistingChatWithCategory(
     LoadExistingChatWithCategory event,
     Emitter<WakiliState> emit,
@@ -199,14 +237,25 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     ));
   }
 
-  ({List<ChatMessage> messages, String? category}) _extractChatData(
-      WakiliState state) {
+  ({
+    List<ChatMessage> messages,
+    String? category,
+    List<LegalCategory> allCategories
+  }) _extractChatData(WakiliState state) {
     if (state is WakiliChatLoaded) {
-      return (messages: state.messages, category: state.selectedCategory);
+      return (
+        messages: state.messages,
+        category: state.selectedCategory,
+        allCategories: state.allCategories
+      );
     } else if (state is WakiliChatErrorState) {
-      return (messages: state.messages, category: state.selectedCategory);
+      return (
+        messages: state.messages,
+        category: state.selectedCategory,
+        allCategories: state.allCategories
+      );
     } else {
-      return (messages: [], category: null);
+      return (messages: [], category: null, allCategories: []);
     }
   }
 

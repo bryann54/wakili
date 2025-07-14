@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:wakili/common/utils/chat_bg.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
 import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_message_widget.dart';
@@ -21,7 +20,7 @@ class CategoryChatScreen extends StatefulWidget {
   const CategoryChatScreen({
     super.key,
     required this.category,
-    this.initialMessages, 
+    this.initialMessages,
     this.conversationId,
   });
 
@@ -36,21 +35,22 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize the WakiliBloc with either existing messages or a fresh start
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Ensure WakiliBloc is available via context.read
+      final wakiliBloc = context.read<WakiliBloc>();
+
       if (widget.initialMessages != null &&
           widget.initialMessages!.isNotEmpty) {
-        context.read<WakiliBloc>().add(
-              LoadExistingChatWithCategory(
-                widget.initialMessages!,
-                widget.category.title,
-              ),
-            );
+        wakiliBloc.add(
+          LoadExistingChatWithCategory(
+            widget.initialMessages!,
+            widget.category.title,
+          ),
+        );
       } else {
-        // If no initial messages, set the category context for a new chat
-        context.read<WakiliBloc>().add(
-              SetCategoryContextEvent(widget.category.title),
-            );
+        wakiliBloc.add(
+          SetCategoryContextEvent(widget.category.title),
+        );
       }
       _scrollToBottom();
     });
@@ -84,16 +84,13 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    final String backgroundImagePath = getChatBackgroundImagePath(
-      widget.category.title,
-    );
+    // Directly use widget.category.imagePath
+    final String backgroundImagePath = widget.category.imagePath;
 
     return BlocProvider.value(
-      value: GetIt.instance<WakiliBloc>(), 
+      value: GetIt.instance<WakiliBloc>(),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -107,7 +104,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                '${widget.category.title}   wakili',
+                '${widget.category.title} Wakili', // Spacing corrected
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -122,6 +119,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
                 if (value == 'history') {
                   AutoRouter.of(context).push(const ChatHistoryRoute());
                 } else if (value == 'clear') {
+                  // Ensure you read the bloc for dispatching events
                   context.read<WakiliBloc>().add(const ClearChatEvent());
                 }
               },
@@ -151,6 +149,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
                 backgroundImagePath,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
+                  // Fallback for missing images
                   return Container(
                     color:
                         Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -163,8 +162,8 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
             ),
             Positioned.fill(
               child: Container(
-                color: Colors.black.withValues(
-                  alpha: 0.4,)
+                // Use a proper overlay color, withOpacity is better than withValues for alpha
+                color: Colors.black.withOpacity(0.4),
               ),
             ),
             Column(
@@ -182,10 +181,12 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
                       if (state is WakiliChatLoaded ||
                           state is WakiliChatErrorState) {
                         _scrollToBottom();
-                        if (state is WakiliChatLoaded && state.error != null) {
+                        if (state is WakiliChatErrorState) {
+                          // Check for error state specifically
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Error: ${state.error}'),
+                              content: Text(
+                                  'Error: ${state.message}'), // Use state.message for error
                               backgroundColor:
                                   Theme.of(context).colorScheme.error,
                             ),
@@ -218,7 +219,16 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
                               },
                             ),
                           ),
-                          if (isLoadingTyping) const ChatTypingIndicator(),
+                          // Show typing indicator only when isLoadingTyping is true AND there are no messages yet
+                          // Or show it at the end of existing messages if it's the AI's turn
+                          if (isLoadingTyping && messages.isEmpty)
+                            const ChatTypingIndicator()
+                          else if (isLoadingTyping &&
+                              messages.isNotEmpty &&
+                              !messages.last
+                                  .isUser) // Assuming AI is typing after a user message
+                            const ChatTypingIndicator(),
+                          // You might want a more sophisticated check for when AI is actually typing a response
                         ],
                       );
                     },
