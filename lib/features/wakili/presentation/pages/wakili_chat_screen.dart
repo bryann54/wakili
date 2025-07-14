@@ -32,49 +32,48 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
   final List<LegalCategory> _legalCategories = const [
     LegalCategory(
       title: 'Traffic Law',
-      icon: Icons.directions_car,
       color: Colors.blue,
       description: 'Traffic violations, licenses, accidents',
     ),
     LegalCategory(
       title: 'Criminal Law',
-      icon: Icons.security,
+     
       color: Colors.red,
       description: 'Criminal offenses, procedures, rights',
     ),
     LegalCategory(
       title: 'Family Law',
-      icon: Icons.family_restroom,
+     
       color: Colors.purple,
       description: 'Marriage, divorce, custody, inheritance',
     ),
     LegalCategory(
       title: 'Employment',
-      icon: Icons.work_outline,
+     
       color: Colors.orange,
       description: 'Labor rights, contracts, disputes',
     ),
     LegalCategory(
       title: 'Property Law',
-      icon: Icons.home_work,
+     
       color: Colors.green,
       description: 'Real estate, land, property rights',
     ),
     LegalCategory(
       title: 'Business Law',
-      icon: Icons.business_center,
+    
       color: Colors.indigo,
       description: 'Company law, contracts, regulations',
     ),
     LegalCategory(
       title: 'Consumer Rights',
-      icon: Icons.shopping_cart,
+     
       color: Colors.teal,
       description: 'Consumer protection, warranties',
     ),
     LegalCategory(
       title: 'Constitutional',
-      icon: Icons.account_balance,
+  
       color: Colors.brown,
       description: 'Human rights, civil liberties',
     ),

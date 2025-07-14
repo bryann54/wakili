@@ -18,7 +18,6 @@ class WakiliChatRemoteDataSource {
       final enhancedQuery =
           await _queryProcessor.enhanceQueryWithContext(message);
 
-      // Create chat session with conversation history
       final chatSession = _model.startChat(
         history: _buildChatHistory(conversationHistory),
       );
@@ -66,7 +65,7 @@ class WakiliChatRemoteDataSource {
       return [];
     }
 
-    // Keep only last 20 messages for context (adjust as needed)
+    // Keep only last 20 messages
     final recentMessages = messages.length > 20
         ? messages.sublist(messages.length - 20)
         : messages;

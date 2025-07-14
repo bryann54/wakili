@@ -12,10 +12,9 @@ class CategoryFocusBar extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: category.color.withValues(alpha: 0.1),
-      child: Row(
+      child: Row(mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(category.icon, size: 16, color: category.color),
-          const SizedBox(width: 8),
+        
           Text(
             'Focus: ${category.title}',
             style: TextStyle(

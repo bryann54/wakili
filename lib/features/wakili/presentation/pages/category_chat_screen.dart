@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:wakili/common/utils/chat_bg.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
 import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_message_widget.dart';
@@ -9,19 +10,19 @@ import 'package:wakili/features/wakili/data/models/legal_category.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_typing_indicator.dart';
 import 'package:wakili/features/wakili/presentation/widgets/category_focus_bar.dart';
-import 'package:wakili/common/helpers/app_router.gr.dart'; // Import for AutoRouter routes
+import 'package:wakili/common/helpers/app_router.gr.dart';
 
 @RoutePage()
 class CategoryChatScreen extends StatefulWidget {
   final LegalCategory category;
-  final List<ChatMessage>? initialMessages; // New: Optional initial messages
-  final String? conversationId; // New: Optional conversation ID
+  final List<ChatMessage>? initialMessages;
+  final String? conversationId;
 
   const CategoryChatScreen({
     super.key,
     required this.category,
-    this.initialMessages, // Make it optional
-    this.conversationId, // Make it optional
+    this.initialMessages, 
+    this.conversationId,
   });
 
   @override
@@ -51,7 +52,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
               SetCategoryContextEvent(widget.category.title),
             );
       }
-      _scrollToBottom(); // Scroll to bottom initially
+      _scrollToBottom();
     });
   }
 
@@ -83,38 +84,16 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
     }
   }
 
-  String _getChatBackgroundImagePath(String categoryTitle) {
-    switch (categoryTitle) {
-      case 'Traffic Law':
-        return 'assets/wp.png';
-      case 'Criminal Law':
-        return 'assets/wp.png';
-      case 'Family Law':
-        return 'assets/wp.png';
-      case 'Employment':
-        return 'assets/wp.png';
-      case 'Property Law':
-        return 'assets/wp.png';
-      case 'Business Law':
-        return 'assets/wp.png';
-      case 'Consumer Rights':
-        return 'assets/wp.png';
-      case 'Constitutional':
-        return 'assets/wp.png';
-      default:
-        return 'assets/wp.png';
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
-    final String backgroundImagePath = _getChatBackgroundImagePath(
+    final String backgroundImagePath = getChatBackgroundImagePath(
       widget.category.title,
     );
 
     return BlocProvider.value(
-      // Use BlocProvider.value since WakiliBloc is already provided higher up
-      value: GetIt.instance<WakiliBloc>(), // Get the existing instance
+      value: GetIt.instance<WakiliBloc>(), 
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -185,8 +164,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
             Positioned.fill(
               child: Container(
                 color: Colors.black.withValues(
-                  alpha: 0.4,
-                ), // Use withOpacity for clarity
+                  alpha: 0.4,)
               ),
             ),
             Column(

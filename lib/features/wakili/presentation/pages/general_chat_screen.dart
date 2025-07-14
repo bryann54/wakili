@@ -5,20 +5,20 @@ import 'package:get_it/get_it.dart';
 import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
-import 'package:wakili/common/helpers/app_router.gr.dart'; // Import for AutoRouter routes
+import 'package:wakili/common/helpers/app_router.gr.dart'; 
 
 @RoutePage()
 class GeneralChatScreen extends StatefulWidget {
-  final String? initialMessage; // Made optional
+  final String? initialMessage;
   final List<ChatMessage>?
-      initialMessages; // New: Optional list of messages for history
-  final String? conversationId; // New: Optional conversation ID
+      initialMessages;
+  final String? conversationId;
 
   const GeneralChatScreen({
     super.key,
-    this.initialMessage, // Now optional
-    this.initialMessages, // New
-    this.conversationId, // New
+    this.initialMessage,
+    this.initialMessages, 
+    this.conversationId, 
   });
 
   @override
@@ -38,17 +38,14 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialMessages != null &&
           widget.initialMessages!.isNotEmpty) {
-        // If initial messages are provided (from history), load them
         _wakiliBloc.add(LoadExistingChat(widget.initialMessages!));
       } else if (widget.initialMessage != null &&
           widget.initialMessage!.isNotEmpty) {
-        // If a single initial message is provided (for a new chat), send it
         _sendInitialMessage(widget.initialMessage!);
       } else {
-        // Otherwise, clear the chat for a fresh start
         _wakiliBloc.add(const ClearChatEvent());
       }
-      _scrollToBottom(); // Scroll to bottom initially
+      _scrollToBottom();
     });
   }
 
@@ -93,10 +90,8 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
         elevation: 0,
         centerTitle: false,
         title: const Row(
-          // Add const
           children: [
             CircleAvatar(
-              // Add const
               radius: 18,
               backgroundImage: AssetImage('assets/dp.png'),
             ),
@@ -109,15 +104,14 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.history), // History button
+            icon: const Icon(Icons.history),
             onPressed: () {
               AutoRouter.of(context).push(const ChatHistoryRoute());
             },
           ),
           IconButton(
-            icon: const Icon(Icons.clear), // Clear chat button
+            icon: const Icon(Icons.clear),
             onPressed: () {
-              // This will trigger saving the current chat to history via WakiliBloc's _onClearChat
               context.read<WakiliBloc>().add(const ClearChatEvent());
             },
           ),

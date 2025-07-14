@@ -18,13 +18,13 @@ class ChatMessage extends Equatable {
   final DateTime timestamp;
 
   @HiveField(4)
-  final String? messageType; // 'text', 'image', 'file', etc.
+  final String? messageType;
 
   @HiveField(5)
-  final Map<String, dynamic>? metadata; // For additional data
+  final Map<String, dynamic>? metadata; 
 
   @HiveField(6)
-  final String? parentMessageId; // For threading/replies
+  final String? parentMessageId;
 
   @HiveField(7)
   final bool isEdited;
@@ -33,13 +33,13 @@ class ChatMessage extends Equatable {
   final DateTime? editedAt;
 
   @HiveField(9)
-  final String? originalContent; // Store original before edit
+  final String? originalContent; 
 
   @HiveField(10)
-  final List<String> attachments; // File paths or URLs
+  final List<String> attachments;
 
   @HiveField(11)
-  final double? confidenceScore; // AI confidence in response
+  final double? confidenceScore;
 
   @HiveField(12)
   final bool isBookmarked;
@@ -92,30 +92,6 @@ class ChatMessage extends Equatable {
     );
   }
 
-  // Helper method to get formatted timestamp
-  String get formattedTime {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
-
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
-    }
-  }
-
-  // Helper method to get message preview (first 100 chars)
-  String get preview {
-    if (content.length <= 100) return content;
-    return '${content.substring(0, 97)}...';
-  }
-
   @override
   List<Object?> get props => [
         id,
@@ -132,9 +108,4 @@ class ChatMessage extends Equatable {
         confidenceScore,
         isBookmarked,
       ];
-
-  @override
-  String toString() {
-    return 'ChatMessage(id: $id, isUser: $isUser, content: ${content.length > 50 ? "${content.substring(0, 50)}..." : content})';
-  }
 }
