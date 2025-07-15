@@ -17,7 +17,7 @@ class FilterChipsWidget extends StatelessWidget {
         }
 
         return Container(
-          height: 52,
+          height: 40, // Adjusted height for smaller chips
           margin: const EdgeInsets.only(bottom: 8),
           child: ListView(
             scrollDirection: Axis.horizontal,
@@ -32,9 +32,10 @@ class FilterChipsWidget extends StatelessWidget {
                     .read<OverviewBloc>()
                     .add(const FilterDocuments(null)),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10), // Slightly reduced spacing
               ...DocumentType.values.map((type) => Padding(
-                    padding: const EdgeInsets.only(right: 12),
+                    padding: const EdgeInsets.only(
+                        right: 10), // Slightly reduced spacing
                     child: _buildFilterChip(
                       context: context,
                       label: _getTypeDisplayName(type),
@@ -69,46 +70,55 @@ class FilterChipsWidget extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(25),
+          borderRadius:
+              BorderRadius.circular(10), // Slightly smaller border radius
           splashColor: isSelected
-              ? colorScheme.onPrimary.withValues(alpha: 0.1)
-              : colorScheme.primary.withValues(alpha: 0.1),
+              ? colorScheme.onPrimary
+                  .withOpacity(0.1) // Using .withOpacity for clarity
+              : colorScheme.primary.withOpacity(0.1),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            // Reduced padding to make the chip smaller
+            padding: const EdgeInsets.symmetric(
+                horizontal: 10, vertical: 6), // Adjusted vertical padding
             decoration: BoxDecoration(
               gradient: isSelected
                   ? LinearGradient(
                       colors: [
                         colorScheme.primary,
-                        colorScheme.primary.withValues(alpha: 0.8),
+                        colorScheme.primary
+                            .withOpacity(0.8), // Using .withOpacity
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     )
                   : null,
               color: isSelected ? null : colorScheme.surface,
-              borderRadius: BorderRadius.circular(25),
+              borderRadius: BorderRadius.circular(
+                  10), // Matching the InkWell's border radius
               border: Border.all(
                 color: isSelected
                     ? Colors.transparent
-                    : colorScheme.outline.withValues(alpha: 0.2),
+                    : colorScheme.outline
+                        .withOpacity(0.2), // Using .withOpacity
                 width: 1,
               ),
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: colorScheme.primary.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
+                        color: colorScheme.primary
+                            .withOpacity(0.3), // Using .withOpacity
+                        blurRadius: 6, // Slightly reduced blur
+                        offset: const Offset(0, 1), // Slightly smaller offset
                       ),
                     ]
                   : [
                       BoxShadow(
-                        color: colorScheme.shadow.withValues(alpha: 0.05),
-                        blurRadius: 4,
-                        offset: const Offset(0, 1),
+                        color: colorScheme.shadow.withOpacity(
+                            0.03), // Reduced opacity for subtle shadow
+                        blurRadius: 3, // Slightly reduced blur
+                        offset: const Offset(0, 1), // Slightly smaller offset
                       ),
                     ],
             ),
@@ -119,17 +129,18 @@ class FilterChipsWidget extends StatelessWidget {
                   duration: const Duration(milliseconds: 200),
                   child: Icon(
                     icon,
-                    size: 18,
+                    size: 16, // Reduced icon size from 18 to 16
                     color: isSelected
                         ? colorScheme.onPrimary
-                        : colorScheme.onSurface.withValues(alpha: 0.7),
+                        : colorScheme.onSurface
+                            .withOpacity(0.7), // Using .withOpacity
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6), // Reduced space between icon and text
                 AnimatedDefaultTextStyle(
                   duration: const Duration(milliseconds: 200),
                   style: GoogleFonts.poppins(
-                    fontSize: 14,
+                    fontSize: 12, // Reduced font size from 14 to 12
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     color: isSelected
                         ? colorScheme.onPrimary

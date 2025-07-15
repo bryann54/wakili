@@ -22,6 +22,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   bool _showSearchBar = false;
+  bool _showFilterChips = false;
 
   @override
   void initState() {
@@ -54,7 +55,15 @@ class _OverviewScreenState extends State<OverviewScreen> {
     if (query.isNotEmpty) {
       context.read<OverviewBloc>().add(SearchDocuments(query));
     } else {
-      _loadInitialDocuments();
+      DocumentType? currentFilterType;
+      if (context.read<OverviewBloc>().state is OverviewLoaded) {
+        currentFilterType =
+            (context.read<OverviewBloc>().state as OverviewLoaded)
+                .currentQuery
+                .filterType;
+      }
+      context.read<OverviewBloc>().add(
+          LoadLegalDocuments(DocumentQuery(filterType: currentFilterType)));
     }
   }
 
@@ -68,6 +77,12 @@ class _OverviewScreenState extends State<OverviewScreen> {
     });
   }
 
+  void _toggleFilterChips() {
+    setState(() {
+      _showFilterChips = !_showFilterChips;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,19 +93,40 @@ class _OverviewScreenState extends State<OverviewScreen> {
             icon: const Icon(Icons.search),
             onPressed: _toggleSearchBar,
           ),
+          IconButton(
+            icon: const Icon(Icons.tune_outlined),
+            onPressed: _toggleFilterChips,
+          ),
         ],
       ),
       body: Column(
         children: [
-          if (_showSearchBar)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: LegalSearchBar(
-                controller: _searchController,
-                onSearchChanged: _onSearchChanged,
-              ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: SizedBox(
+              height: _showSearchBar ? null : 0.0,
+              child: _showSearchBar
+                  ? Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: LegalSearchBar(
+                        controller: _searchController,
+                        onSearchChanged: _onSearchChanged,
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ),
-          const FilterChipsWidget(),
+          ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: SizedBox(
+              height: _showFilterChips ? null : 0.0,
+              child: _showFilterChips
+                  ? const FilterChipsWidget()
+                  : const SizedBox.shrink(),
+            ),
+          ),
           Expanded(
             child: BlocBuilder<OverviewBloc, OverviewState>(
               builder: (context, state) {

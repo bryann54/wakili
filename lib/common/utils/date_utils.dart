@@ -6,7 +6,7 @@ String formatDate(String dateString, {String? format}) {
 }
 
 String formatDateObj(DateTime date, {String? format}) {
-  return DateFormat(format ?? 'yyyy-MM-dd').format(date);
+  return DateFormat.yMMMd().format(date);
 }
 
 DateTime getCurrentDateTime() => DateTime.now();

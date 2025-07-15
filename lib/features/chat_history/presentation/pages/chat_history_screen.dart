@@ -401,7 +401,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          formatDate(conversation.timestamp.toString()),
+                          formatDateObj(conversation.timestamp),
                           style: TextStyle(
                             color: colorScheme.onSurfaceVariant,
                             fontSize: 12,

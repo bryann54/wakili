@@ -4,7 +4,6 @@ import 'package:wakili/features/overview/presentation/bloc/overview_bloc.dart';
 import 'package:wakili/features/overview/presentation/widgets/document_card_shimmer.dart';
 
 import 'document_card.dart';
-// import 'document_card_shimmer.dart'; // Only needed if you want shimmer for load more too
 
 class DocumentList extends StatelessWidget {
   final ScrollController scrollController;
@@ -19,7 +18,7 @@ class DocumentList extends StatelessWidget {
     return BlocBuilder<OverviewBloc, OverviewState>(
       builder: (context, state) {
         if (state is OverviewLoaded) {
-          return RefreshIndicator(
+          return RefreshIndicator.adaptive(
             onRefresh: () async {
               context.read<OverviewBloc>().add(const RefreshDocuments());
             },
