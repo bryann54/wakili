@@ -98,9 +98,8 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
           centerTitle: false,
           title: Row(
             children: [
-           
               Text(
-                '${widget.category.title} Wakili', 
+                '${widget.category.title} Wakili',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,

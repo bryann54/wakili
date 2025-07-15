@@ -36,7 +36,7 @@ class WakiliWelcomeHeader extends StatelessWidget {
           RichText(
             text: TextSpan(
               style: GoogleFonts.habibi(
-                fontSize: 18, 
+                fontSize: 18,
                 fontWeight: FontWeight.w600,
                 height: 1.2,
               ),

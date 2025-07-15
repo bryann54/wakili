@@ -72,6 +72,7 @@ import '../../features/wakili/domain/usecases/send_message_usecase.dart'
 import '../../features/wakili/presentation/bloc/wakili_bloc.dart' as _i69;
 import '../api_client/client/dio_client.dart' as _i758;
 import '../api_client/client_provider.dart' as _i546;
+import '../chat/wakili_chat_core.dart' as _i716;
 import '../storage/storage_preference_manager.dart' as _i934;
 import 'module_injector.dart' as _i759;
 import 'wakili_chat_module.dart' as _i307;
@@ -98,8 +99,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i656.GenerativeModel>(
         () => wakiliChatModule.generativeModel);
     gh.lazySingleton<_i974.FirebaseFirestore>(() => wakiliChatModule.firestore);
-    gh.lazySingleton<_i307.WakiliQueryProcessor>(
-        () => wakiliChatModule.queryProcessor);
+    gh.lazySingleton<_i716.ConversationManager>(
+        () => wakiliChatModule.conversationManager);
+    gh.lazySingleton<_i716.WakiliQueryProcessor>(
+        () => _i716.WakiliQueryProcessor());
     gh.lazySingleton<_i578.ChatHistoryLocalDataSource>(
         () => _i578.ChatHistoryLocalDataSourceImpl());
     gh.factory<String>(
@@ -119,6 +122,11 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i934.SharedPreferencesManager(gh<_i460.SharedPreferences>()));
     gh.factory<_i116.LegalCategoryRemoteDataSource>(() =>
         _i116.LegalCategoryRemoteDataSource(gh<_i974.FirebaseFirestore>()));
+    gh.factory<_i106.WakiliChatRemoteDataSource>(
+        () => _i106.WakiliChatRemoteDataSource(
+              gh<_i656.GenerativeModel>(),
+              gh<_i716.WakiliQueryProcessor>(),
+            ));
     gh.lazySingleton<_i29.AccountLocalDatasource>(() =>
         _i29.AccountLocalDatasource(gh<_i934.SharedPreferencesManager>()));
     gh.lazySingleton<_i371.ChatHistoryRepository>(() =>
@@ -126,11 +134,6 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i578.ChatHistoryLocalDataSource>()));
     gh.lazySingleton<_i1067.AccountRepository>(
         () => _i857.AccountRepositoryImpl(gh<_i29.AccountLocalDatasource>()));
-    gh.factory<_i106.WakiliChatRemoteDataSource>(
-        () => _i106.WakiliChatRemoteDataSource(
-              gh<_i656.GenerativeModel>(),
-              gh<_i307.WakiliQueryProcessor>(),
-            ));
     gh.lazySingleton<_i460.LegalCategoryRepository>(() =>
         _i909.LegalCategoryRepositoryImpl(
             gh<_i116.LegalCategoryRemoteDataSource>()));

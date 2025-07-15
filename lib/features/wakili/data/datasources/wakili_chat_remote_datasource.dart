@@ -1,6 +1,6 @@
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:injectable/injectable.dart';
-import 'package:wakili/core/di/wakili_chat_module.dart';
+import 'package:wakili/core/chat/wakili_chat_core.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
 
 @injectable
@@ -15,8 +15,7 @@ class WakiliChatRemoteDataSource {
     List<ChatMessage>? conversationHistory,
   }) async {
     try {
-      final enhancedQuery =
-          await _queryProcessor.enhanceQueryWithContext(message);
+      final enhancedQuery = await _queryProcessor.fetchWebKnowledge(message);
 
       // Create chat session with conversation history
       final chatSession = _model.startChat(
@@ -38,8 +37,7 @@ class WakiliChatRemoteDataSource {
     List<ChatMessage>? conversationHistory,
   }) async* {
     try {
-      final enhancedQuery =
-          await _queryProcessor.enhanceQueryWithContext(message);
+      final enhancedQuery = await _queryProcessor.fetchWebKnowledge(message);
 
       // Create chat session with conversation history
       final chatSession = _model.startChat(

@@ -1,7 +1,7 @@
 // main.dart
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wakili/common/helpers/app_router.dart';
-import 'package:wakili/common/notifiers/locale_provider.dart'; 
+import 'package:wakili/common/notifiers/locale_provider.dart';
 import 'package:wakili/common/widgets/global_bloc_observer.dart';
 import 'package:wakili/core/di/injector.dart';
 import 'package:flutter/foundation.dart';
