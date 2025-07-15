@@ -22,7 +22,7 @@ class AuthHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (showLogo) ...[
-          const SizedBox(height: 40),
+          const SizedBox(height: 20),
           Align(
             alignment: Alignment.center,
             child: Hero(
@@ -44,12 +44,12 @@ class AuthHeader extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 10),
         ],
         Text(
           title,
           style: GoogleFonts.poppins(
-            fontSize: 28,
+            fontSize: 25,
             fontWeight: FontWeight.bold,
             color: Theme.of(context).primaryColor,
           ),

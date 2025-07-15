@@ -11,6 +11,7 @@ import 'package:wakili/features/auth/presentation/widgets/auth_header.dart';
 import 'package:wakili/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:wakili/features/auth/presentation/widgets/google_auth_button.dart';
 import 'package:wakili/features/auth/presentation/widgets/name_fields_row.dart';
+import 'package:wakili/features/auth/presentation/widgets/select_profile_image.dart';
 
 @RoutePage()
 class RegisterScreen extends StatefulWidget {
@@ -115,6 +116,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     title: 'Create Account',
                     subtitle: 'Sign up to get started',
                   ),
+                  SizedBox(height: 10,),
+                  SelectProfileImage(),
                   NameFieldsRow(
                     firstNameController: _firstNameController,
                     lastNameController: _lastNameController,

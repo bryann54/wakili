@@ -74,8 +74,8 @@ class FilterChipsWidget extends StatelessWidget {
               BorderRadius.circular(10), // Slightly smaller border radius
           splashColor: isSelected
               ? colorScheme.onPrimary
-                  .withOpacity(0.1) // Using .withOpacity for clarity
-              : colorScheme.primary.withOpacity(0.1),
+                  .withValues(alpha: 0.1) // Using .withOpacity for clarity
+              : colorScheme.primary.withValues(alpha: 0.1),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
@@ -88,7 +88,7 @@ class FilterChipsWidget extends StatelessWidget {
                       colors: [
                         colorScheme.primary,
                         colorScheme.primary
-                            .withOpacity(0.8), // Using .withOpacity
+                            .withValues(alpha: 0.8), // Using .withOpacity
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -101,21 +101,22 @@ class FilterChipsWidget extends StatelessWidget {
                 color: isSelected
                     ? Colors.transparent
                     : colorScheme.outline
-                        .withOpacity(0.2), // Using .withOpacity
+                        .withValues(alpha: 0.2), // Using .withOpacity
                 width: 1,
               ),
               boxShadow: isSelected
                   ? [
                       BoxShadow(
                         color: colorScheme.primary
-                            .withOpacity(0.3), // Using .withOpacity
+                            .withValues(alpha: 0.3), // Using .withOpacity
                         blurRadius: 6, // Slightly reduced blur
                         offset: const Offset(0, 1), // Slightly smaller offset
                       ),
                     ]
                   : [
                       BoxShadow(
-                        color: colorScheme.shadow.withOpacity(
+                        color: colorScheme.shadow.withValues(
+                            alpha:
                             0.03), // Reduced opacity for subtle shadow
                         blurRadius: 3, // Slightly reduced blur
                         offset: const Offset(0, 1), // Slightly smaller offset
@@ -133,7 +134,7 @@ class FilterChipsWidget extends StatelessWidget {
                     color: isSelected
                         ? colorScheme.onPrimary
                         : colorScheme.onSurface
-                            .withOpacity(0.7), // Using .withOpacity
+                            .withValues(alpha: 0.7), // Using .withOpacity
                   ),
                 ),
                 const SizedBox(width: 6), // Reduced space between icon and text
