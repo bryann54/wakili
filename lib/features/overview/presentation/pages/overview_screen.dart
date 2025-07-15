@@ -97,7 +97,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 if (state is OverviewLoading) {
                   return ListView.builder(
                     padding: const EdgeInsets.all(16),
-                    itemCount: 3, 
+                    itemCount: 3,
                     itemBuilder: (context, index) {
                       return const DocumentCardShimmer();
                     },

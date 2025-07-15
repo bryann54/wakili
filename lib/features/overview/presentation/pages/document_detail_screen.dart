@@ -35,9 +35,9 @@ class DocumentDetailScreen extends StatelessWidget {
           child: Material(
             type: MaterialType.transparency,
             child: Text(
-              '${_getTypeDisplayName(document.type) } Details', 
-              style: theme.textTheme.titleLarge?.copyWith( 
-                fontWeight: FontWeight.bold, 
+              '${_getTypeDisplayName(document.type)} Details',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
                 color: colors.onSurface,
               ),
               maxLines: 1,
@@ -48,7 +48,6 @@ class DocumentDetailScreen extends StatelessWidget {
         backgroundColor: colors.surface,
         elevation: 0,
         scrolledUnderElevation: 1,
-    
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -56,7 +55,7 @@ class DocumentDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Hero(
-              tag: 'document-${document.id}', 
+              tag: 'document-${document.id}',
               child: Material(
                 type: MaterialType.transparency,
                 child: Text(
@@ -70,11 +69,10 @@ class DocumentDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colors.surfaceContainerHighest.withValues(alpha:0.3),
+                color: colors.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -103,7 +101,8 @@ class DocumentDetailScreen extends StatelessWidget {
                     'Stage:',
                     document.parliamentaryStage,
                   ),
-                  if (document.sourceUrl != null && document.sourceUrl!.isNotEmpty)
+                  if (document.sourceUrl != null &&
+                      document.sourceUrl!.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: GestureDetector(
@@ -188,15 +187,18 @@ class DocumentDetailScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(right: 8.0),
                       child: Chip(
                         label: Text(tag),
-                        backgroundColor: colors.secondaryContainer.withValues(alpha:0.5),
+                        backgroundColor:
+                            colors.secondaryContainer.withValues(alpha: 0.5),
                         labelStyle: theme.textTheme.labelMedium?.copyWith(
                           color: colors.onSecondaryContainer,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(color: colors.secondary.withValues(alpha:0.2)),
+                          side: BorderSide(
+                              color: colors.secondary.withValues(alpha: 0.2)),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
                       ),
                     );
                   },
@@ -229,14 +231,14 @@ class DocumentDetailScreen extends StatelessWidget {
                 ),
               ),
             ),
-            
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(BuildContext context, IconData icon, String label, String value) {
+  Widget _buildDetailRow(
+      BuildContext context, IconData icon, String label, String value) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     return Padding(
@@ -244,7 +246,8 @@ class DocumentDetailScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 15, color: colors.onSurfaceVariant.withValues(alpha:0.7)),
+          Icon(icon,
+              size: 15, color: colors.onSurfaceVariant.withValues(alpha: 0.7)),
           const SizedBox(width: 12),
           Text(
             '$label ',

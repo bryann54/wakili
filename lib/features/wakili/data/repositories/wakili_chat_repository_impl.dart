@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
+import 'package:wakili/core/errors/exceptions.dart';
 import 'package:wakili/core/errors/failures.dart';
 import 'package:wakili/core/api_client/models/server_error.dart';
 import 'package:wakili/features/wakili/data/datasources/wakili_chat_remote_datasource.dart';
@@ -47,12 +48,33 @@ class WakiliChatRepositoryImpl implements WakiliChatRepository {
   }
 
   Failure _mapErrorToFailure(Object error) {
-    if (error is ServerError) {
-      return ServerFailure(badResponse: error);
+    if (error is ServerException) {
+      // This is for exceptions originating from the server communication layer (e.g., HTTP 500, network issues)
+      return ServerFailure(
+          message: error.message ?? 'A server error occurred.');
+    } else if (error is CacheException) {
+      // This is for errors related to local caching operations
+      return CacheFailure(message: 'Failed to access local cache.');
+    } else if (error is DatabaseException) {
+      // This is for errors specifically from database operations (e.g., SQLite, Hive)
+      return GeneralFailure(message: 'A database error occurred.');
+    } else if (error is ClientException) {
+      // This is for errors originating from invalid client requests (e.g., HTTP 4xx errors)
+      return ClientFailure(message: error.message);
+    } else if (error is ServerError) {
+      // If your API client directly throws a ServerError object, map its message.
+      // This typically represents a structured error response from the API.
+      return ServerFailure(message: error.getErrorMessage());
     } else if (error is Exception) {
-      return ServerFailure(badResponse: ServerError(message: error.toString()));
+      // A general catch-all for any other unhandled Dart Exception
+      // It's good to be specific when possible, but this covers the rest.
+      return GeneralFailure(
+          message:
+              'An unexpected application error occurred: ${error.toString()}');
     } else {
-      return GeneralFailure(error: 'Unexpected error: $error');
+      // Fallback for anything that's not an Exception (should be rare)
+      return GeneralFailure(
+          message: 'An unknown error occurred: ${error.toString()}');
     }
   }
 }

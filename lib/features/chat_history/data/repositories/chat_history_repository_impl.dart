@@ -2,7 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:wakili/core/errors/failures.dart';
 import 'package:wakili/core/errors/exceptions.dart'; // Import exceptions
-import 'package:wakili/core/api_client/models/server_error.dart';
+// No longer need ServerError directly here, as ServerFailure now takes a message
+// import 'package:wakili/core/api_client/models/server_error.dart';
 import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
 import 'package:wakili/features/chat_history/domain/repositories/chat_history_repository.dart';
 import 'package:wakili/features/chat_history/data/datasources/chat_history_datasource.dart';
@@ -77,24 +78,24 @@ class ChatHistoryRepositoryImpl implements ChatHistoryRepository {
     }
   }
 
+  // Helper method to map exceptions to failures
   Failure _mapError(Object e) {
     if (e is ServerException) {
-      // Assuming ServerException might carry a message that maps to ServerError
-      return ServerFailure(
-          badResponse:
-              ServerError(message: e.message ?? 'Unknown server error'));
+      // ServerException now has a message property
+      return ServerFailure(message: e.message ?? 'Server error occurred.');
     } else if (e is CacheException) {
-      return CacheFailure();
+      // CacheException now has a message property
+      return CacheFailure(message: 'Failed to access local cache.');
+    } else if (e is DatabaseException) {
+      // Added specific handling for DatabaseException
+      return GeneralFailure(message: 'Database operation failed.');
     } else if (e is ClientException) {
-      return ClientFailure(error: e.message);
-    } else if (e is ServerError) {
-      // This is for direct ServerError thrown, if any
-      return ServerFailure(badResponse: e);
-    } else if (e is Exception) {
-      // Catch-all for other unhandled exceptions
-      return GeneralFailure(error: e.toString());
+      // ClientException carries a message
+      return ClientFailure(message: e.message);
     } else {
-      return GeneralFailure(error: 'Unexpected error: $e');
+      // Catch-all for any other unexpected exceptions
+      return GeneralFailure(
+          message: 'An unexpected error occurred: ${e.toString()}');
     }
   }
 }

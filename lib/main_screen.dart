@@ -19,7 +19,9 @@ class MainScreen extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => getIt<WakiliBloc>()),
         BlocProvider(create: (context) => getIt<AccountBloc>()),
-        BlocProvider(create: (context) => getIt<OverviewBloc>(),),
+        BlocProvider(
+          create: (context) => getIt<OverviewBloc>(),
+        ),
         BlocProvider<ChatHistoryBloc>(
           create: (context) =>
               getIt<ChatHistoryBloc>()..add(const LoadChatHistory()),

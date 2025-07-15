@@ -1,11 +1,10 @@
 import 'package:dartz/dartz.dart';
-import 'package:wakili/core/api_client/models/server_error.dart'; // Import ServerError
+import 'package:injectable/injectable.dart';
 import 'package:wakili/core/errors/exceptions.dart';
 import 'package:wakili/core/errors/failures.dart';
 import 'package:wakili/features/auth/data/datasources/auth_remoteDataSource.dart';
 import 'package:wakili/features/auth/domain/entities/user_entity.dart';
 import 'package:wakili/features/auth/domain/repositories/auth_epository.dart';
-import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -30,14 +29,13 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return Right(userModel);
     } on ServerException catch (e) {
-      // Use the message from ServerException for ServerError
       return Left(ServerFailure(
-          badResponse:
-              ServerError(message: e.message ?? 'Unknown server error')));
+          message:
+              e.message ?? 'An unknown server error occurred during sign-in.'));
     } on ClientException catch (e) {
-      return Left(ClientFailure(error: e.message));
+      return Left(ClientFailure(message: e.message));
     } catch (e) {
-      return Left(GeneralFailure(error: e.toString()));
+      return Left(GeneralFailure(message: e.toString()));
     }
   }
 
@@ -58,12 +56,12 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(userModel);
     } on ServerException catch (e) {
       return Left(ServerFailure(
-          badResponse:
-              ServerError(message: e.message ?? 'Unknown server error')));
+          message:
+              e.message ?? 'An unknown server error occurred during sign-up.'));
     } on ClientException catch (e) {
-      return Left(ClientFailure(error: e.message));
+      return Left(ClientFailure(message: e.message));
     } catch (e) {
-      return Left(GeneralFailure(error: e.toString()));
+      return Left(GeneralFailure(message: e.toString()));
     }
   }
 
@@ -74,12 +72,12 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(userModel);
     } on ServerException catch (e) {
       return Left(ServerFailure(
-          badResponse:
-              ServerError(message: e.message ?? 'Unknown server error')));
+          message: e.message ??
+              'An unknown server error occurred during Google sign-in.'));
     } on ClientException catch (e) {
-      return Left(ClientFailure(error: e.message));
+      return Left(ClientFailure(message: e.message));
     } catch (e) {
-      return Left(GeneralFailure(error: e.toString()));
+      return Left(GeneralFailure(message: e.toString()));
     }
   }
 
@@ -87,13 +85,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> signOut() async {
     try {
       await remoteDataSource.signOut();
-      return const Right(unit); // Use unit from dartz for void returns
+      return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure(
-          badResponse:
-              ServerError(message: e.message ?? 'Unknown server error')));
+          message: e.message ??
+              'An unknown server error occurred during sign-out.'));
     } catch (e) {
-      return Left(GeneralFailure(error: e.toString()));
+      return Left(GeneralFailure(message: e.toString()));
     }
   }
 
@@ -101,13 +99,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> resetPassword(String email) async {
     try {
       await remoteDataSource.resetPassword(email);
-      return const Right(unit); // Use unit from dartz for void returns
+      return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure(
-          badResponse:
-              ServerError(message: e.message ?? 'Unknown server error')));
+          message: e.message ??
+              'An unknown server error occurred during password reset.'));
     } catch (e) {
-      return Left(GeneralFailure(error: e.toString()));
+      return Left(GeneralFailure(message: e.toString()));
     }
   }
 }

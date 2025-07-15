@@ -1,59 +1,74 @@
-import 'package:wakili/core/api_client/models/server_error.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class Failure extends Equatable {
-  // If the subclasses have some properties, they'll get passed to this constructor
-  // so that Equatable can perform value comparison.
-  const Failure([List props = const []]) : super();
+  const Failure(); // No need for props here, subclasses handle it.
 }
 
-// general failures
+// General failures
 class ServerFailure extends Failure {
-  final ServerError? badResponse;
+  final String message;
+  final int? statusCode; // Optional: To include HTTP status code
 
-  const ServerFailure({this.badResponse});
+  const ServerFailure(
+      {this.message = 'Something went wrong on the server.', this.statusCode});
 
   @override
-  List<Object?> get props => [badResponse?.getErrorMessage() ?? 'serverFailed'];
+  List<Object?> get props => [message, statusCode];
 
   @override
   String toString() {
-    return badResponse?.getErrorMessage() ?? 'somethingWentWrong';
+    return 'ServerFailure: $message${statusCode != null ? ' (Status: $statusCode)' : ''}';
   }
 }
 
 class CacheFailure extends Failure {
+  final String message;
+
+  const CacheFailure({this.message = 'Failed to retrieve data from cache.'});
+
   @override
-  List<Object?> get props => ['cacheFailure'];
+  List<Object?> get props => [message];
+
+  @override
+  String toString() => 'CacheFailure: $message';
 }
 
 class ConnectionFailure extends Failure {
+  final String message;
+
+  const ConnectionFailure(
+      {this.message =
+          'Failed to connect to the internet. Please check your connection.'});
+
   @override
-  List<Object?> get props => ['failedToConnectToNetwork'];
+  List<Object?> get props => [message];
+
+  @override
+  String toString() => 'ConnectionFailure: $message';
 }
 
 class ClientFailure extends Failure {
-  final String error;
+  final String message;
 
-  const ClientFailure({required this.error});
-
-  @override
-  List<Object?> get props => [error];
+  const ClientFailure({required this.message});
 
   @override
-  String toString() => error;
+  List<Object?> get props => [message];
+
+  @override
+  String toString() => 'ClientFailure: $message';
 }
 
 class GeneralFailure extends Failure {
-  final String error;
+  final String message;
 
-  const GeneralFailure({required this.error});
-
-  @override
-  List<Object?> get props => [error];
+  const GeneralFailure({this.message = 'An unexpected error occurred.'});
 
   @override
-  String toString() => error;
+  List<Object?> get props => [message];
+
+  @override
+  String toString() => 'GeneralFailure: $message';
 }
 
 class ValidationFailure extends Failure {
@@ -63,4 +78,7 @@ class ValidationFailure extends Failure {
 
   @override
   List<Object?> get props => [message];
+
+  @override
+  String toString() => 'ValidationFailure: $message';
 }

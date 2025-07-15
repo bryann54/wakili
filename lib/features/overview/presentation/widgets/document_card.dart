@@ -95,7 +95,8 @@ class DocumentCard extends StatelessWidget {
                               .map((tag) => Chip(
                                     label: Text(tag),
                                     visualDensity: VisualDensity.compact,
-                                    backgroundColor: colors.surfaceVariant,
+                                    backgroundColor:
+                                        colors.surfaceContainerHighest,
                                     labelStyle:
                                         theme.textTheme.labelSmall?.copyWith(
                                       color: colors.onSurfaceVariant,

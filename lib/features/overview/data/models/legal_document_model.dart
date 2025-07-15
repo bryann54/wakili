@@ -18,7 +18,7 @@ class LegalDocumentModel extends LegalDocument {
 
   factory LegalDocumentModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    
+
     return LegalDocumentModel(
       id: doc.id, // Use Firestore document ID
       title: data['title'] ?? '',
