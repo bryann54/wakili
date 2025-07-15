@@ -65,13 +65,13 @@ class ChatInputField extends StatelessWidget {
                 color: isLoading
                     ? Theme.of(context).colorScheme.surfaceContainerHighest
                     : Theme.of(context).colorScheme.primary,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(25),
               ),
               child: IconButton(
                 icon: isLoading
                     ? SizedBox(
-                        width: 20,
-                        height: 20,
+                        width: 22,
+                        height: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(

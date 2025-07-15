@@ -112,8 +112,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 SnackBar(
                   content: Text(state.message),
                   // FIX: Corrected withValues to withOpacity
-                  backgroundColor:
-                      Theme.of(context).colorScheme.error.withOpacity(0.9),
+                  backgroundColor: Theme.of(context)
+                      .colorScheme
+                      .error
+                      .withValues(alpha: 0.9),
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),

@@ -36,14 +36,6 @@ class DocumentList extends StatelessWidget {
                 final document = state.documents[index];
                 return DocumentCard(
                   document: document,
-                  onExplain: () {
-                    context.read<OverviewBloc>().add(
-                          RequestDocumentExplanation(
-                            documentId: document.id,
-                            documentTitle: document.title,
-                          ),
-                        );
-                  },
                 );
               },
             ),

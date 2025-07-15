@@ -116,8 +116,7 @@ class FilterChipsWidget extends StatelessWidget {
                   : [
                       BoxShadow(
                         color: colorScheme.shadow.withValues(
-                            alpha:
-                            0.03), // Reduced opacity for subtle shadow
+                            alpha: 0.03), // Reduced opacity for subtle shadow
                         blurRadius: 3, // Slightly reduced blur
                         offset: const Offset(0, 1), // Slightly smaller offset
                       ),

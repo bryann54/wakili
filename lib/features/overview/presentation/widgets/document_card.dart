@@ -1,29 +1,22 @@
 import 'package:flutter/material.dart';
-
 import 'package:auto_route/auto_route.dart';
-
 import 'package:wakili/common/utils/date_utils.dart';
 import 'package:wakili/common/utils/functions.dart';
-
 import 'package:wakili/features/overview/domain/entities/legal_document.dart';
-
 import 'package:wakili/common/helpers/app_router.gr.dart';
+import 'package:wakili/features/overview/presentation/widgets/wakili_ai_button.dart';
 
 class DocumentCard extends StatelessWidget {
   final LegalDocument document;
 
-  final VoidCallback onExplain;
-
   const DocumentCard({
     super.key,
     required this.document,
-    required this.onExplain,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     final colors = theme.colorScheme;
 
     return Hero(
@@ -70,10 +63,9 @@ class DocumentCard extends StatelessWidget {
                         const SizedBox(height: 12),
 
                         // Document Title (prominent)
-
                         Text(
                           document.title,
-                          style: theme.textTheme.titleLarge?.copyWith(
+                          style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                             color: colors.onSurface,
                           ),
@@ -81,10 +73,9 @@ class DocumentCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
 
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 3),
 
                         // Summary (more subtle)
-
                         Text(
                           document.summary,
                           style: theme.textTheme.bodyMedium?.copyWith(
@@ -95,10 +86,9 @@ class DocumentCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
 
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 10),
 
                         // Tags (if any)
-
                         if (document.tags.isNotEmpty) ...[
                           Wrap(
                             spacing: 8,
@@ -120,39 +110,16 @@ class DocumentCard extends StatelessWidget {
                                     ))
                                 .toList(),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 10),
                         ],
 
                         // AI Explanation Button
-
                         SizedBox(
                           width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              context.router.push(
-                                GeneralChatRoute(
-                                  initialMessage:
-                                      'Explain the ${document.type.name} titled "${document.title}" as found on the document card.',
-                                ),
-                              );
-                            },
-                            icon: Icon(Icons.auto_awesome,
-                                size: 20, color: colors.primary),
-                            label: Text(
-                              'Ask Wakili AI',
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                color: colors.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              side: BorderSide(
-                                  color: colors.primary.withValues(alpha: 0.5)),
-                            ),
+                          child: WakiliAiButton(
+                            initialMessage:
+                                'can you explain the ${document.type.name} titled "${document.title}" as found on the document card.',
+                            isFilled: false,
                           ),
                         ),
                       ],
@@ -160,8 +127,7 @@ class DocumentCard extends StatelessWidget {
                   ),
                 ),
 
-// Banner-style type badge
-
+                // Banner-style type badge
                 _buildBannerTypeBadge(context),
               ],
             ),
@@ -173,9 +139,7 @@ class DocumentCard extends StatelessWidget {
 
   Widget _buildBannerTypeBadge(BuildContext context) {
     final theme = Theme.of(context);
-
     final typeColor = getTypeColor(document.type);
-
     final typeName = getTypeDisplayName(document.type);
 
     return Positioned(
@@ -237,22 +201,15 @@ class DocumentCard extends StatelessWidget {
 }
 
 // Custom clipper for creating the banner diagonal cut
-
 class BannerClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final path = Path();
-
     path.lineTo(0, size.height - 20); // Left side
-
     path.lineTo(size.width - 10, 0); // Diagonal cut
-
     path.lineTo(size.width, 0); // Top right
-
     path.lineTo(0, 0); // Top left
-
     path.close();
-
     return path;
   }
 

@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:io'; // Import for File
+import 'dart:io';
 
 class SelectProfileImage extends StatefulWidget {
   final VoidCallback? onTap;
-  // imagePath can now be a local file path (from image_picker)
-  // or a network URL (from Firebase Storage)
   final String? imagePath;
 
   const SelectProfileImage({
@@ -42,32 +40,28 @@ class _SelectProfileImageState extends State<SelectProfileImage> {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
-                width: 120, // Increased size
-                height: 120, // Increased size
+                width: 120,
+                height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: colors.surfaceContainerHigh,
                   border: Border.all(
                     color: _isHovering
-                        ? colors.primary
-                            .withOpacity(0.6) // Corrected from withValues
-                        : colors.outline
-                            .withOpacity(0.2), // Corrected from withValues
+                        ? colors.primary.withValues(alpha: 0.6)
+                        : colors.outline.withValues(alpha: 0.2),
                     width: _isHovering ? 2.5 : 1.0,
                   ),
                   boxShadow: _isHovering
                       ? [
                           BoxShadow(
-                            color: colors.primary
-                                .withOpacity(0.18), // Corrected from withValues
+                            color: colors.primary.withValues(alpha: 0.18),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
                         ]
                       : [
                           BoxShadow(
-                            color: colors.shadow
-                                .withOpacity(0.05), // Corrected from withValues
+                            color: colors.shadow.withValues(alpha: 0.05),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
@@ -77,8 +71,7 @@ class _SelectProfileImageState extends State<SelectProfileImage> {
                   alignment: Alignment.center,
                   children: [
                     ClipOval(
-                      child: _buildImageWidget(
-                          colors), // Uses a helper to render the correct image type
+                      child: _buildImageWidget(colors),
                     ),
                     if (_isHovering)
                       Container(
@@ -86,8 +79,7 @@ class _SelectProfileImageState extends State<SelectProfileImage> {
                         height: 120,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: colors.scrim
-                              .withOpacity(0.4), // Corrected from withValues
+                          color: colors.scrim.withValues(alpha: 0.4),
                         ),
                         child: Icon(
                           Icons.add_a_photo_rounded,
@@ -179,8 +171,8 @@ class _SelectProfileImageState extends State<SelectProfileImage> {
     return FaIcon(
       FontAwesomeIcons.solidUser,
       size: 60,
-      color:
-          colors.onSurfaceVariant.withOpacity(0.2), // Corrected from withValues
+      color: colors.onSurfaceVariant
+          .withValues(alpha: 0.2), // Corrected from withValues
     );
   }
 }

@@ -29,6 +29,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
   late Animation<double> _fadeAnimation;
 
   String _searchQuery = '';
+    bool _isLoading = false;
 
   @override
   void initState() {
@@ -71,16 +72,17 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
         .toList();
   }
 
-  void _showChatInputModal(BuildContext context, bool isLoading) {
+
+  void _showChatInputModal() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _buildChatInputModal(context, isLoading),
+      builder: (context) => _buildChatInputModal(),
     );
   }
 
-  Widget _buildChatInputModal(BuildContext context, bool isLoading) {
+  Widget _buildChatInputModal() {
     return StatefulBuilder(
       builder: (context, setModalState) {
         return Container(
@@ -112,7 +114,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                     CircleAvatar(
                       radius: 18,
                       backgroundColor: Theme.of(context).colorScheme.primary,
-                      child: const CircleAvatar(
+                      child: CircleAvatar(
                         radius: 18,
                         backgroundImage: AssetImage('assets/dp.png'),
                       ),
@@ -135,9 +137,9 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
               const SizedBox(height: 8),
               ChatInputField(
                 messageController: _messageController,
-                onSendMessage: () => _sendMessage(context, setModalState),
+                onSendMessage: () => _sendMessage(setModalState),
                 hintText: 'Ask wakili any legal related question...',
-                isLoading: isLoading,
+                isLoading: _isLoading,
               ),
               const SizedBox(height: 20),
             ],
@@ -147,13 +149,38 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
     );
   }
 
-  void _sendMessage(BuildContext context, StateSetter setModalState) async {
+  void _sendMessage(StateSetter setModalState) async {
     if (_messageController.text.trim().isEmpty) return;
 
     final message = _messageController.text.trim();
-    BlocProvider.of<WakiliBloc>(context).add(SendStreamMessageEvent(message));
-    Navigator.of(context).pop();
-    _messageController.clear();
+
+    setModalState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        Navigator.of(context).pop();
+        AutoRouter.of(context).push(GeneralChatRoute(initialMessage: message));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to process message: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setModalState(() {
+          _isLoading = false;
+        });
+        _messageController.clear();
+      }
+    }
   }
 
   @override
@@ -251,14 +278,12 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
         ),
       ),
       floatingActionButton: Builder(builder: (context) {
-        bool isSendingMessage = false;
         final state = context.watch<WakiliBloc>().state;
         if (state is WakiliChatLoaded) {
-          isSendingMessage = state.isLoading;
         }
 
         return GestureDetector(
-          onTap: () => _showChatInputModal(context, isSendingMessage),
+          onTap: () => _showChatInputModal(),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOutQuint,
