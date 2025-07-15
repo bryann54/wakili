@@ -6,6 +6,7 @@ import 'package:wakili/features/account/presentation/bloc/account_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakili/features/chat_history/presentation/bloc/chat_history_bloc.dart';
+import 'package:wakili/features/overview/presentation/bloc/overview_bloc.dart';
 import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 
 @RoutePage()
@@ -18,6 +19,7 @@ class MainScreen extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => getIt<WakiliBloc>()),
         BlocProvider(create: (context) => getIt<AccountBloc>()),
+        BlocProvider(create: (context) => getIt<OverviewBloc>(),),
         BlocProvider<ChatHistoryBloc>(
           create: (context) =>
               getIt<ChatHistoryBloc>()..add(const LoadChatHistory()),

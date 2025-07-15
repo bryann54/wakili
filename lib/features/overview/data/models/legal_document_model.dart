@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wakili/features/overview/domain/entities/legal_document.dart';
 
 class LegalDocumentModel extends LegalDocument {
@@ -12,8 +13,28 @@ class LegalDocumentModel extends LegalDocument {
     required super.tags,
     required super.parliamentaryStage,
     required super.sponsor,
+    super.sourceUrl,
   });
 
+  factory LegalDocumentModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    
+    return LegalDocumentModel(
+      id: doc.id, // Use Firestore document ID
+      title: data['title'] ?? '',
+      summary: data['summary'] ?? '',
+      content: data['content'] ?? '',
+      type: _parseDocumentType(data['type']),
+      datePublished: _parseTimestamp(data['datePublished']),
+      status: data['status'] ?? '',
+      tags: List<String>.from(data['tags'] ?? []),
+      parliamentaryStage: data['parliamentaryStage'] ?? '',
+      sponsor: data['sponsor'] ?? '',
+      sourceUrl: data['sourceUrl'],
+    );
+  }
+
+  // Keep the JSON factory for backward compatibility
   factory LegalDocumentModel.fromJson(Map<String, dynamic> json) {
     return LegalDocumentModel(
       id: json['id'] ?? '',
@@ -21,13 +42,28 @@ class LegalDocumentModel extends LegalDocument {
       summary: json['summary'] ?? '',
       content: json['content'] ?? '',
       type: _parseDocumentType(json['type']),
-      datePublished: DateTime.parse(
-          json['datePublished'] ?? DateTime.now().toIso8601String()),
+      datePublished: _parseTimestamp(json['datePublished']),
       status: json['status'] ?? '',
       tags: List<String>.from(json['tags'] ?? []),
       parliamentaryStage: json['parliamentaryStage'] ?? '',
       sponsor: json['sponsor'] ?? '',
+      sourceUrl: json['sourceUrl'],
     );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'title': title,
+      'summary': summary,
+      'content': content,
+      'type': type.name,
+      'datePublished': Timestamp.fromDate(datePublished),
+      'status': status,
+      'tags': tags,
+      'parliamentaryStage': parliamentaryStage,
+      'sponsor': sponsor,
+      if (sourceUrl != null) 'sourceUrl': sourceUrl,
+    };
   }
 
   static DocumentType _parseDocumentType(String? type) {
@@ -45,5 +81,15 @@ class LegalDocumentModel extends LegalDocument {
       default:
         return DocumentType.bill;
     }
+  }
+
+  static DateTime _parseTimestamp(dynamic timestamp) {
+    if (timestamp is Timestamp) {
+      return timestamp.toDate();
+    }
+    if (timestamp is String) {
+      return DateTime.tryParse(timestamp) ?? DateTime.now();
+    }
+    return DateTime.now();
   }
 }

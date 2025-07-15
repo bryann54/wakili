@@ -51,6 +51,11 @@ import '../../features/chat_history/domain/usecases/search_chat_history_usecase.
     as _i1036;
 import '../../features/chat_history/presentation/bloc/chat_history_bloc.dart'
     as _i393;
+import '../../features/overview/data/repositories/legal_document_repository_impl.dart'
+    as _i1072;
+import '../../features/overview/domain/repositories/legal_document_repository.dart'
+    as _i487;
+import '../../features/overview/presentation/bloc/overview_bloc.dart' as _i447;
 import '../../features/wakili/data/datasources/legal_category_remote_datasource.dart'
     as _i116;
 import '../../features/wakili/data/datasources/wakili_chat_remote_datasource.dart'
@@ -120,6 +125,8 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.lazySingleton<_i934.SharedPreferencesManager>(
         () => _i934.SharedPreferencesManager(gh<_i460.SharedPreferences>()));
+    gh.lazySingleton<_i487.LegalDocumentRepository>(() =>
+        _i1072.LegalDocumentRepositoryImpl(gh<_i974.FirebaseFirestore>()));
     gh.factory<_i116.LegalCategoryRemoteDataSource>(() =>
         _i116.LegalCategoryRemoteDataSource(gh<_i974.FirebaseFirestore>()));
     gh.factory<_i106.WakiliChatRemoteDataSource>(
@@ -137,6 +144,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i460.LegalCategoryRepository>(() =>
         _i909.LegalCategoryRepositoryImpl(
             gh<_i116.LegalCategoryRemoteDataSource>()));
+    gh.factory<_i447.OverviewBloc>(
+        () => _i447.OverviewBloc(gh<_i487.LegalDocumentRepository>()));
     gh.lazySingleton<_i361.Dio>(
         () => registerModules.dio(gh<String>(instanceName: 'BaseUrl')));
     gh.factory<_i217.GetChatHistoryUseCase>(
