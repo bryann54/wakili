@@ -11,11 +11,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:dio/dio.dart' as _i361;
 import 'package:firebase_auth/firebase_auth.dart' as _i59;
+import 'package:firebase_storage/firebase_storage.dart' as _i457;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:google_generative_ai/google_generative_ai.dart' as _i656;
 import 'package:google_sign_in/google_sign_in.dart' as _i116;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
+import 'package:uuid/uuid.dart' as _i706;
 
 import '../../features/account/data/datasources/account_local_datasource.dart'
     as _i29;
@@ -101,6 +103,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i59.FirebaseAuth>(() => registerModules.firebaseAuth);
     gh.lazySingleton<_i116.GoogleSignIn>(() => registerModules.googleSignIn);
+    gh.lazySingleton<_i706.Uuid>(() => registerModules.uuid);
+    gh.lazySingleton<_i457.FirebaseStorage>(
+        () => registerModules.firebaseStorage);
     gh.lazySingleton<_i656.GenerativeModel>(
         () => wakiliChatModule.generativeModel);
     gh.lazySingleton<_i974.FirebaseFirestore>(() => wakiliChatModule.firestore);
@@ -118,13 +123,15 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModules.apiKey,
       instanceName: 'ApiKey',
     );
+    gh.lazySingleton<_i934.SharedPreferencesManager>(
+        () => _i934.SharedPreferencesManager(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i167.AuthRemoteDataSource>(
         () => _i167.AuthRemoteDataSourceImpl(
               firebaseAuth: gh<_i59.FirebaseAuth>(),
               googleSignIn: gh<_i116.GoogleSignIn>(),
+              firebaseStorage: gh<_i457.FirebaseStorage>(),
+              uuid: gh<_i706.Uuid>(),
             ));
-    gh.lazySingleton<_i934.SharedPreferencesManager>(
-        () => _i934.SharedPreferencesManager(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i487.LegalDocumentRepository>(() =>
         _i1072.LegalDocumentRepositoryImpl(gh<_i974.FirebaseFirestore>()));
     gh.factory<_i116.LegalCategoryRemoteDataSource>(() =>

@@ -1,3 +1,5 @@
+// lib/features/auth/presentation/bloc/auth_event.dart
+
 part of 'auth_bloc.dart';
 
 abstract class AuthEvent extends Equatable {
@@ -25,12 +27,14 @@ class AuthSignUpWithEmailAndPassword extends AuthEvent {
   final String password;
   final String firstName;
   final String lastName;
+  final File? profileImage; // Added profile image
 
   const AuthSignUpWithEmailAndPassword({
     required this.email,
     required this.password,
     required this.firstName,
     required this.lastName,
+    this.profileImage, // Make it optional
   });
 
   @override
@@ -38,8 +42,9 @@ class AuthSignUpWithEmailAndPassword extends AuthEvent {
         email,
         password,
         firstName,
-        lastName
-      ]; // ADDED firstName, lastName to props
+        lastName,
+        profileImage ?? '' // Handle null for Equatable comparison
+      ];
 }
 
 class AuthSignInWithGoogle extends AuthEvent {

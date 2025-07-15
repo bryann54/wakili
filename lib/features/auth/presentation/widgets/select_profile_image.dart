@@ -1,10 +1,15 @@
+// lib/features/auth/presentation/widgets/select_profile_image.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:io'; // Import for File
 
 class SelectProfileImage extends StatefulWidget {
   final VoidCallback? onTap;
+  // imagePath can now be a local file path (from image_picker)
+  // or a network URL (from Firebase Storage)
   final String? imagePath;
 
   const SelectProfileImage({
@@ -44,21 +49,25 @@ class _SelectProfileImageState extends State<SelectProfileImage> {
                   color: colors.surfaceContainerHigh,
                   border: Border.all(
                     color: _isHovering
-                        ? colors.primary.withValues(alpha: 0.6)
-                        : colors.outline.withValues(alpha: 0.2),
+                        ? colors.primary
+                            .withOpacity(0.6) // Corrected from withValues
+                        : colors.outline
+                            .withOpacity(0.2), // Corrected from withValues
                     width: _isHovering ? 2.5 : 1.0,
                   ),
                   boxShadow: _isHovering
                       ? [
                           BoxShadow(
-                            color: colors.primary.withValues(alpha: 0.18),
+                            color: colors.primary
+                                .withOpacity(0.18), // Corrected from withValues
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
                         ]
                       : [
                           BoxShadow(
-                            color: colors.shadow.withValues(alpha: 0.05),
+                            color: colors.shadow
+                                .withOpacity(0.05), // Corrected from withValues
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
@@ -68,14 +77,8 @@ class _SelectProfileImageState extends State<SelectProfileImage> {
                   alignment: Alignment.center,
                   children: [
                     ClipOval(
-                      child: widget.imagePath != null
-                          ? Image.network(
-                              widget.imagePath!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  _buildDefaultAvatar(colors),
-                            )
-                          : _buildDefaultAvatar(colors),
+                      child: _buildImageWidget(
+                          colors), // Uses a helper to render the correct image type
                     ),
                     if (_isHovering)
                       Container(
@@ -83,10 +86,10 @@ class _SelectProfileImageState extends State<SelectProfileImage> {
                         height: 120,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: colors.scrim.withValues(alpha: 0.4),
+                          color: colors.scrim
+                              .withOpacity(0.4), // Corrected from withValues
                         ),
                         child: Icon(
-                          // Changed to a slightly different icon for camera
                           Icons.add_a_photo_rounded,
                           color: colors.onPrimary,
                           size: 38,
@@ -150,11 +153,34 @@ class _SelectProfileImageState extends State<SelectProfileImage> {
     );
   }
 
+  // Helper method to decide whether to display a network image or a local file image
+  Widget _buildImageWidget(ColorScheme colors) {
+    if (widget.imagePath != null) {
+      if (widget.imagePath!.startsWith('http')) {
+        // It's a network URL (e.g., from Firebase Storage)
+        return Image.network(
+          widget.imagePath!,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildDefaultAvatar(colors),
+        );
+      } else {
+        // It's a local file path (e.g., from image_picker)
+        return Image.file(
+          File(widget.imagePath!),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildDefaultAvatar(colors),
+        );
+      }
+    }
+    return _buildDefaultAvatar(colors);
+  }
+
   Widget _buildDefaultAvatar(ColorScheme colors) {
     return FaIcon(
       FontAwesomeIcons.solidUser,
       size: 60,
-      color: colors.onSurfaceVariant.withValues(alpha: 0.2),
+      color:
+          colors.onSurfaceVariant.withOpacity(0.2), // Corrected from withValues
     );
   }
 }

@@ -1,3 +1,5 @@
+// lib/features/auth/data/repositories/auth_repository_impl.dart
+
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:wakili/core/errors/exceptions.dart';
@@ -5,6 +7,7 @@ import 'package:wakili/core/errors/failures.dart';
 import 'package:wakili/features/auth/data/datasources/auth_remoteDataSource.dart';
 import 'package:wakili/features/auth/domain/entities/user_entity.dart';
 import 'package:wakili/features/auth/domain/repositories/auth_epository.dart';
+import 'dart:io'; // Import File
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -45,6 +48,7 @@ class AuthRepositoryImpl implements AuthRepository {
     String password,
     String firstName,
     String lastName,
+    File? profileImage, // Added profileImage
   ) async {
     try {
       final userModel = await remoteDataSource.signUpWithEmailAndPassword(
@@ -52,6 +56,7 @@ class AuthRepositoryImpl implements AuthRepository {
         password,
         firstName,
         lastName,
+        profileImage, // Pass the image
       );
       return Right(userModel);
     } on ServerException catch (e) {

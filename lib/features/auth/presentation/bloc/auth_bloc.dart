@@ -1,4 +1,7 @@
+// lib/features/auth/presentation/bloc/auth_bloc.dart
+
 import 'dart:async';
+import 'dart:io'; // Import File
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -16,6 +19,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignOutUseCase signOutUseCase;
   final GetAuthStateChangesUseCase getAuthStateChangesUseCase;
   final ResetPasswordUseCase resetPasswordUseCase;
+  // Removed UploadProfileImageUseCase as it's no longer a direct dependency here
 
   AuthBloc({
     required this.signInWithEmailAndPasswordUseCase,
@@ -24,6 +28,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.signOutUseCase,
     required this.getAuthStateChangesUseCase,
     required this.resetPasswordUseCase,
+    // Removed uploadProfileImageUseCase from constructor
   }) : super(AuthInitial()) {
     on<AuthCheckStatus>(_onAuthCheckStatus);
     on<AuthSignInWithEmailAndPassword>(_onAuthSignInWithEmailAndPassword);
@@ -87,6 +92,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       event.password,
       event.firstName,
       event.lastName,
+      event.profileImage, // Pass the profile image
     );
     result.fold(
       (failure) => emit(AuthError(message: failure.toString())),
@@ -129,4 +135,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (_) => emit(AuthPasswordResetSent()),
     );
   }
+
+  // Removed _onAuthUploadProfileImage handler
 }

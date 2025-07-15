@@ -4,6 +4,10 @@ on:
   pull_request:
     branches:
       - main
+  # Add push to main for more secure secret access for full builds/tests
+  push:
+    branches:
+      - main
 
 jobs:
   test:
@@ -27,6 +31,46 @@ jobs:
       - name: Get flutter dependencies.
         run: flutter pub get
 
+      - name: Generate DI files
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      # IMPORTANT: Conditional .env file creation for secrets
+      # This step will ONLY run if secrets are available (i.e., on 'push' events
+      # or 'pull_request' from branches within the same repository, not forks).
+      # If your tests absolutely require these secrets to pass,
+      # and you accept that PRs from forks won't have them, then this is correct.
+      # However, for unit/widget tests, it's BEST to mock these values.
+      - name: Create .env file for tests (if needed)
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository # Only run if secrets are accessible
+        run: |
+          mkdir -p .env # Ensure the .env directory exists
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env/dev.env
+          echo "GEMINI_API_URL=${{ secrets.GEMINI_API_URL }}" >> .env/dev.env
+          echo "GEMINI_MODEL=${{ secrets.GEMINI_MODEL }}" >> .env/dev.env
+          # GITHUB_TOKEN is usually available and does not need to be explicitly put in .env unless your app specifically reads it from there.
+          # If GITHUB_TOKEN is ONLY for GitHub Actions context, remove it from .env creation.
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> .env/dev.env
+        env: # Define environment variables for this step if needed for security or specific tools
+          # For sensitive secrets, it's better to pass them directly to the `run` command as environment variables
+          # rather than echoing into a file, especially if the file might persist or be logged.
+          # But for dotenv, writing to file is the typical pattern.
+          # Ensure these secrets are configured in your GitHub repository settings.
+          MY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Example for a secret used within the step, not necessarily written to .env
+
+      # Firebase options generation (consider mocking in tests instead)
+      # If you're building native apps in CI and 'firebase_options.dart' is dynamically generated,
+      # you'd need the Firebase CLI and the FIREBASE_CLI_TOKEN secret.
+      # For simple `flutter test` that focuses on Dart code, this is often NOT needed.
+      # If firebase_options.dart is committed, ignore this block.
+      # - name: Install Firebase CLI
+      #   if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+      #   run: sudo npm install -g firebase-tools
+      # - name: Generate Firebase Options
+      #   if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+      #   run: firebase experiments enable dart && firebase config:get appId --project <YOUR_FIREBASE_PROJECT_ID> # Replace with your project ID
+      #   env:
+      #     FIREBASE_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }} # Ensure this secret is configured
+
       - name: Check for any formatting issues in the code.
         run: dart format --set-exit-if-changed .
 
@@ -34,4 +78,6 @@ jobs:
         run: flutter analyze .
 
       - name: Run widget tests for our flutter project.
+        # If your tests depend on the .env file, they might fail for PRs from forks.
+        # Consider mocking API calls and dotenv values in tests for better CI reliability.
         run: flutter test
