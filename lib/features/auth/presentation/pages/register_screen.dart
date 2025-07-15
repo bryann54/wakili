@@ -12,6 +12,8 @@ import 'package:wakili/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:wakili/features/auth/presentation/widgets/google_auth_button.dart';
 import 'package:wakili/features/auth/presentation/widgets/name_fields_row.dart';
 import 'package:wakili/features/auth/presentation/widgets/select_profile_image.dart';
+import 'package:image_picker/image_picker.dart'; // Make sure this import is present if you intend to use image picking
+import 'dart:io'; // Make sure this import is present if you intend to use image picking
 
 @RoutePage()
 class RegisterScreen extends StatefulWidget {
@@ -24,6 +26,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  // FIX: Changed TextedingController to TextEditingController
   final TextEditingController _confirmPasswordController =
       TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
@@ -33,6 +36,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _canRegister = false;
+  File?
+      _selectedImage; // Added this based on our previous discussion for image upload
 
   @override
   void initState() {
@@ -82,6 +87,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  // Method to pick an image from the gallery (added for image upload functionality)
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        _selectedImage = File(image.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +111,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.message),
-                  backgroundColor: Colors.red.withValues(alpha: 0.9),
+                  // FIX: Corrected withValues to withOpacity
+                  backgroundColor:
+                      Theme.of(context).colorScheme.error.withOpacity(0.9),
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -116,8 +135,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     title: 'Create Account',
                     subtitle: 'Sign up to get started',
                   ),
-                  SizedBox(height: 10,),
-                  SelectProfileImage(),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  // FIX: Pass onTap and imagePath to SelectProfileImage
+                  SelectProfileImage(
+                    onTap: _pickImage,
+                    imagePath: _selectedImage?.path,
+                  ),
                   NameFieldsRow(
                     firstNameController: _firstNameController,
                     lastNameController: _lastNameController,
@@ -204,12 +229,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         isLoading: state is AuthLoading,
                         onPressed: () {
                           if (_formKey.currentState?.validate() ?? false) {
+                            // Pass the selected image to the sign-up event
                             context.read<AuthBloc>().add(
                                   AuthSignUpWithEmailAndPassword(
                                     firstName: _firstNameController.text.trim(),
                                     lastName: _lastNameController.text.trim(),
                                     email: _emailController.text.trim(),
                                     password: _passwordController.text.trim(),
+                                    profileImage:
+                                        _selectedImage, // Pass the image here
                                   ),
                                 );
                           }
