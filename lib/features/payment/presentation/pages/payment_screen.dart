@@ -215,7 +215,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   'Buy me a coffee to keep WAKILI brewing',
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -283,7 +283,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),

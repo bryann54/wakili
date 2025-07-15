@@ -13,33 +13,36 @@ class FilterChipsWidget extends StatelessWidget {
       builder: (context, state) {
         DocumentType? selectedFilter;
         if (state is OverviewLoaded) {
-          selectedFilter = state.currentFilter;
+          selectedFilter = state.currentQuery.filterType;
         }
 
         return Container(
-          height: 50,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          height: 52,
+          margin: const EdgeInsets.only(bottom: 8),
           child: ListView(
             scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
               _buildFilterChip(
                 context: context,
                 label: 'All',
+                icon: Icons.apps_rounded,
                 isSelected: selectedFilter == null,
                 onTap: () => context
                     .read<OverviewBloc>()
-                    .add(const LoadLegalDocuments()),
+                    .add(const FilterDocuments(null)),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               ...DocumentType.values.map((type) => Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.only(right: 12),
                     child: _buildFilterChip(
                       context: context,
                       label: _getTypeDisplayName(type),
+                      icon: _getTypeIcon(type),
                       isSelected: selectedFilter == type,
                       onTap: () => context
                           .read<OverviewBloc>()
-                          .add(LoadLegalDocuments(filterType: type)),
+                          .add(FilterDocuments(type)),
                     ),
                   )),
             ],
@@ -52,31 +55,90 @@ class FilterChipsWidget extends StatelessWidget {
   Widget _buildFilterChip({
     required BuildContext context,
     required String label,
+    required IconData icon,
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          ),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: isSelected
-                ? Theme.of(context).colorScheme.onPrimary
-                : Theme.of(context).colorScheme.onSurface,
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(25),
+          splashColor: isSelected
+              ? colorScheme.onPrimary.withValues(alpha: 0.1)
+              : colorScheme.primary.withValues(alpha: 0.1),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: isSelected
+                  ? LinearGradient(
+                      colors: [
+                        colorScheme.primary,
+                        colorScheme.primary.withValues(alpha: 0.8),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
+              color: isSelected ? null : colorScheme.surface,
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(
+                color: isSelected
+                    ? Colors.transparent
+                    : colorScheme.outline.withValues(alpha: 0.2),
+                width: 1,
+              ),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: colorScheme.primary.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : [
+                      BoxShadow(
+                        color: colorScheme.shadow.withValues(alpha: 0.05),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    icon,
+                    size: 18,
+                    color: isSelected
+                        ? colorScheme.onPrimary
+                        : colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 200),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected
+                        ? colorScheme.onPrimary
+                        : colorScheme.onSurface,
+                  ),
+                  child: Text(label),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -84,18 +146,32 @@ class FilterChipsWidget extends StatelessWidget {
   }
 
   String _getTypeDisplayName(DocumentType type) {
-    // You can customize the display names as needed
     switch (type) {
       case DocumentType.act:
-        return 'Contract';
+        return 'Acts';
       case DocumentType.amendment:
-        return 'Agreement';
+        return 'Amendments';
       case DocumentType.law:
-        return 'Policy';
+        return 'Laws';
       case DocumentType.bill:
-        return 'Bill';
+        return 'Bills';
       case DocumentType.regulation:
-        return 'Regulation';
+        return 'Regulations';
+    }
+  }
+
+  IconData _getTypeIcon(DocumentType type) {
+    switch (type) {
+      case DocumentType.act:
+        return Icons.gavel_rounded;
+      case DocumentType.amendment:
+        return Icons.edit_document;
+      case DocumentType.law:
+        return Icons.balance_rounded;
+      case DocumentType.bill:
+        return Icons.description_rounded;
+      case DocumentType.regulation:
+        return Icons.rule_rounded;
     }
   }
 }

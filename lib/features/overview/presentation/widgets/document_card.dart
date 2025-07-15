@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:intl/intl.dart';
 import 'package:wakili/features/overview/domain/entities/legal_document.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
 
-class DocumentCard extends StatefulWidget {
+class DocumentCard extends StatelessWidget {
   final LegalDocument document;
-  final VoidCallback onExplain;
+  final VoidCallback onExplain; 
 
   const DocumentCard({
     super.key,
@@ -14,146 +15,126 @@ class DocumentCard extends StatefulWidget {
   });
 
   @override
-  State<DocumentCard> createState() => _DocumentCardState();
-}
-
-class _DocumentCardState extends State<DocumentCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _rotateAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat();
-
-    _rotateAnimation = Tween<double>(begin: 0, end: 2 * 3.14159).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
     return Hero(
-      tag:
-          'document-${widget.document.id}', // Unique hero tag for each document
+      tag: 'document-${document.id}',
       child: Material(
         type: MaterialType.transparency,
         child: Card(
-          elevation: 0,
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: const EdgeInsets.only(bottom: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: colors.outlineVariant.withValues(alpha: 0.3),
-              width: 1,
-            ),
+            borderRadius: BorderRadius.circular(16),
           ),
+          elevation: 1,
+          color: colors.surfaceContainerLow,
+          clipBehavior: Clip.antiAlias,
           child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            // The entire card now navigates to the details screen
-            onTap: () => _viewDocument(context),
+            borderRadius: BorderRadius.circular(16),
+            onTap: () {
+              context.router.push(DocumentDetailRoute(document: document));
+            },
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header with type badge
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildTypeBadge(context),
-                      Icon(
-                        Icons.chevron_right,
-                        color: colors.onSurfaceVariant,
-                        size: 20,
+                      _buildTypeChip(context),
+                      Text(
+                        _formatDate(document.datePublished),
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
 
-                  // Document Title
+                  // Document Title (prominent)
                   Text(
-                    widget.document.title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                    document.title,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
                       color: colors.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Summary
-                  Text(
-                    widget.document.summary,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                      height: 1.4,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  const SizedBox(height: 8),
+
+                  // Summary (more subtle)
+                  Text(
+                    document.summary,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colors.onSurfaceVariant,
+                      height: 1.5,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 16),
 
-                  // Only the "Explain" button remains
-                  Row(
-                    children: [
-                      FilledButton(
-                        onPressed: () {
-                          widget.onExplain();
-                          _explainDocument(context);
-                        },
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size(0, 36),
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                  // Tags (if any)
+                  if (document.tags.isNotEmpty) ...[
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: document.tags
+                          .take(3)
+                          .map((tag) => Chip(
+                                label: Text(tag),
+                                visualDensity: VisualDensity.compact,
+                                backgroundColor: colors.surfaceVariant,
+                                labelStyle:
+                                    theme.textTheme.labelSmall?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)),
+                              ))
+                          .toList(),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // AI Explanation Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        context.router.push(
+                          GeneralChatRoute(
+                            initialMessage:
+                                'Explain the ${document.type.name} titled "${document.title}" as found on the document card.',
                           ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircleAvatar(
-                              radius: 12,
-                              backgroundColor: colors.primary,
-                              child: const CircleAvatar(
-                                radius: 10,
-                                backgroundImage: AssetImage('assets/wak.png'),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            AnimatedBuilder(
-                              animation: _rotateAnimation,
-                              builder: (context, child) {
-                                return Transform.rotate(
-                                  angle: _rotateAnimation.value,
-                                  child: const Icon(
-                                    Icons.auto_awesome,
-                                    size: 16,
-                                  ),
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            const Text('ask Wakili AI to explain'),
-                          ],
+                        );
+                  
+                        // onExplain();
+                      },
+                      icon: Icon(Icons.auto_awesome,
+                          size: 20, color: colors.primary),
+                      label: Text(
+                        'Ask Wakili AI',
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: colors.primary,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ],
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: BorderSide(
+                            // Corrected: withValues to withOpacity
+                            color: colors.primary.withValues(alpha: 0.5)),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -164,58 +145,61 @@ class _DocumentCardState extends State<DocumentCard>
     );
   }
 
-  void _viewDocument(BuildContext context) {
-    context.router.push(
-      DocumentDetailRoute(document: widget.document),
-    );
-  }
-
-  void _explainDocument(BuildContext context) {
-    context.router.push(
-      GeneralChatRoute(
-        initialMessage:
-            'Explain the ${widget.document.type.name} titled "${widget.document.title}"',
-      ),
-    );
-  }
-
-  Widget _buildTypeBadge(BuildContext context) {
+  Widget _buildTypeChip(BuildContext context) {
     final theme = Theme.of(context);
-    final typeColor = _getTypeColor();
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: typeColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: typeColor.withValues(alpha: 0.2),
-          width: 1,
+    return Chip(
+      label: Text(
+        _getTypeDisplayName(document.type),
+        style: theme.textTheme.labelSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: _getTypeColor(document.type),
         ),
       ),
-      child: Text(
-        widget.document.type.name.toUpperCase(),
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: typeColor,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
-        ),
+      backgroundColor:
+          // Corrected: withValues to withOpacity
+          _getTypeColor(document.type).withValues(alpha: 0.15),
+      labelPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      visualDensity: VisualDensity.compact,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+            // Corrected: withValues to withOpacity
+            color: _getTypeColor(document.type).withValues(alpha: 0.3)),
       ),
     );
   }
 
-  Color _getTypeColor() {
-    switch (widget.document.type) {
-      case DocumentType.act:
-        return Colors.green;
+  Color _getTypeColor(DocumentType type) {
+    switch (type) {
       case DocumentType.bill:
-        return Colors.blue;
+        return Colors.blue.shade700;
+      case DocumentType.act:
+        return Colors.green.shade700;
       case DocumentType.law:
-        return Colors.purple;
+        return Colors.purple.shade700;
       case DocumentType.amendment:
-        return Colors.orange;
+        return Colors.orange.shade700;
       case DocumentType.regulation:
-        return Colors.teal;
+        return Colors.teal.shade700;
     }
+  }
+
+  String _getTypeDisplayName(DocumentType type) {
+    switch (type) {
+      case DocumentType.bill:
+        return 'Bill';
+      case DocumentType.act:
+        return 'Act';
+      case DocumentType.law:
+        return 'Law';
+      case DocumentType.amendment:
+        return 'Amendment';
+      case DocumentType.regulation:
+        return 'Regulation';
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return DateFormat.yMMMd().format(date);
   }
 }

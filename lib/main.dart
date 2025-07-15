@@ -101,7 +101,7 @@ class MyApp extends StatelessWidget {
               unselectedIconTheme: const IconThemeData(size: 24),
               type: BottomNavigationBarType.fixed,
             )),
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.light,
       ),
     );
   }

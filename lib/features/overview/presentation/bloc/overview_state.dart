@@ -13,17 +13,48 @@ class OverviewLoading extends OverviewState {}
 
 class OverviewLoaded extends OverviewState {
   final List<LegalDocument> documents;
-  final DocumentType? currentFilter;
-  final String? currentSearch;
+  final bool hasMore;
+  final String? nextPageToken;
+  final DocumentQuery currentQuery;
+  final bool isLoadingMore;
+  final String? errorMessage;
 
   const OverviewLoaded({
     required this.documents,
-    this.currentFilter,
-    this.currentSearch,
+    required this.hasMore,
+    this.nextPageToken,
+    required this.currentQuery,
+    this.isLoadingMore = false,
+    this.errorMessage,
   });
 
+  OverviewLoaded copyWith({
+    List<LegalDocument>? documents,
+    bool? hasMore,
+    String? nextPageToken,
+    DocumentQuery? currentQuery,
+    bool? isLoadingMore,
+    String? errorMessage,
+  }) {
+    return OverviewLoaded(
+      documents: documents ?? this.documents,
+      hasMore: hasMore ?? this.hasMore,
+      nextPageToken: nextPageToken ?? this.nextPageToken,
+      currentQuery: currentQuery ?? this.currentQuery,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
+
   @override
-  List<Object?> get props => [documents, currentFilter, currentSearch];
+  List<Object?> get props => [
+        documents,
+        hasMore,
+        nextPageToken,
+        currentQuery,
+        isLoadingMore,
+        errorMessage,
+      ];
 }
 
 class OverviewError extends OverviewState {

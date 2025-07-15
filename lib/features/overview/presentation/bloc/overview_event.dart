@@ -8,17 +8,39 @@ abstract class OverviewEvent extends Equatable {
 }
 
 class LoadLegalDocuments extends OverviewEvent {
-  final DocumentType? filterType;
-  final String? searchQuery;
+  final DocumentQuery query;
 
-  const LoadLegalDocuments({this.filterType, this.searchQuery});
+  const LoadLegalDocuments(this.query);
 
   @override
-  List<Object?> get props => [filterType, searchQuery];
+  List<Object?> get props => [query];
+}
+
+class LoadMoreDocuments extends OverviewEvent {
+  const LoadMoreDocuments();
 }
 
 class RefreshDocuments extends OverviewEvent {
   const RefreshDocuments();
+}
+
+class SearchDocuments extends OverviewEvent {
+  final String searchQuery;
+  final DocumentType? filterType;
+
+  const SearchDocuments(this.searchQuery, {this.filterType});
+
+  @override
+  List<Object?> get props => [searchQuery, filterType];
+}
+
+class FilterDocuments extends OverviewEvent {
+  final DocumentType? filterType;
+
+  const FilterDocuments(this.filterType);
+
+  @override
+  List<Object?> get props => [filterType];
 }
 
 class RequestDocumentExplanation extends OverviewEvent {

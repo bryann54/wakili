@@ -34,7 +34,7 @@ class CategoryCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
                   blurRadius: 8,
                   spreadRadius: 1,
                   offset: const Offset(0, 2),
@@ -70,7 +70,7 @@ class CategoryCard extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(isDark ? 0.6 : 0.4),
+                          Colors.black.withValues(alpha: isDark ? 0.6 : 0.4),
                         ],
                         stops: const [0.5, 1.0],
                       ),
@@ -100,7 +100,7 @@ class CategoryCard extends StatelessWidget {
                       Text(
                         category.description,
                         style: textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           height: 1.3,
                         ),
                         maxLines: 2,
@@ -115,8 +115,8 @@ class CategoryCard extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      splashColor: category.color.withOpacity(0.2),
-                      highlightColor: category.color.withOpacity(0.1),
+                      splashColor: category.color.withValues(alpha: 0.2),
+                      highlightColor: category.color.withValues(alpha: 0.1),
                     ),
                   ),
                 ),
@@ -145,7 +145,7 @@ class _ShineText extends StatelessWidget {
         .animate(onPlay: (controller) => controller.repeat())
         .shimmer(
           duration: 3000.ms,
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           angle: -0.1,
         );
   }

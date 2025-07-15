@@ -158,7 +158,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
             Positioned.fill(
               child: Container(
                 // Use a proper overlay color, withOpacity is better than withValues for alpha
-                color: Colors.black.withOpacity(0.4),
+                color: Colors.black.withValues(alpha: 0.4),
               ),
             ),
             Column(

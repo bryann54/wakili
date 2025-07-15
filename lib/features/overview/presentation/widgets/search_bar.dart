@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LegalSearchBar extends StatefulWidget {
+  final TextEditingController controller;
   final Function(String) onSearchChanged;
   final String? hintText;
 
   const LegalSearchBar({
     super.key,
+    required this.controller,
     required this.onSearchChanged,
     this.hintText,
   });
@@ -16,14 +18,6 @@ class LegalSearchBar extends StatefulWidget {
 }
 
 class _LegalSearchBarState extends State<LegalSearchBar> {
-  final TextEditingController _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -35,7 +29,7 @@ class _LegalSearchBarState extends State<LegalSearchBar> {
         ),
       ),
       child: TextField(
-        controller: _controller,
+        controller: widget.controller,
         onChanged: widget.onSearchChanged,
         style: GoogleFonts.poppins(
           fontSize: 14,
@@ -52,7 +46,7 @@ class _LegalSearchBarState extends State<LegalSearchBar> {
             color: Theme.of(context).colorScheme.onSurfaceVariant,
             size: 20,
           ),
-          suffixIcon: _controller.text.isNotEmpty
+          suffixIcon: widget.controller.text.isNotEmpty
               ? IconButton(
                   icon: Icon(
                     Icons.clear,
@@ -60,7 +54,7 @@ class _LegalSearchBarState extends State<LegalSearchBar> {
                     size: 20,
                   ),
                   onPressed: () {
-                    _controller.clear();
+                    widget.controller.clear();
                     widget.onSearchChanged('');
                   },
                 )

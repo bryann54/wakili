@@ -31,7 +31,7 @@ class PaymentButton extends StatelessWidget {
             ? [
                 BoxShadow(
                   color: const Color(0xFF4CAF50)
-                      .withOpacity(isDarkMode ? 0.4 : 0.3),
+                      .withValues(alpha: isDarkMode ? 0.4 : 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
