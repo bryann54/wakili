@@ -229,6 +229,7 @@ class DocumentDetailScreen extends StatelessWidget {
                 ),
               ),
             ),
+            
           ],
         ),
       ),

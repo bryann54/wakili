@@ -1,3 +1,5 @@
+// overview_bloc.dart
+
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
@@ -26,7 +28,16 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState> {
     LoadLegalDocuments event,
     Emitter<OverviewState> emit,
   ) async {
-    emit(OverviewLoading());
+    // If the current state is OverviewLoaded and we are not explicitly refreshing or starting a new query,
+    // we can keep the current query's loading state. Otherwise, emit OverviewLoading.
+    if (state is OverviewLoaded &&
+        event.query.startAfterDocumentId == null &&
+        event.query.searchQuery == null &&
+        event.query.filterType == null) {
+      // This is to prevent showing a full loading spinner on just a filter change if data is already loaded
+    } else {
+      emit(OverviewLoading());
+    }
 
     try {
       final result = await _legalDocumentRepository.getLegalDocuments(
@@ -84,27 +95,32 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState> {
     RefreshDocuments event,
     Emitter<OverviewState> emit,
   ) async {
+    // Always use the current query to refresh, but reset pagination
+    DocumentQuery refreshQuery = const DocumentQuery();
     if (state is OverviewLoaded) {
       final currentState = state as OverviewLoaded;
-
-      // Reset pagination for refresh
-      final refreshQuery = currentState.currentQuery.copyWith(
-        startAfterDocumentId: null,
+      refreshQuery = currentState.currentQuery.copyWith(
+        startAfterDocumentId: null, // Reset pagination
       );
-
-      add(LoadLegalDocuments(refreshQuery));
-    } else {
-      add(LoadLegalDocuments(const DocumentQuery()));
     }
+    add(LoadLegalDocuments(refreshQuery));
   }
 
   FutureOr<void> _onSearchDocuments(
     SearchDocuments event,
     Emitter<OverviewState> emit,
   ) async {
+    // Get the current filter type from the state if it's already loaded
+    DocumentType? currentFilterType;
+    if (state is OverviewLoaded) {
+      currentFilterType = (state as OverviewLoaded).currentQuery.filterType;
+    }
+
     final searchQuery = DocumentQuery(
       searchQuery: event.searchQuery,
-      filterType: event.filterType,
+      // Use the filterType from the event if provided, otherwise retain the current one
+      filterType: event.filterType ?? currentFilterType,
+      startAfterDocumentId: null, // Reset pagination on search
       limit: 5,
     );
 
@@ -116,14 +132,18 @@ class OverviewBloc extends Bloc<OverviewEvent, OverviewState> {
     Emitter<OverviewState> emit,
   ) async {
     DocumentQuery filterQuery;
+    String? currentSearchQuery;
 
     if (state is OverviewLoaded) {
       final currentState = state as OverviewLoaded;
+      currentSearchQuery = currentState.currentQuery.searchQuery;
       filterQuery = currentState.currentQuery.copyWith(
         filterType: event.filterType,
+        searchQuery: currentSearchQuery, // Ensure search query is preserved
         startAfterDocumentId: null, // Reset pagination
       );
     } else {
+      // If not in OverviewLoaded, create a new query with only the filter
       filterQuery = DocumentQuery(filterType: event.filterType);
     }
 

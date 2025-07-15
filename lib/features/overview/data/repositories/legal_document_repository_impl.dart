@@ -7,7 +7,8 @@ import '../models/legal_document_model.dart';
 @LazySingleton(as: LegalDocumentRepository)
 class LegalDocumentRepositoryImpl implements LegalDocumentRepository {
   final FirebaseFirestore _firestore;
-  static const String _collectionName = 'bills'; 
+  static const String _collectionName =
+      'legal_documents'; 
 
   LegalDocumentRepositoryImpl(this._firestore);
 
@@ -19,13 +20,11 @@ class LegalDocumentRepositoryImpl implements LegalDocumentRepository {
           .collection(_collectionName)
           .orderBy(query.orderBy as Object, descending: query.descending);
 
-      // Apply type filter
       if (query.filterType != null) {
         firestoreQuery =
             firestoreQuery.where('type', isEqualTo: query.filterType!.name);
       }
 
-      // Handle pagination
       if (query.startAfterDocumentId != null) {
         final startAfterDoc = await _firestore
             .collection(_collectionName)
@@ -37,28 +36,23 @@ class LegalDocumentRepositoryImpl implements LegalDocumentRepository {
         }
       }
 
-      // Limit results 
       firestoreQuery = firestoreQuery.limit(query.limit + 1);
 
       final querySnapshot = await firestoreQuery.get();
 
-      // Convert documents
       List<LegalDocument> documents = querySnapshot.docs
           .map((doc) => LegalDocumentModel.fromFirestore(doc))
           .toList();
 
-      // Check if there are more results
       final hasMore = documents.length > query.limit;
       if (hasMore) {
-        documents.removeLast(); 
+        documents.removeLast();
       }
 
-      // Apply local search filtering if needed
       if (query.searchQuery != null && query.searchQuery!.isNotEmpty) {
         documents = _applyLocalSearch(documents, query.searchQuery!);
       }
 
-      // Get next page token
       final nextPageToken =
           hasMore && documents.isNotEmpty ? documents.last.id : null;
 
@@ -98,15 +92,12 @@ class LegalDocumentRepositoryImpl implements LegalDocumentRepository {
     int limit = 5,
     String? startAfterDocumentId,
   }) async {
-    // For now, we'll do client-side search since Firestore doesn't support full-text search
-    // In production, consider using Algolia or Firebase's full-text search extensions
     final query = DocumentQuery(
       searchQuery: searchQuery,
       filterType: filterType,
-      limit: limit * 2, // Get more to account for filtering
+      limit: limit * 2,
       startAfterDocumentId: startAfterDocumentId,
     );
-
     return getLegalDocuments(query);
   }
 
@@ -121,7 +112,6 @@ class LegalDocumentRepositoryImpl implements LegalDocumentRepository {
       limit: limit,
       startAfterDocumentId: startAfterDocumentId,
     );
-
     return getLegalDocuments(query);
   }
 
@@ -136,11 +126,9 @@ class LegalDocumentRepositoryImpl implements LegalDocumentRepository {
       orderBy: 'datePublished',
       descending: true,
     );
-
     return getLegalDocuments(query);
   }
 
-  // Helper method for local search filtering
   List<LegalDocument> _applyLocalSearch(
     List<LegalDocument> documents,
     String searchQuery,
