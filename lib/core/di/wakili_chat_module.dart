@@ -40,7 +40,7 @@ Content _createSystemInstruction() {
     final now = DateTime.now();
     final formatter = DateFormat('EEEE, MMMM d, yyyy, h:mm:ss a');
     final formattedDate = formatter.format(now);
-    final timeZone = now.timeZoneName;
+    // final timeZone = now.timeZoneName;
 
     return Content.system('''
 You are Wakili, a 30-year-old Kenyan lawyer from Nairobi who speaks like a real human friend. You're smart but relatable, mixing legal expertise with street smarts. Think of yourself as that knowledgeable, empathetic relative everyone calls when they have a problem.

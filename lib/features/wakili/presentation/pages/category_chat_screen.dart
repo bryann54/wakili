@@ -86,7 +86,6 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Directly use widget.category.imagePath
     final String backgroundImagePath = widget.category.imagePath;
 
     return BlocProvider.value(
@@ -114,7 +113,6 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
                 if (value == 'history') {
                   AutoRouter.of(context).push(const ChatHistoryRoute());
                 } else if (value == 'clear') {
-                  // Ensure you read the bloc for dispatching events
                   context.read<WakiliBloc>().add(const ClearChatEvent());
                 }
               },
@@ -149,7 +147,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
                     color:
                         Theme.of(context).colorScheme.surfaceContainerHighest,
                     child: Center(
-                      child: Icon(Icons.broken_image, color: Colors.grey[400]),
+                      child: Icon(Icons.error, color: Colors.grey[400]),
                     ),
                   );
                 },
@@ -157,7 +155,6 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
             ),
             Positioned.fill(
               child: Container(
-                // Use a proper overlay color, withOpacity is better than withValues for alpha
                 color: Colors.black.withValues(alpha: 0.4),
               ),
             ),
@@ -177,11 +174,10 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
                           state is WakiliChatErrorState) {
                         _scrollToBottom();
                         if (state is WakiliChatErrorState) {
-                          // Check for error state specifically
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                  'Error: ${state.message}'), // Use state.message for error
+                                  'Error: ${state.message}'),
                               backgroundColor:
                                   Theme.of(context).colorScheme.error,
                             ),
@@ -214,16 +210,13 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
                               },
                             ),
                           ),
-                          // Show typing indicator only when isLoadingTyping is true AND there are no messages yet
-                          // Or show it at the end of existing messages if it's the AI's turn
                           if (isLoadingTyping && messages.isEmpty)
                             const ChatTypingIndicator()
                           else if (isLoadingTyping &&
                               messages.isNotEmpty &&
                               !messages.last
-                                  .isUser) // Assuming AI is typing after a user message
+                                  .isUser) 
                             const ChatTypingIndicator(),
-                          // You might want a more sophisticated check for when AI is actually typing a response
                         ],
                       );
                     },
