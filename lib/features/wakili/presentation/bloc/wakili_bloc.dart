@@ -1,4 +1,3 @@
-// wakili_bloc.dart
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
@@ -6,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:wakili/core/errors/failures.dart';
 import 'package:wakili/features/chat_history/presentation/bloc/chat_history_bloc.dart';
-import 'package:wakili/features/wakili/data/models/chat_message.dart'; // Corrected import path
+import 'package:wakili/features/wakili/data/models/chat_message.dart';
 import 'package:wakili/features/wakili/data/models/legal_category.dart';
 import 'package:wakili/features/wakili/domain/usecases/get_legal_categories_usecase.dart';
 import 'package:wakili/features/wakili/domain/usecases/send_message_usecase.dart';
@@ -25,6 +24,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
   final GetLegalCategoriesUseCase _getLegalCategories;
 
   String? _currentConversationId;
+  final Uuid _uuid = const Uuid();
 
   WakiliBloc(
     this._sendMessage,
@@ -44,11 +44,6 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
 
     _chatHistoryBloc.stream.listen((chatHistoryState) {
       if (chatHistoryState is ChatHistoryLoaded) {
-        if (_currentConversationId == null &&
-            chatHistoryState.currentConversationId != null &&
-            chatHistoryState.activeConversationMessages.isNotEmpty) {
-          _currentConversationId = chatHistoryState.currentConversationId;
-        }
         if (chatHistoryState.currentConversationId != null &&
             state is WakiliChatLoaded &&
             (state as WakiliChatLoaded).messages.isNotEmpty &&
@@ -78,14 +73,16 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
         _applyCategoryContext(event.message, current.category);
 
     final userMessage = ChatMessage(
-      id: const Uuid().v4(),
+      id: _uuid.v4(),
       content: event.message,
       isUser: true,
       timestamp: DateTime.now(),
     );
 
+    final messagesWithUserMessage = [...current.messages, userMessage];
+
     emit(WakiliChatLoaded(
-      messages: [...current.messages, userMessage],
+      messages: messagesWithUserMessage,
       isLoading: true,
       selectedCategory: current.category,
       allCategories: current.allCategories,
@@ -93,23 +90,24 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
 
     final result = await _sendMessage(
       contextMessage,
-      conversationHistory: current.messages,
+      conversationHistory: messagesWithUserMessage,
     );
+
     result.fold(
       (failure) => emit(WakiliChatErrorState(
         message: _mapFailureToMessage(failure),
-        messages: [...current.messages, userMessage],
+        messages: messagesWithUserMessage,
         selectedCategory: current.category,
         allCategories: current.allCategories,
       )),
       (response) {
         final aiMessage = ChatMessage(
-          id: const Uuid().v4(),
+          id: _uuid.v4(),
           content: response,
           isUser: false,
           timestamp: DateTime.now(),
         );
-        final updatedMessages = [...current.messages, userMessage, aiMessage];
+        final updatedMessages = [...messagesWithUserMessage, aiMessage];
         emit(WakiliChatLoaded(
           messages: updatedMessages,
           isLoading: false,
@@ -118,34 +116,39 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
         ));
       },
     );
+    add(const SaveCurrentChatEvent());
   }
 
   FutureOr<void> _onSendStreamMessage(
     SendStreamMessageEvent event,
     Emitter<WakiliState> emit,
   ) async {
-    final currentState = state;
-    if (currentState is! WakiliChatLoaded) {
-      emit(const WakiliChatLoaded(messages: [], isLoading: true));
-    }
-
-    final WakiliChatLoaded loadedState = (state is WakiliChatLoaded)
-        ? state as WakiliChatLoaded
-        : const WakiliChatLoaded(messages: [], allCategories: []);
+    final current = _extractChatData(state);
 
     final userMessage = ChatMessage(
-      id: const Uuid().v4(),
+      id: _uuid.v4(),
       content: event.message,
       isUser: true,
       timestamp: DateTime.now(),
     );
 
-    final updatedMessages = List<ChatMessage>.from(loadedState.messages)
-      ..add(userMessage);
+    final List<ChatMessage> messagesWithUserAndAiPlaceholder =
+        List<ChatMessage>.from(current.messages);
+    messagesWithUserAndAiPlaceholder.add(userMessage);
 
-    emit(loadedState.copyWith(
-      messages: updatedMessages,
+    final ChatMessage aiMessagePlaceholder = ChatMessage(
+      id: _uuid.v4(),
+      content: '',
+      isUser: false,
+      timestamp: DateTime.now(),
+    );
+    messagesWithUserAndAiPlaceholder.add(aiMessagePlaceholder);
+
+    emit(WakiliChatLoaded(
+      messages: messagesWithUserAndAiPlaceholder,
       isLoading: true,
+      selectedCategory: current.category,
+      allCategories: current.allCategories,
       error: null,
     ));
 
@@ -154,58 +157,59 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     if (currentUserUid == null) {
       emit(WakiliChatErrorState(
         message: 'You must be logged in to save conversations.',
-        messages: updatedMessages,
-        selectedCategory: loadedState.selectedCategory,
-        allCategories: loadedState.allCategories,
+        messages: messagesWithUserAndAiPlaceholder,
+        selectedCategory: current.category,
+        allCategories: current.allCategories,
       ));
       return;
     }
+
+    
+    _currentConversationId ??= _uuid.v4();
 
     String fullBotResponse = '';
     await emit.forEach<Either<Failure, String>>(
       _sendStreamMessage(
         event.message,
-        conversationHistory: updatedMessages,
+        conversationHistory:
+            messagesWithUserAndAiPlaceholder,
       ),
       onData: (either) {
         return either.fold(
           (failure) {
             return WakiliChatErrorState(
               message: _mapFailureToMessage(failure),
-              messages: updatedMessages,
-              selectedCategory: loadedState.selectedCategory,
-              allCategories: loadedState.allCategories,
+              messages: messagesWithUserAndAiPlaceholder,
+              selectedCategory: current.category,
+              allCategories: current.allCategories,
             );
           },
           (chunk) {
             fullBotResponse += chunk;
-            final List<ChatMessage> currentMessages =
-                List.from(updatedMessages);
-            int botMessageIndex = -1;
-            for (int i = currentMessages.length - 1; i >= 0; i--) {
-              if (!currentMessages[i].isUser) {
-                botMessageIndex = i;
-                break;
-              }
-            }
+            final List<ChatMessage> updatedMessages =
+                List<ChatMessage>.from(messagesWithUserAndAiPlaceholder);
 
-            if (botMessageIndex != -1) {
-              currentMessages[botMessageIndex] =
-                  currentMessages[botMessageIndex].copyWith(
-                content: fullBotResponse,
-              );
+            final int index = updatedMessages
+                .indexWhere((msg) => msg.id == aiMessagePlaceholder.id);
+
+            if (index != -1) {
+              updatedMessages[index] =
+                  updatedMessages[index].copyWith(content: fullBotResponse);
             } else {
-              currentMessages.add(ChatMessage(
-                id: const Uuid().v4(),
+              updatedMessages.add(ChatMessage(
+                id: _uuid
+                    .v4(), 
                 content: fullBotResponse,
                 isUser: false,
                 timestamp: DateTime.now(),
               ));
             }
 
-            return loadedState.copyWith(
-              messages: currentMessages,
-              isLoading: true,
+            return WakiliChatLoaded(
+              messages: updatedMessages,
+              isLoading: true, 
+              selectedCategory: current.category,
+              allCategories: current.allCategories,
               error: null,
             );
           },
@@ -215,38 +219,28 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
         final Failure failure = _mapErrorToFailure(error);
         return WakiliChatErrorState(
           message: _mapFailureToMessage(failure),
-          messages: updatedMessages,
-          selectedCategory: loadedState.selectedCategory,
-          allCategories: loadedState.allCategories,
+          messages:
+              messagesWithUserAndAiPlaceholder,
+          selectedCategory: current.category,
+          allCategories: current.allCategories,
         );
       },
-    ).then((_) {
-      final finalMessages = List<ChatMessage>.from(updatedMessages);
-      if (fullBotResponse.isNotEmpty) {
-        int botMessageIndex = -1;
-        for (int i = finalMessages.length - 1; i >= 0; i--) {
-          if (!finalMessages[i].isUser) {
-            botMessageIndex = i;
-            break;
-          }
-        }
-        if (botMessageIndex != -1) {
-          finalMessages[botMessageIndex] =
-              finalMessages[botMessageIndex].copyWith(
-            content: fullBotResponse,
-          );
-        } else {
-          finalMessages.add(ChatMessage(
-            id: const Uuid().v4(),
-            content: fullBotResponse,
-            isUser: false,
-            timestamp: DateTime.now(),
-          ));
-        }
-      }
-      emit(loadedState.copyWith(
-          messages: finalMessages, isLoading: false, error: null));
-    });
+    );
+
+
+    _chatHistoryBloc.add(SaveCurrentConversation(
+      userId: currentUserUid,
+      category: current.category ?? 'General',
+      messages: (state as WakiliChatLoaded)
+          .messages,
+      conversationId:
+          _currentConversationId, 
+    ));
+
+
+    if (state is WakiliChatLoaded) {
+      emit((state as WakiliChatLoaded).copyWith(isLoading: false));
+    }
   }
 
   FutureOr<void> _onSaveCurrentChatEvent(
@@ -255,6 +249,8 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
 
     if (currentUserUid != null && current.messages.isNotEmpty) {
+      _currentConversationId ??= _uuid.v4();
+
       _chatHistoryBloc.add(SaveCurrentConversation(
         userId: currentUserUid,
         category: current.category ?? 'General',
@@ -269,15 +265,21 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     final current = _extractChatData(state);
     final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
 
-    if (currentUserUid != null && current.messages.isNotEmpty) {
+  
+    if (currentUserUid != null &&
+        current.messages.isNotEmpty &&
+        _currentConversationId != null) {
       _chatHistoryBloc.add(SaveCurrentConversation(
         userId: currentUserUid,
         category: current.category ?? 'General',
         messages: current.messages,
-        conversationId: _currentConversationId,
+        conversationId:
+            _currentConversationId, 
       ));
     }
 
+    _currentConversationId =
+        null; 
     emit(WakiliChatLoaded(
       messages: const [],
       selectedCategory: (state is WakiliChatLoaded)
@@ -288,7 +290,6 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
           : const [],
       isLoading: false,
     ));
-    _currentConversationId = null;
   }
 
   void _onSetCategoryContext(
@@ -300,6 +301,9 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       messages: current.messages,
       selectedCategory: event.category,
       allCategories: current.allCategories,
+      isLoading: current.messages.isEmpty
+          ? false
+          : false, 
     ));
   }
 
@@ -312,6 +316,9 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       messages: current.messages,
       selectedCategory: null,
       allCategories: current.allCategories,
+      isLoading: current.messages.isEmpty
+          ? false 
+          : false, 
     ));
   }
 
@@ -319,15 +326,15 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     LoadExistingChat event,
     Emitter<WakiliState> emit,
   ) async {
-    if (event.conversationId != null) {
-      _currentConversationId = event.conversationId;
-    } else {
-      _currentConversationId = null;
-    }
+    _currentConversationId =
+        event.conversationId; 
 
+    final current = _extractChatData(state); 
     emit(WakiliChatLoaded(
       messages: event.messages,
       isLoading: false,
+      selectedCategory: current.category, 
+      allCategories: current.allCategories,
     ));
   }
 
@@ -338,7 +345,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     final current = _extractChatData(state);
     emit(WakiliChatLoaded(
       messages: current.messages,
-      isLoading: true,
+      isLoading: true, 
       selectedCategory: current.category,
       allCategories: current.allCategories,
     ));
@@ -366,12 +373,15 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     LoadExistingChatWithCategory event,
     Emitter<WakiliState> emit,
   ) async {
-    _currentConversationId = event.conversationId;
+    _currentConversationId =
+        event.conversationId; 
+    final current = _extractChatData(state);
+
     emit(WakiliChatLoaded(
       messages: event.messages,
       selectedCategory: event.category,
       isLoading: false,
-      allCategories: _extractChatData(state).allCategories,
+      allCategories: current.allCategories, 
     ));
   }
 

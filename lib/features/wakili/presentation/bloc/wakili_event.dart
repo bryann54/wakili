@@ -1,4 +1,3 @@
-// wakili_event.dart
 part of 'wakili_bloc.dart';
 
 abstract class WakiliEvent extends Equatable {

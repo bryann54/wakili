@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakili/features/account/presentation/widgets/buy_me_a_coffee_button.dart';
@@ -105,7 +106,7 @@ class AccountScreen extends StatelessWidget {
                 backgroundColor:
                     isDarkMode ? Colors.grey[800] : AppColors.dividerColor,
                 backgroundImage:
-                    user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+                    user.photoUrl != null ? CachedNetworkImageProvider( user.photoUrl!) : null,
                 child: user.photoUrl == null
                     ? Icon(
                         Icons.person,
