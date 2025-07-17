@@ -17,12 +17,12 @@ class ChatConversationAdapter extends TypeAdapter<ChatConversation> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ChatConversation(
-      id: fields[0] as String?,
+      id: fields[0] as String,
       title: fields[1] as String,
       messages: (fields[2] as List).cast<ChatMessage>(),
-      timestamp: fields[3] as DateTime?,
-      createdAt: fields[4] as DateTime?,
-      updatedAt: fields[5] as DateTime?,
+      timestamp: fields[3] as DateTime,
+      createdAt: fields[4] as DateTime,
+      updatedAt: fields[5] as DateTime,
       category: fields[6] as String?,
       tags: (fields[7] as List?)?.cast<String>(),
       isArchived: fields[8] as bool,

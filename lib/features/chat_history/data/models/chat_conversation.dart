@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // <<< ADD THIS IMPORT for Timestamp
 
 part 'chat_conversation.g.dart';
 
@@ -24,10 +25,10 @@ class ChatConversation extends HiveObject {
   DateTime updatedAt;
 
   @HiveField(6)
-  final String? category; // Legal category context
+  final String? category;
 
   @HiveField(7)
-  final List<String> tags; // For better organization
+  final List<String> tags;
 
   @HiveField(8)
   final bool isArchived;
@@ -36,21 +37,21 @@ class ChatConversation extends HiveObject {
   final bool isFavorite;
 
   @HiveField(10)
-  final String? summary; // AI-generated summary for quick reference
+  final String? summary;
 
   @HiveField(11)
   final int messageCount;
 
   @HiveField(12)
-  final List<String> searchKeywords; // For enhanced search
+  final List<String> searchKeywords;
 
   ChatConversation({
-    String? id,
+    required this.id,
     required this.title,
     required this.messages,
-    DateTime? timestamp,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    required this.timestamp,
+    required this.createdAt,
+    required this.updatedAt,
     this.category,
     List<String>? tags,
     this.isArchived = false,
@@ -58,14 +59,75 @@ class ChatConversation extends HiveObject {
     this.summary,
     int? messageCount,
     List<String>? searchKeywords,
-  })  : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        timestamp = timestamp ?? DateTime.now(),
-        createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now(),
-        tags = tags ?? [],
+  })  : tags = tags ?? [],
         messageCount = messageCount ?? messages.length,
         searchKeywords =
             searchKeywords ?? _generateSearchKeywords(messages, title);
+
+  factory ChatConversation.fromJson(Map<String, dynamic> json) {
+    String conversationTitle = json['title'] as String? ??
+        ((json['messages'] as List?)?.isNotEmpty == true
+            ? (json['messages'][0] as Map<String, dynamic>)['content']
+                    as String? ??
+                'Untitled Conversation'
+            : 'Untitled Conversation');
+
+    // Parse messages, defaulting to empty list if not present or malformed
+    List<ChatMessage> parsedMessages = (json['messages'] as List?)
+            ?.map((msgJson) =>
+                ChatMessage.fromJson(msgJson as Map<String, dynamic>))
+            .toList() ??
+        [];
+
+    // Helper for robust DateTime parsing from various Firestore types
+    DateTime parseDateTime(dynamic value) {
+      if (value == null) return DateTime.now();
+      if (value is Timestamp) {
+        return value.toDate();
+      } else if (value is String) {
+        try {
+          return DateTime.parse(value);
+        } catch (e) {
+          return DateTime.now();
+        }
+      }
+      return DateTime.now();
+    }
+
+    return ChatConversation(
+      id: json['id'] as String,
+      title: conversationTitle,
+      messages: parsedMessages,
+      timestamp: parseDateTime(json['timestamp']),
+      createdAt: parseDateTime(json['createdAt']),
+      updatedAt: parseDateTime(json['updatedAt']),
+      category: json['category'] as String?,
+      tags: List<String>.from(json['tags'] as List? ?? []),
+      isArchived: json['isArchived'] as bool? ?? false,
+      isFavorite: json['isFavorite'] as bool? ?? false,
+      summary: json['summary'] as String?,
+      messageCount: json['messageCount'] as int? ?? parsedMessages.length,
+      searchKeywords: List<String>.from(json['searchKeywords'] as List? ?? []),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'messages': messages.map((msg) => msg.toJson()).toList(),
+      'timestamp': timestamp.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'category': category,
+      'tags': tags,
+      'isArchived': isArchived,
+      'isFavorite': isFavorite,
+      'summary': summary,
+      'messageCount': messageCount,
+      'searchKeywords': searchKeywords,
+    };
+  }
 
   // Generate search keywords from messages and title
   static List<String> _generateSearchKeywords(
@@ -74,15 +136,11 @@ class ChatConversation extends HiveObject {
 
     // Add title words
     keywords.addAll(title.toLowerCase().split(' '));
-
-    // Add message content words (first few messages for relevance)
     for (int i = 0; i < messages.length && i < 5; i++) {
       final words = messages[i].content.toLowerCase().split(' ');
-      keywords
-          .addAll(words.where((word) => word.length > 2)); // Filter short words
+      keywords.addAll(words.where((word) => word.length > 2));
     }
 
-    // Remove common stop words
     final stopWords = {
       'the',
       'and',

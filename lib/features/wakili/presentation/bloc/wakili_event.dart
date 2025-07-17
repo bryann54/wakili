@@ -61,9 +61,18 @@ class LoadExistingChat extends WakiliEvent {
 class LoadExistingChatWithCategory extends WakiliEvent {
   final List<ChatMessage> messages;
   final String category;
+  final String? conversationId;
 
-  const LoadExistingChatWithCategory(this.messages, this.category);
+  const LoadExistingChatWithCategory(
+    this.messages,
+    this.category,
+    this.conversationId,
+  );
 
   @override
-  List<Object> get props => [messages, category];
+  List<Object> get props => [
+        messages,
+        category,
+        conversationId.toString(),
+      ];
 }

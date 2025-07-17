@@ -23,8 +23,7 @@ class MainScreen extends StatelessWidget {
           create: (context) => getIt<OverviewBloc>(),
         ),
         BlocProvider<ChatHistoryBloc>(
-          create: (context) =>
-              getIt<ChatHistoryBloc>()..add(const LoadChatHistory()),
+          create: (context) => getIt<ChatHistoryBloc>(),
         ),
       ],
       child: AutoTabsScaffold(

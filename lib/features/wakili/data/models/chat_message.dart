@@ -60,6 +60,48 @@ class ChatMessage extends Equatable {
     this.isBookmarked = false,
   }) : attachments = attachments ?? const [];
 
+  // ✨ ADDED THIS FACTORY CONSTRUCTOR ✨
+  factory ChatMessage.fromJson(Map<String, dynamic> json) {
+    return ChatMessage(
+      id: json['id'] as String,
+      content: json['content'] as String,
+      isUser: json['isUser'] as bool,
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      messageType: json['messageType'] as String?,
+      metadata: (json['metadata'] as Map<String, dynamic>?)
+          ?.cast<String, dynamic>(), // Ensure correct casting for dynamic map
+      parentMessageId: json['parentMessageId'] as String?,
+      isEdited: json['isEdited'] as bool? ??
+          false, // Handle potential null if not always present
+      editedAt: json['editedAt'] != null
+          ? DateTime.parse(json['editedAt'] as String)
+          : null,
+      originalContent: json['originalContent'] as String?,
+      attachments: List<String>.from(json['attachments'] as List? ?? []),
+      confidenceScore: json['confidenceScore'] as double?,
+      isBookmarked: json['isBookmarked'] as bool? ?? false,
+    );
+  }
+
+  // ✨ ADDED THIS TOJSON METHOD ✨
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'content': content,
+      'isUser': isUser,
+      'timestamp': timestamp.toIso8601String(),
+      'messageType': messageType,
+      'metadata': metadata,
+      'parentMessageId': parentMessageId,
+      'isEdited': isEdited,
+      'editedAt': editedAt?.toIso8601String(), // Convert DateTime to String
+      'originalContent': originalContent,
+      'attachments': attachments,
+      'confidenceScore': confidenceScore,
+      'isBookmarked': isBookmarked,
+    };
+  }
+
   ChatMessage copyWith({
     String? id,
     String? content,

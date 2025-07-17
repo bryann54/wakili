@@ -7,10 +7,18 @@ import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 
 @RoutePage()
 class ChatScreen extends StatefulWidget {
-  final List<ChatMessage>? initialMessages; // New parameter
-  final String? conversationId; // Optional: to identify existing conversation
+  final List<ChatMessage>? initialMessages;
+  final String? conversationId;
+  final String? category;
+  final String? initialTitle;
 
-  const ChatScreen({super.key, this.initialMessages, this.conversationId});
+  const ChatScreen({
+    super.key,
+    this.initialMessages,
+    this.conversationId,
+    this.category,
+    this.initialTitle,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -22,23 +30,29 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    // If initial messages are provided, update the bloc's state
-    if (widget.initialMessages != null && widget.initialMessages!.isNotEmpty) {
+    if (widget.initialMessages != null &&
+        widget.initialMessages!.isNotEmpty &&
+        widget.conversationId != null) {
       context.read<WakiliBloc>().add(
-            LoadExistingChat(
-                widget.initialMessages!), // New event for WakiliBloc
+            LoadExistingChatWithCategory(
+              widget.initialMessages!,
+              widget.category ?? 'General',
+              widget.conversationId,
+            ),
           );
     } else {
-      // If no initial messages, ensure the chat is clear or initial
       context.read<WakiliBloc>().add(const ClearChatEvent());
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wakili AI Chat'),
+        title: Text(widget.initialTitle ?? 'Wakili AI Chat'),
         actions: [
           IconButton(
             icon: const Icon(Icons.history),
@@ -49,7 +63,6 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
             icon: const Icon(Icons.clear),
             onPressed: () {
-              // This will trigger saving the current chat to history
               context.read<WakiliBloc>().add(const ClearChatEvent());
             },
           ),
@@ -57,8 +70,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: BlocConsumer<WakiliBloc, WakiliState>(
         listener: (context, state) {
-          // You might want to update the conversation title if it changes,
-          // or if the chat becomes significant enough to warrant a new title.
+          // Add any specific listeners here, e.g., for showing snackbars on error
         },
         builder: (context, state) {
           List<ChatMessage> messages = [];
@@ -75,7 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
             messages = state.messages;
             error = state.message;
             selectedCategory = state.selectedCategory;
-          }
+          } else if (state is WakiliChatInitial) {}
 
           return Column(
             children: [
@@ -109,14 +121,16 @@ class _ChatScreenState extends State<ChatScreen> {
                         padding: const EdgeInsets.all(12.0),
                         decoration: BoxDecoration(
                           color: message.isUser
-                              ? Colors.blueAccent
-                              : Colors.grey[300],
+                              ? colorScheme.primary
+                              : colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: Text(
                           message.content,
                           style: TextStyle(
-                            color: message.isUser ? Colors.white : Colors.black,
+                            color: message.isUser
+                                ? colorScheme.onPrimary
+                                : colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -130,7 +144,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     'Error: $error',
-                    style: const TextStyle(color: Colors.red),
+                    style: TextStyle(color: colorScheme.error),
                   ),
                 ),
               Padding(

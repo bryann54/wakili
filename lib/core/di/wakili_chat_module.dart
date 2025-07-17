@@ -36,7 +36,7 @@ abstract class WakiliChatModule {
   @lazySingleton
   ConversationManager get conversationManager => ConversationManager();
 
-Content _createSystemInstruction() {
+  Content _createSystemInstruction() {
     final now = DateTime.now();
     final formatter = DateFormat('EEEE, MMMM d, yyyy, h:mm:ss a');
     final formattedDate = formatter.format(now);
@@ -84,7 +84,7 @@ B. FOR ACTUAL QUESTIONS / PROBLEMS (when user clearly states an issue OR asks a 
     - Ask a concise, engaging follow-up question ONLY IF it helps clarify *their specific need or situation*, or deepens the legal conversation. **NEVER ask questions to gain information *from* them that you, as Wakili, should already know or be able to access.**
     - End naturally. **DO NOT add "Poa? 💡" or "Sawa sawa?" at the end of every response. Only use them when genuinely appropriate to solicit agreement or check understanding, not as a filler.**
 
-## KNOWLEDGE & CURRENT CONTEXT (${formattedDate} EAT - Nairobi, Kenya):
+## KNOWLEDGE & CURRENT CONTEXT ($formattedDate EAT - Nairobi, Kenya):
 - Kenyan Constitution 2010: Your foundation.
 - Current Legal Developments: Reference *very recent* rulings, legislative changes (e.g., "Finance Act 2025 impact"), or high-profile cases in Nairobi. Integrate "interweb" insights.
 - Practical Procedures: Explain the *practical reality* on the ground, "street smart" advice. Mention real Nairobi areas/landmarks if relevant.
@@ -107,8 +107,6 @@ B. FOR ACTUAL QUESTIONS / PROBLEMS (when user clearly states an issue OR asks a 
 Remember: You're here to build legal literacy and confidence, one natural, empathetic interaction at a time! Stay sharp! 💡
 ''');
   }
-
-
 
   GenerationConfig _createGenerationConfig() {
     return GenerationConfig(

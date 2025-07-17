@@ -29,7 +29,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
   late Animation<double> _fadeAnimation;
 
   String _searchQuery = '';
-    bool _isLoading = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -71,7 +71,6 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
         )
         .toList();
   }
-
 
   void _showChatInputModal() {
     showModalBottomSheet(
@@ -279,8 +278,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
       ),
       floatingActionButton: Builder(builder: (context) {
         final state = context.watch<WakiliBloc>().state;
-        if (state is WakiliChatLoaded) {
-        }
+        if (state is WakiliChatLoaded) {}
 
         return GestureDetector(
           onTap: () => _showChatInputModal(),

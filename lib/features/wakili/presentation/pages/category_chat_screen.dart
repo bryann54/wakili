@@ -45,6 +45,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
           LoadExistingChatWithCategory(
             widget.initialMessages!,
             widget.category.title,
+            widget.conversationId,
           ),
         );
       } else {
@@ -176,8 +177,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
                         if (state is WakiliChatErrorState) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(
-                                  'Error: ${state.message}'),
+                              content: Text('Error: ${state.message}'),
                               backgroundColor:
                                   Theme.of(context).colorScheme.error,
                             ),
@@ -214,8 +214,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen> {
                             const ChatTypingIndicator()
                           else if (isLoadingTyping &&
                               messages.isNotEmpty &&
-                              !messages.last
-                                  .isUser) 
+                              !messages.last.isUser)
                             const ChatTypingIndicator(),
                         ],
                       );

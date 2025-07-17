@@ -1,15 +1,17 @@
 import 'package:dartz/dartz.dart';
 import 'package:wakili/core/errors/failures.dart';
-import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
+import 'package:wakili/features/wakili/data/models/chat_message.dart';
 
 abstract class ChatHistoryRepository {
-  Future<Either<Failure, List<ChatConversation>>> getChatHistory();
-  Future<Either<Failure, Unit>> saveChatConversation(
-      ChatConversation conversation);
-  Future<Either<Failure, Unit>> deleteChatConversation(String conversationId);
-  Future<Either<Failure, Unit>> updateChatConversation(
-      ChatConversation conversation);
-  Future<Either<Failure, Unit>> clearChatHistory();
-  Future<Either<Failure, ChatConversation?>> searchChatHistory(
-      ChatConversation conversation);
+  Future<Either<Failure, String>> saveConversation({
+    required String userId,
+    required String category,
+    required List<ChatMessage> messages,
+    String? conversationId,
+  });
+  Future<Either<Failure, List<Map<String, dynamic>>>> getConversations(
+      String userId);
+  Future<Either<Failure, Map<String, dynamic>?>> getConversationById(
+      String conversationId);
+  Future<Either<Failure, void>> deleteConversation(String conversationId);
 }

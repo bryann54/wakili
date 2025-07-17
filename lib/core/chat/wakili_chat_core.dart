@@ -232,7 +232,6 @@ class WakiliQueryProcessor {
     return shengWords.any((word) => query.toLowerCase().contains(word));
   }
 
-
   Future<String> enhanceQueryWithContext(String originalQuery) async {
     final context = detectLegalContext(originalQuery);
     final emotionalContext = detectEmotionalContext(originalQuery);

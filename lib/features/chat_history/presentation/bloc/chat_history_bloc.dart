@@ -1,13 +1,12 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
-import 'package:wakili/features/chat_history/domain/usecases/delete_chat_conversation_usecase.dart';
+import 'package:wakili/features/chat_history/domain/usecases/delete_conversation_usecase.dart';
 import 'package:wakili/features/chat_history/domain/usecases/generate_chat_title_usecase.dart';
-import 'package:wakili/features/chat_history/domain/usecases/get_chat_history_usecase.dart';
-import 'package:wakili/features/chat_history/domain/usecases/save_chat_conversation_usecase.dart';
+import 'package:wakili/features/chat_history/domain/usecases/get_conversation_by_id_usecase.dart';
+import 'package:wakili/features/chat_history/domain/usecases/get_conversations_usecase.dart';
+import 'package:wakili/features/chat_history/domain/usecases/save_conversation_usecase.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
 
 part 'chat_history_event.dart';
@@ -15,115 +14,228 @@ part 'chat_history_state.dart';
 
 @injectable
 class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
-  final GetChatHistoryUseCase _getChatHistoryUseCase;
-  final SaveChatConversationUseCase _saveChatConversationUseCase;
-  final DeleteChatConversationUseCase _deleteChatConversationUseCase;
+  final SaveConversationUseCase _saveConversationUseCase;
+  final GetConversationsUseCase _getConversationsUseCase;
+  final GetConversationByIdUseCase _getConversationByIdUseCase;
+  final DeleteConversationUseCase _deleteConversationUseCase;
   final GenerateChatTitleUseCase _generateChatTitleUseCase;
 
   ChatHistoryBloc(
-    this._getChatHistoryUseCase,
-    this._saveChatConversationUseCase,
-    this._deleteChatConversationUseCase,
+    this._saveConversationUseCase,
+    this._getConversationsUseCase,
+    this._getConversationByIdUseCase,
+    this._deleteConversationUseCase,
     this._generateChatTitleUseCase,
-  ) : super(ChatHistoryInitial()) {
+  ) : super(const ChatHistoryInitial()) {
+    // Use const with ChatHistoryInitial
+    on<SaveCurrentConversation>(_onSaveCurrentConversation);
     on<LoadChatHistory>(_onLoadChatHistory);
-    on<SaveCurrentChatConversation>(_onSaveCurrentChatConversation);
-    on<DeleteChatConversation>(_onDeleteChatConversation);
+    on<LoadSingleConversation>(_onLoadSingleConversation);
+    on<DeleteConversation>(_onDeleteConversation);
   }
 
-  FutureOr<void> _onLoadChatHistory(
+  Future<void> _onSaveCurrentConversation(
+    SaveCurrentConversation event,
+    Emitter<ChatHistoryState> emit,
+  ) async {
+    final currentConversations = state.conversations;
+    emit(ChatHistoryLoading(
+      conversations: currentConversations,
+      currentConversationId: state.currentConversationId,
+      activeConversationMessages:
+          event.messages, // Update active messages during save
+    ));
+
+    // Generate the title before saving
+    final String generatedTitle =
+        await _generateChatTitleUseCase(event.messages);
+
+    final result = await _saveConversationUseCase(SaveConversationParams(
+      userId: event.userId,
+      category: event.category,
+      messages: event.messages,
+      conversationId: event.conversationId,
+      title: generatedTitle, // Pass the generated title here
+    ));
+
+    result.fold(
+      (failure) => emit(ChatHistoryError(
+        message: (failure as dynamic).message ?? 'An unknown error occurred',
+        conversations: currentConversations,
+        currentConversationId: state.currentConversationId,
+        activeConversationMessages: state.activeConversationMessages,
+      )),
+      (conversationId) {
+        add(LoadChatHistory(userId: event.userId));
+      },
+    );
+  }
+
+  Future<void> _onLoadChatHistory(
     LoadChatHistory event,
     Emitter<ChatHistoryState> emit,
   ) async {
-    emit(ChatHistoryLoading());
-    final failureOrConversations = await _getChatHistoryUseCase();
-    failureOrConversations.fold(
-      (failure) => emit(ChatHistoryError(message: failure.toString())),
-      (conversations) => emit(ChatHistoryLoaded(conversations: conversations)),
+    emit(const ChatHistoryLoading());
+
+    final result = await _getConversationsUseCase(event.userId);
+
+    result.fold(
+      (failure) => emit(ChatHistoryError(
+        message: (failure as dynamic).message ?? 'An unknown error occurred',
+        conversations: state.conversations,
+        currentConversationId: state.currentConversationId,
+        activeConversationMessages: state.activeConversationMessages,
+      )),
+      (rawConversations) {
+        final List<ChatConversation> conversations = rawConversations
+            .map((map) => ChatConversation.fromJson(map))
+            .toList();
+
+        // Ensure  current active conversation messages are maintained if its ID matches
+        String? newCurrentConversationId = state.currentConversationId;
+        List<ChatMessage> newActiveConversationMessages =
+            state.activeConversationMessages;
+
+        if (newCurrentConversationId != null &&
+            !conversations.any((conv) => conv.id == newCurrentConversationId)) {
+          // If the current conversation is no longer in the loaded list (e.g., deleted by another device)
+          newCurrentConversationId = null;
+          newActiveConversationMessages = const [];
+        } else if (newCurrentConversationId != null) {
+          // If the current conversation is still in the list, update its messages
+          final updatedActiveConversation = conversations
+              .firstWhereOrNull((conv) => conv.id == newCurrentConversationId);
+          if (updatedActiveConversation != null) {
+            newActiveConversationMessages = updatedActiveConversation.messages;
+          }
+        }
+
+        emit(ChatHistoryLoaded(
+          conversations: conversations,
+          currentConversationId: newCurrentConversationId,
+          activeConversationMessages: newActiveConversationMessages,
+          message: state is ChatHistoryLoading && state.message != null
+              ? state.message
+              : null,
+        ));
+      },
     );
   }
 
-  FutureOr<void> _onSaveCurrentChatConversation(
-    SaveCurrentChatConversation event,
+  Future<void> _onLoadSingleConversation(
+    LoadSingleConversation event,
     Emitter<ChatHistoryState> emit,
   ) async {
-    if (event.messages.isEmpty) {
-      return; // Don't save empty chats
-    }
+    // Preserve current conversations list from the previous state
+    final List<ChatConversation> previousConversations = state.conversations;
 
-    // Generate title before saving
-    final failureOrTitle = await _generateChatTitleUseCase(event.messages);
-    final title = failureOrTitle.fold(
-      (failure) => 'Untitled Chat', // Fallback title on failure
-      (generatedTitle) => generatedTitle,
-    );
+    emit(ChatHistoryLoading(
+      conversations: previousConversations,
+      currentConversationId: state.currentConversationId,
+      activeConversationMessages: state.activeConversationMessages,
+    ));
 
-    final newConversation = ChatConversation(
-      title: title,
-      messages: event.messages,
-      timestamp: DateTime.now(),
-    );
+    final result = await _getConversationByIdUseCase(event.conversationId);
 
-    final failureOrUnit = await _saveChatConversationUseCase(newConversation);
-    failureOrUnit.fold(
-      (failure) {
-        if (state is ChatHistoryLoaded) {
-          emit(
-            ChatHistoryError(
-              message: 'Failed to save conversation: ${failure.toString()}',
-              conversations: (state as ChatHistoryLoaded).conversations,
-            ),
-          );
+    result.fold(
+      (failure) => emit(ChatHistoryError(
+        message: (failure as dynamic).message ?? 'An unknown error occurred',
+        conversations: previousConversations,
+        currentConversationId: state.currentConversationId,
+        activeConversationMessages: state.activeConversationMessages,
+      )),
+      (conversationData) {
+        if (conversationData != null) {
+          final ChatConversation loadedConversation =
+              ChatConversation.fromJson(conversationData);
+
+          final updatedConversations =
+              List<ChatConversation>.from(previousConversations);
+          final index = updatedConversations
+              .indexWhere((conv) => conv.id == loadedConversation.id);
+          if (index != -1) {
+            updatedConversations[index] = loadedConversation;
+          } else {
+            updatedConversations.add(loadedConversation);
+          }
+
+          emit(ChatHistoryLoaded(
+            conversations: updatedConversations,
+            currentConversationId: loadedConversation.id,
+            activeConversationMessages: loadedConversation.messages,
+          ));
         } else {
           emit(ChatHistoryError(
-              message: 'Failed to save conversation: ${failure.toString()}'));
+            message: 'Conversation not found.',
+            conversations: previousConversations,
+            currentConversationId: state.currentConversationId,
+            activeConversationMessages: state.activeConversationMessages,
+          ));
         }
-      },
-      (_) async {
-        // After saving, reload the history to reflect the new conversation
-        final updatedHistoryResult = await _getChatHistoryUseCase();
-        updatedHistoryResult.fold(
-          (failure) => emit(ChatHistoryError(
-              message:
-                  'Failed to refresh chat history after save: ${failure.toString()}')),
-          (conversations) =>
-              emit(ChatHistoryLoaded(conversations: conversations)),
-        );
       },
     );
   }
 
-  FutureOr<void> _onDeleteChatConversation(
-    DeleteChatConversation event,
+  Future<void> _onDeleteConversation(
+    DeleteConversation event,
     Emitter<ChatHistoryState> emit,
   ) async {
-    // Optimistic update
-    final currentState = state;
-    if (currentState is ChatHistoryLoaded) {
-      final updatedConversations = List<ChatConversation>.from(
-        currentState.conversations.where((conv) => conv.id != event.id),
-      );
-      emit(ChatHistoryLoaded(conversations: updatedConversations));
-    }
+    final List<ChatConversation> conversationsBeforeDelete =
+        state.conversations;
+    final String? currentConversationIdBeforeDelete =
+        state.currentConversationId;
+    final List<ChatMessage> activeConversationMessagesBeforeDelete =
+        state.activeConversationMessages;
 
-    final failureOrUnit = await _deleteChatConversationUseCase(event.id);
-    failureOrUnit.fold(
+    emit(ChatHistoryLoading(
+      conversations: conversationsBeforeDelete,
+      currentConversationId: currentConversationIdBeforeDelete,
+      activeConversationMessages: activeConversationMessagesBeforeDelete,
+    ));
+
+    final result = await _deleteConversationUseCase(event.conversationId);
+
+    result.fold(
       (failure) {
-        // If the deletion fails, revert the optimistic update and emit an error
-        emit(
-          ChatHistoryError(
-            message: 'Failed to delete conversation: ${failure.toString()}',
-            conversations: currentState is ChatHistoryLoaded
-                ? currentState.conversations // Revert to previous state
-                : [],
-          ),
-        );
-        // Re-fetch to ensure state consistency if optimistic update failed
-        add(LoadChatHistory());
+        emit(ChatHistoryError(
+          message: (failure as dynamic).message ??
+              'An unknown error occurred during deletion.',
+          conversations: conversationsBeforeDelete,
+          currentConversationId: currentConversationIdBeforeDelete,
+          activeConversationMessages: activeConversationMessagesBeforeDelete,
+        ));
       },
       (_) {
-        // Deletion successful, state is already updated optimistically
+        final updatedConversations = conversationsBeforeDelete
+            .where((conv) => conv.id != event.conversationId)
+            .toList();
+
+        String? newCurrentConversationId = currentConversationIdBeforeDelete;
+        List<ChatMessage> newActiveConversationMessages =
+            activeConversationMessagesBeforeDelete;
+        if (newCurrentConversationId == event.conversationId) {
+          newCurrentConversationId = null;
+          newActiveConversationMessages = const [];
+        }
+
+        emit(ChatHistoryLoaded(
+          conversations: updatedConversations,
+          currentConversationId: newCurrentConversationId,
+          activeConversationMessages: newActiveConversationMessages,
+          message: 'Conversation deleted successfully!',
+        ));
       },
     );
+  }
+}
+
+extension ListExtensions<T> on List<T> {
+  T? firstWhereOrNull(bool Function(T element) test) {
+    for (var element in this) {
+      if (test(element)) {
+        return element;
+      }
+    }
+    return null;
   }
 }

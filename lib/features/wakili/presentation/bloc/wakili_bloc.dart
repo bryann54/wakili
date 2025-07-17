@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -9,6 +10,8 @@ import 'package:wakili/features/wakili/data/models/legal_category.dart';
 import 'package:wakili/features/wakili/domain/usecases/get_legal_categories_usecase.dart';
 import 'package:wakili/features/wakili/domain/usecases/send_message_usecase.dart';
 import 'package:wakili/features/wakili/domain/usecases/send_message_stream_usecase.dart';
+import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // ✨ IMPORT FIREBASE AUTH ✨
 
 part 'wakili_event.dart';
 part 'wakili_state.dart';
@@ -19,6 +22,9 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
   final SendMessageStreamUseCase _sendStreamMessage;
   final ChatHistoryBloc _chatHistoryBloc;
   final GetLegalCategoriesUseCase _getLegalCategories;
+
+  String? _currentConversationId;
+  // Removed hardcoded _currentUserId. It will be fetched dynamically.
 
   WakiliBloc(
     this._sendMessage,
@@ -34,7 +40,25 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     on<LoadExistingChat>(_onLoadExistingChat);
     on<LoadExistingChatWithCategory>(_onLoadExistingChatWithCategory);
     on<LoadLegalCategories>(_onLoadLegalCategories);
-    add(const LoadLegalCategories());
+
+    _chatHistoryBloc.stream.listen((chatHistoryState) {
+      if (chatHistoryState is ChatHistoryLoaded) {
+        _currentConversationId = chatHistoryState.currentConversationId;
+      }
+    });
+
+    // ✨ LOAD CHAT HISTORY WITH AUTHENTICATED USER ID ON BLOC INITIALIZATION ✨
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null) {
+        _chatHistoryBloc.add(LoadChatHistory(userId: user.uid));
+      } else {
+        // Handle unauthenticated state if necessary, e.g., clear chat history
+        _chatHistoryBloc.add(const ChatHistoryLoaded(conversations: [])
+            as ChatHistoryEvent); // Or a different state
+      }
+    });
+
+    add(const LoadLegalCategories()); // Still load categories
   }
 
   FutureOr<void> _onSendMessage(
@@ -64,7 +88,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     );
     result.fold(
       (failure) => emit(WakiliChatErrorState(
-        message: _mapFailure(failure),
+        message: _mapFailureToMessage(failure),
         messages: [...current.messages, userMessage],
         selectedCategory: current.category,
       )),
@@ -84,84 +108,170 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     );
   }
 
-  FutureOr<void> _onSendStreamMessage(
+  Future<void> _onSendStreamMessage(
     SendStreamMessageEvent event,
     Emitter<WakiliState> emit,
   ) async {
-    final current = _extractChatData(state);
-    final contextMessage =
-        _applyCategoryContext(event.message, current.category);
+    final currentState = state;
+    if (currentState is! WakiliChatLoaded) {
+      emit(const WakiliChatLoaded(messages: [], isLoading: true));
+    }
+
+    final WakiliChatLoaded loadedState = (state is WakiliChatLoaded)
+        ? state as WakiliChatLoaded
+        : const WakiliChatLoaded(messages: []);
 
     final userMessage = ChatMessage(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: const Uuid().v4(),
       content: event.message,
       isUser: true,
       timestamp: DateTime.now(),
     );
 
-    emit(WakiliChatLoaded(
-      messages: [...current.messages, userMessage],
+    final updatedMessages = List<ChatMessage>.from(loadedState.messages)
+      ..add(userMessage);
+
+    emit(loadedState.copyWith(
+      messages: updatedMessages,
       isLoading: true,
-      selectedCategory: current.category,
+      error: null,
     ));
 
-    final aiId = DateTime.now().millisecondsSinceEpoch.toString();
-    String accumulated = '';
+    // ✨ GET AUTHENTICATED USER UID HERE ✨
+    final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
 
-    await for (final chunk in _sendStreamMessage(
-      contextMessage,
-      conversationHistory: current.messages,
-    )) {
-      chunk.fold(
-        (failure) {
-          emit(WakiliChatErrorState(
-            message: _mapFailure(failure),
-            messages: [...current.messages, userMessage],
-            selectedCategory: current.category,
-          ));
-        },
-        (chunkContent) {
-          accumulated += chunkContent;
-          final aiMessage = ChatMessage(
-            id: aiId,
-            content: accumulated,
+    if (currentUserUid == null) {
+      // Handle the case where the user is somehow unauthenticated
+      emit(WakiliChatErrorState(
+        message: 'You must be logged in to save conversations.',
+        messages: updatedMessages,
+        selectedCategory: loadedState.selectedCategory,
+        allCategories: loadedState.allCategories,
+      ));
+      return; // Stop further execution if no user
+    }
+
+    // Attempt to save the user message immediately
+    _chatHistoryBloc.add(SaveCurrentConversation(
+      userId: currentUserUid, // ✨ PASS THE ACTUAL UID HERE ✨
+      category: loadedState.selectedCategory ?? 'General',
+      messages: updatedMessages,
+      conversationId: _currentConversationId,
+    ));
+
+    String fullBotResponse = '';
+    await emit.forEach<Either<Failure, String>>(
+      _sendStreamMessage(
+        event.message,
+        conversationHistory: updatedMessages,
+      ),
+      onData: (either) {
+        return either.fold(
+          (failure) {
+            return WakiliChatErrorState(
+              message: _mapFailureToMessage(failure),
+              messages: updatedMessages,
+              selectedCategory: loadedState.selectedCategory,
+              allCategories: loadedState.allCategories,
+            );
+          },
+          (chunk) {
+            fullBotResponse += chunk;
+            final List<ChatMessage> currentMessages =
+                List.from(updatedMessages);
+            int botMessageIndex = -1;
+            for (int i = currentMessages.length - 1; i >= 0; i--) {
+              if (!currentMessages[i].isUser) {
+                botMessageIndex = i;
+                break;
+              }
+            }
+
+            if (botMessageIndex != -1) {
+              currentMessages[botMessageIndex] =
+                  currentMessages[botMessageIndex].copyWith(
+                content: fullBotResponse,
+              );
+            } else {
+              currentMessages.add(ChatMessage(
+                id: const Uuid().v4(),
+                content: fullBotResponse,
+                isUser: false,
+                timestamp: DateTime.now(),
+              ));
+            }
+
+            return loadedState.copyWith(
+              messages: currentMessages,
+              isLoading: true,
+              error: null,
+            );
+          },
+        );
+      },
+      onError: (error, stackTrace) {
+        final Failure failure = _mapErrorToFailure(error);
+        return WakiliChatErrorState(
+          message: _mapFailureToMessage(failure),
+          messages: updatedMessages,
+          selectedCategory: loadedState.selectedCategory,
+          allCategories: loadedState.allCategories,
+        );
+      },
+    ).then((_) {
+      final finalMessages = List<ChatMessage>.from(updatedMessages);
+      if (fullBotResponse.isNotEmpty) {
+        int botMessageIndex = -1;
+        for (int i = finalMessages.length - 1; i >= 0; i--) {
+          if (!finalMessages[i].isUser) {
+            botMessageIndex = i;
+            break;
+          }
+        }
+        if (botMessageIndex != -1) {
+          finalMessages[botMessageIndex] =
+              finalMessages[botMessageIndex].copyWith(
+            content: fullBotResponse,
+          );
+        } else {
+          finalMessages.add(ChatMessage(
+            id: const Uuid().v4(),
+            content: fullBotResponse,
             isUser: false,
             timestamp: DateTime.now(),
-          );
-
-          final updated = [...current.messages, userMessage];
-          final existingIndex = updated.indexWhere((m) => m.id == aiId);
-          if (existingIndex != -1) {
-            updated[existingIndex] = aiMessage;
-          } else {
-            updated.add(aiMessage);
-          }
-
-          emit(WakiliChatLoaded(
-            messages: updated,
-            isLoading: true,
-            selectedCategory: current.category,
           ));
-        },
-      );
-    }
-
-    if (state is WakiliChatLoaded) {
-      emit((state as WakiliChatLoaded).copyWith(isLoading: false));
-    }
+        }
+      }
+      // ✨ GET AUTHENTICATED USER UID HERE AGAIN FOR FINAL SAVE ✨
+      final currentUserUidAfterStream = FirebaseAuth.instance.currentUser?.uid;
+      if (currentUserUidAfterStream != null) {
+        _chatHistoryBloc.add(SaveCurrentConversation(
+          userId: currentUserUidAfterStream, // ✨ PASS THE ACTUAL UID HERE ✨
+          category: loadedState.selectedCategory ?? 'General',
+          messages: finalMessages,
+          conversationId: _currentConversationId,
+        ));
+      } else {
+        print(
+            'Error: User unauthenticated after stream completed, conversation not saved.');
+        // Consider a more robust error handling or state
+      }
+      emit(loadedState.copyWith(isLoading: false));
+    });
   }
 
-  void _onClearChat(ClearChatEvent event, Emitter<WakiliState> emit) {
-    final current = _extractChatData(state);
-
-    if (current.messages.isNotEmpty) {
-      _chatHistoryBloc.add(SaveCurrentChatConversation(current.messages));
-    }
-
+  Future<void> _onClearChat(
+      ClearChatEvent event, Emitter<WakiliState> emit) async {
     emit(WakiliChatLoaded(
-      messages: [],
-      selectedCategory: current.category,
+      messages: const [],
+      selectedCategory: (state is WakiliChatLoaded)
+          ? (state as WakiliChatLoaded).selectedCategory
+          : null,
+      allCategories: (state is WakiliChatLoaded)
+          ? (state as WakiliChatLoaded).allCategories
+          : const [],
     ));
+    _currentConversationId = null;
   }
 
   void _onSetCategoryContext(
@@ -210,30 +320,31 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     final result = await _getLegalCategories();
     result.fold(
       (failure) => emit(WakiliChatErrorState(
-        message: _mapFailure(failure),
+        message: _mapFailureToMessage(failure),
         messages: current.messages,
         selectedCategory: current.category,
-        allCategories:
-            current.allCategories, // Retain existing categories if any
+        allCategories: current.allCategories,
       )),
       (categories) {
         emit(WakiliChatLoaded(
           messages: current.messages,
           isLoading: false,
           selectedCategory: current.category,
-          allCategories: categories, // Set the fetched categories
+          allCategories: categories,
         ));
       },
     );
   }
 
-  void _onLoadExistingChatWithCategory(
+  Future<void> _onLoadExistingChatWithCategory(
     LoadExistingChatWithCategory event,
     Emitter<WakiliState> emit,
-  ) {
+  ) async {
+    _currentConversationId = event.conversationId;
     emit(WakiliChatLoaded(
       messages: event.messages,
       selectedCategory: event.category,
+      isLoading: false,
     ));
   }
 
@@ -265,8 +376,27 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
         : message;
   }
 
-  String _mapFailure(Failure failure) {
-    if (failure is ValidationFailure) return failure.message;
-    return 'Something went wrong';
+  String _mapFailureToMessage(Failure failure) {
+    if (failure is ServerFailure) {
+      return failure.message;
+    } else if (failure is CacheFailure) {
+      return failure.message;
+    } else if (failure is ConnectionFailure) {
+      return failure.message;
+    } else if (failure is ClientFailure) {
+      return failure.message;
+    } else if (failure is ValidationFailure) {
+      return failure.message;
+    } else if (failure is GeneralFailure) {
+      return failure.message;
+    }
+    return 'An unexpected error occurred.';
+  }
+
+  Failure _mapErrorToFailure(Object error) {
+    if (error is Exception) {
+      return GeneralFailure(message: 'Application Error: ${error.toString()}');
+    }
+    return const GeneralFailure(message: 'An unknown critical error occurred.');
   }
 }
