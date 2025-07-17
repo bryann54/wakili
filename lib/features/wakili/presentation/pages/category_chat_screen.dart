@@ -101,8 +101,6 @@ class _CategoryChatScreenState extends State<CategoryChatScreen>
 
   @override
   Widget build(BuildContext context) {
-    final String backgroundImagePath = widget.category.imagePath;
-
     return PopScope(
       canPop: true,
       onPopInvoked: (didPop) {
@@ -116,7 +114,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen>
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            centerTitle: false,
+            centerTitle: true,
             title: Row(
               children: [
                 Text(
@@ -157,104 +155,80 @@ class _CategoryChatScreenState extends State<CategoryChatScreen>
               ),
             ],
           ),
-          body: Stack(
+          body: Column(
             children: [
-              Positioned.fill(
-                child: Image.asset(
-                  backgroundImagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color:
-                          Theme.of(context).colorScheme.surfaceContainerHighest,
-                      child: Center(
-                        child: Icon(Icons.error, color: Colors.grey[400]),
-                      ),
+              Hero(
+                tag: 'category_card_${widget.category.title}',
+                child: Material(
+                  color: Colors.transparent,
+                  child: CategoryFocusBar(category: widget.category),
+                ),
+              ),
+              Expanded(
+                child: BlocConsumer<WakiliBloc, WakiliState>(
+                  listener: (context, state) {
+                    if (state is WakiliChatLoaded ||
+                        state is WakiliChatErrorState) {
+                      _scrollToBottom();
+                      if (state is WakiliChatErrorState) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: ${state.message}'),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.error,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  builder: (context, state) {
+                    List<ChatMessage> messages = [];
+                    bool isLoadingTyping = false;
+
+                    if (state is WakiliChatLoaded) {
+                      messages = state.messages;
+                      isLoadingTyping = state.isLoading;
+                    } else if (state is WakiliChatErrorState) {
+                      messages = state.messages;
+                      isLoadingTyping = false;
+                    }
+
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            controller: _scrollController,
+                            padding: const EdgeInsets.all(16),
+                            itemCount: messages.length,
+                            itemBuilder: (context, index) {
+                              final message = messages[index];
+                              return ChatMessageWidget(message: message);
+                            },
+                          ),
+                        ),
+                        if (isLoadingTyping && messages.isEmpty)
+                          const ChatTypingIndicator()
+                        else if (isLoadingTyping &&
+                            messages.isNotEmpty &&
+                            !messages.last.isUser)
+                          const ChatTypingIndicator(),
+                      ],
                     );
                   },
                 ),
               ),
-              Positioned.fill(
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.4),
-                ),
-              ),
-              Column(
-                children: [
-                  Hero(
-                    tag: 'category_card_${widget.category.title}',
-                    child: Material(
-                      color: Colors.transparent,
-                      child: CategoryFocusBar(category: widget.category),
-                    ),
-                  ),
-                  Expanded(
-                    child: BlocConsumer<WakiliBloc, WakiliState>(
-                      listener: (context, state) {
-                        if (state is WakiliChatLoaded ||
-                            state is WakiliChatErrorState) {
-                          _scrollToBottom();
-                          if (state is WakiliChatErrorState) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Error: ${state.message}'),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.error,
-                              ),
-                            );
-                          }
-                        }
-                      },
-                      builder: (context, state) {
-                        List<ChatMessage> messages = [];
-                        bool isLoadingTyping = false;
-
-                        if (state is WakiliChatLoaded) {
-                          messages = state.messages;
-                          isLoadingTyping = state.isLoading;
-                        } else if (state is WakiliChatErrorState) {
-                          messages = state.messages;
-                          isLoadingTyping = false;
-                        }
-
-                        return Column(
-                          children: [
-                            Expanded(
-                              child: ListView.builder(
-                                controller: _scrollController,
-                                padding: const EdgeInsets.all(16),
-                                itemCount: messages.length,
-                                itemBuilder: (context, index) {
-                                  final message = messages[index];
-                                  return ChatMessageWidget(message: message);
-                                },
-                              ),
-                            ),
-                            if (isLoadingTyping && messages.isEmpty)
-                              const ChatTypingIndicator()
-                            else if (isLoadingTyping &&
-                                messages.isNotEmpty &&
-                                !messages.last.isUser)
-                              const ChatTypingIndicator(),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                  BlocBuilder<WakiliBloc, WakiliState>(
-                    builder: (context, state) {
-                      final isLoading =
-                          state is WakiliChatLoaded && state.isLoading;
-                      return ChatInputField(
-                        messageController: _messageController,
-                        onSendMessage: () =>
-                            _sendMessage(context.read<WakiliBloc>()),
-                        hintText: 'Ask about ${widget.category.title}...',
-                        isLoading: isLoading,
-                      );
-                    },
-                  ),
-                ],
+              BlocBuilder<WakiliBloc, WakiliState>(
+                builder: (context, state) {
+                  final isLoading =
+                      state is WakiliChatLoaded && state.isLoading;
+                  return ChatInputField(
+                    messageController: _messageController,
+                    onSendMessage: () =>
+                        _sendMessage(context.read<WakiliBloc>()),
+                    hintText: 'Ask about ${widget.category.title}...',
+                    isLoading: isLoading,
+                  );
+                },
               ),
             ],
           ),

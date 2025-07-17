@@ -108,7 +108,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen>
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          centerTitle: false,
+          centerTitle: true,
           title: const Row(
             children: [
               CircleAvatar(
@@ -153,37 +153,31 @@ class _GeneralChatScreenState extends State<GeneralChatScreen>
             },
             builder: (context, state) {
               if (state is WakiliChatInitial) {
-                return Stack(
-                  children: [
-                    _buildBackground(),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.chat_bubble_outline,
-                            size: 64,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .outline
-                                .withValues(alpha: 0.7),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Start your conversation with Wakili',
-                            textAlign: TextAlign.center,
-                            style:
-                                Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .outline
-                                          .withValues(alpha: 0.8),
-                                    ),
-                          ),
-                        ],
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.chat_bubble_outline,
+                        size: 64,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outline
+                            .withValues(alpha: 0.7),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      Text(
+                        'Start your conversation with Wakili',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outline
+                                  .withValues(alpha: 0.8),
+                            ),
+                      ),
+                    ],
+                  ),
                 );
               }
 
@@ -198,46 +192,21 @@ class _GeneralChatScreenState extends State<GeneralChatScreen>
                 isLoadingTyping = false;
               }
 
-              return Stack(
+              return Column(
                 children: [
-                  _buildBackground(),
-                  Column(
-                    children: [
-                      Expanded(child: _buildMessagesList(messages)),
-                      if (isLoadingTyping &&
-                          messages.isNotEmpty &&
-                          !messages.last.isUser)
-                        _buildTypingIndicator()
-                      else if (isLoadingTyping && messages.isEmpty)
-                        _buildTypingIndicator(),
-                      _buildChatInput(isLoadingTyping),
-                    ],
-                  ),
+                  Expanded(child: _buildMessagesList(messages)),
+                  if (isLoadingTyping &&
+                      messages.isNotEmpty &&
+                      !messages.last.isUser)
+                    _buildTypingIndicator()
+                  else if (isLoadingTyping && messages.isEmpty)
+                    _buildTypingIndicator(),
+                  _buildChatInput(isLoadingTyping),
                 ],
               );
             },
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildBackground() {
-    return Positioned.fill(
-      child: Stack(
-        children: [
-          Image.asset(
-            'assets/wp.png',
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
-          Container(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.black.withValues(alpha: 0.6)
-                : Colors.black.withValues(alpha: 0.3),
-          ),
-        ],
       ),
     );
   }

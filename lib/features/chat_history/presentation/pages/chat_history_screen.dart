@@ -10,6 +10,7 @@ import 'package:wakili/features/chat_history/presentation/widgets/chat_history_a
 import 'package:wakili/features/chat_history/presentation/widgets/chat_history_search_bar.dart';
 import 'package:wakili/features/chat_history/presentation/widgets/chat_conversation_card.dart';
 import 'package:wakili/features/chat_history/presentation/widgets/chat_history_empty_state.dart';
+import 'package:wakili/features/chat_history/presentation/widgets/shimmer_chat_conversation_card.dart';
 
 @RoutePage()
 class ChatHistoryScreen extends StatefulWidget {
@@ -100,7 +101,6 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
   }
 
   void _navigateToChat(ChatConversation conversation) {
-    // ⭐ Hero Tag: Use a unique tag for each conversation card
     final heroTag = 'conversation-${conversation.id}';
     AutoRouter.of(context).push(
       ChatRoute(
@@ -108,7 +108,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
         conversationId: conversation.id,
         category: conversation.category,
         initialTitle: conversation.title,
-        heroTag: heroTag, // Pass the hero tag to ChatScreen
+        heroTag: heroTag,
       ),
     );
   }
@@ -169,11 +169,10 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
       appBar: ChatHistoryAppBar(
         isSearchVisible: _isSearchVisible,
         onToggleSearch: _toggleSearch,
-        colorScheme: colorScheme, // Pass colorScheme to AppBar
+        colorScheme: colorScheme,
       ),
       body: Column(
         children: [
-          // ⭐ AnimatedSwitcher for graceful search bar appearance/disappearance
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             transitionBuilder: (Widget child, Animation<double> animation) {
@@ -185,7 +184,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
             },
             child: _isSearchVisible
                 ? ChatHistorySearchBar(
-                    key: const ValueKey('search_bar'), // Important for AnimatedSwitcher
+                    key: const ValueKey('search_bar'),
                     searchAnimation: _searchAnimation,
                     searchController: _searchController,
                     searchQuery: _searchQuery,
@@ -217,8 +216,15 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
               },
               builder: (context, state) {
                 if (state is ChatHistoryLoading) {
-                  return Center(
-                    child: CircularProgressIndicator(color: colorScheme.primary),
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: 5,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      return ShimmerChatConversationCard(
+                          colorScheme: colorScheme);
+                    },
                   );
                 }
 
@@ -234,7 +240,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
                   );
                 }
 
-                return RefreshIndicator(
+                return RefreshIndicator.adaptive(
                   onRefresh: () async {
                     if (_currentUserId != null) {
                       context
@@ -246,7 +252,8 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
                   },
                   child: ListView.separated(
                     padding: const EdgeInsets.all(16),
-                    physics: const AlwaysScrollableScrollPhysics(), // Ensure refresh works even with few items
+                    physics:
+                        const AlwaysScrollableScrollPhysics(), // Ensure refresh works even with few items
                     itemCount: filteredConversations.length,
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 12), // Increased spacing
@@ -268,7 +275,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
                                     'Favorite "${conversation.title}" clicked!')),
                           );
                         },
-                        heroTag: heroTag, // Pass the hero tag
+                        heroTag: heroTag,
                       );
                     },
                   ),

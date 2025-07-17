@@ -33,23 +33,24 @@ class ChatConversationCard extends StatelessWidget {
 
     return Card(
       elevation: 3, // Slightly more prominent elevation
-      shadowColor: colorScheme.shadow.withOpacity(0.2), // Softer shadow
-      surfaceTintColor:
-          colorScheme.surfaceTint.withOpacity(0.05), // Material 3 tint
+      shadowColor: colorScheme.shadow
+          .withValues(alpha: 0.2), // Softer shadow (Fixed typo)
+      surfaceTintColor: colorScheme.surfaceTint
+          .withValues(alpha: 0.05), // Material 3 tint (Fixed typo)
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: colorScheme.outline.withOpacity(0.1),
+          color: colorScheme.outline.withValues(alpha: 0.1), // Fixed typo
           width: 1,
         ),
       ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        splashColor:
-            colorScheme.primary.withOpacity(0.1), // Custom splash color
-        highlightColor:
-            colorScheme.primary.withOpacity(0.05), // Custom highlight color
+        splashColor: colorScheme.primary
+            .withValues(alpha: 0.1), // Custom splash color (Fixed typo)
+        highlightColor: colorScheme.primary
+            .withValues(alpha: 0.05), // Custom highlight color (Fixed typo)
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -85,7 +86,8 @@ class ChatConversationCard extends StatelessWidget {
                         label: Text('New',
                             style: TextStyle(
                                 fontSize: 10, color: colorScheme.onSecondary)),
-                        backgroundColor: colorScheme.secondary.withOpacity(0.7),
+                        backgroundColor: colorScheme.secondary
+                            .withValues(alpha: 0.7), // Fixed typo
                         visualDensity: VisualDensity.compact,
                         padding: EdgeInsets.zero,
                       ),
@@ -163,8 +165,8 @@ class ChatConversationCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color:
-                          colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                      color: colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.5), // Fixed typo
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -191,7 +193,8 @@ class ChatConversationCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withOpacity(0.5),
+                      color: colorScheme.primaryContainer
+                          .withValues(alpha: 0.5), // Fixed typo
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(

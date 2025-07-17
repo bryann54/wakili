@@ -108,17 +108,43 @@ class _ChatScreenState extends State<ChatScreen> {
                   )
                 : Text(widget.initialTitle ?? 'Wakili AI Chat'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              AutoRouter.of(context).push(const ChatHistoryRoute());
+          // ⭐ Minimalistic: Replaced individual action buttons with a PopupMenuButton
+          PopupMenuButton<String>(
+            icon: Icon(
+              Icons.more_vert,
+              color: colorScheme.onSurface, // Match app bar foreground color
+            ),
+            onSelected: (value) {
+              if (value == 'chat_history') {
+                AutoRouter.of(context).push(const ChatHistoryRoute());
+              } else if (value == 'clear_chat') {
+                context.read<WakiliBloc>().add(const ClearChatEvent());
+              }
             },
-          ),
-          IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: () {
-              context.read<WakiliBloc>().add(const ClearChatEvent());
-            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'chat_history',
+                child: Row(
+                  children: [
+                    Icon(Icons.history, color: colorScheme.onSurfaceVariant),
+                    const SizedBox(width: 10),
+                    Text('Chat History',
+                        style: TextStyle(color: colorScheme.onSurface)),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'clear_chat',
+                child: Row(
+                  children: [
+                    Icon(Icons.clear, color: colorScheme.error),
+                    const SizedBox(width: 10),
+                    Text('Clear Chat',
+                        style: TextStyle(color: colorScheme.error)),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -156,7 +182,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.chat_bubble_outline,
-                        size: 60, color: colorScheme.primary.withOpacity(0.6)),
+                        size: 60,
+                        color: colorScheme.primary
+                            .withValues(alpha: 0.6)), // Fixed typo
                     const SizedBox(height: 16),
                     Text(
                       'Start your conversation with Wakili',
@@ -170,7 +198,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     Text(
                       'Ask about legal topics, get quick answers, or explore categories.',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+                        color: colorScheme.onSurfaceVariant
+                            .withValues(alpha: 0.8), // Fixed typo
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -223,8 +252,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         margin: EdgeInsets.only(
                           top: 8.0,
                           bottom: 8.0,
-                          left: isUser ? 80.0 : 0.0, // Indent user messages
-                          right: isUser ? 0.0 : 80.0, // Indent AI messages
+                          left: isUser ? 80.0 : 0.0,
+                          right: isUser ? 0.0 : 80.0,
                         ),
                         padding: const EdgeInsets.symmetric(
                             vertical: 12.0, horizontal: 16.0),
@@ -233,15 +262,16 @@ class _ChatScreenState extends State<ChatScreen> {
                               ? colorScheme.primary
                               : colorScheme.surfaceContainerHighest,
                           borderRadius: isUser
-                              ? borderRadius.subtract(BorderRadius.only(
-                                  bottomRight: Radius.circular(
-                                      5))) // Pointy corner for user
-                              : borderRadius.subtract(BorderRadius.only(
-                                  bottomLeft: Radius.circular(
-                                      5))), // Pointy corner for AI
+                              ? borderRadius.subtract(const BorderRadius.only(
+                                  // Fixed typo
+                                  bottomRight: Radius.circular(5)))
+                              : borderRadius.subtract(const BorderRadius.only(
+                                  // Fixed typo
+                                  bottomLeft: Radius.circular(5))),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black
+                                  .withValues(alpha: 0.05), // Fixed typo
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -263,7 +293,8 @@ class _ChatScreenState extends State<ChatScreen> {
               if (isLoading)
                 LinearProgressIndicator(
                   color: colorScheme.primary,
-                  backgroundColor: colorScheme.primary.withOpacity(0.2),
+                  backgroundColor:
+                      colorScheme.primary.withValues(alpha: 0.2), // Fixed typo
                 ),
               if (error != null)
                 Padding(
@@ -286,15 +317,13 @@ class _ChatScreenState extends State<ChatScreen> {
                           hintText: 'Type your legal query...',
                           hintStyle: TextStyle(
                               color: colorScheme.onSurfaceVariant
-                                  .withOpacity(0.7)),
+                                  .withValues(alpha: 0.7)), // Fixed typo
                           border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(30.0), // More rounded
-                            borderSide: BorderSide.none, // No border line
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: BorderSide.none,
                           ),
                           filled: true,
-                          fillColor: colorScheme
-                              .surfaceContainerHigh, // Distinct background
+                          fillColor: colorScheme.surfaceContainerHigh,
                           contentPadding: const EdgeInsets.symmetric(
                               horizontal: 20.0, vertical: 14.0),
                         ),
@@ -314,11 +343,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                 _sendMessage();
                               }
                             },
-                      backgroundColor: colorScheme.primary, // Themed FAB
+                      backgroundColor: colorScheme.primary,
                       foregroundColor: colorScheme.onPrimary,
                       elevation: 4,
-                      shape:
-                          const CircleBorder(), // Ensure it's a perfect circle
+                      shape: const CircleBorder(),
                       child: isLoading
                           ? SizedBox(
                               width: 20,
@@ -333,7 +361,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   ],
                 ),
               ),
-    
             ],
           );
         },
