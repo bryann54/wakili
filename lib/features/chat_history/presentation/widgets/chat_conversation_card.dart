@@ -1,3 +1,4 @@
+// features/chat_history/presentation/widgets/chat_conversation_card.dart
 import 'package:flutter/material.dart';
 import 'package:wakili/common/utils/date_utils.dart'; // Assuming this utility is available
 import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
@@ -8,6 +9,7 @@ class ChatConversationCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final VoidCallback onFavorite;
+  final String heroTag; // ⭐ NEW: Property for Hero tag
 
   const ChatConversationCard({
     super.key,
@@ -16,6 +18,7 @@ class ChatConversationCard extends StatelessWidget {
     required this.onTap,
     required this.onDelete,
     required this.onFavorite,
+    required this.heroTag, // ⭐ NEW
   });
 
   @override
@@ -24,18 +27,29 @@ class ChatConversationCard extends StatelessWidget {
         ? conversation.messages.last.content
         : 'No messages';
 
+    // Determine if the conversation is "new" (e.g., created in the last 24 hours)
+    final isNewConversation =
+        DateTime.now().difference(conversation.timestamp).inHours < 24;
+
     return Card(
-      elevation: 0,
+      elevation: 3, // Slightly more prominent elevation
+      shadowColor: colorScheme.shadow.withOpacity(0.2), // Softer shadow
+      surfaceTintColor:
+          colorScheme.surfaceTint.withOpacity(0.05), // Material 3 tint
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: colorScheme.outline.withValues(alpha: 0.1),
+          color: colorScheme.outline.withOpacity(0.1),
           width: 1,
         ),
       ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
+        splashColor:
+            colorScheme.primary.withOpacity(0.1), // Custom splash color
+        highlightColor:
+            colorScheme.primary.withOpacity(0.05), // Custom highlight color
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -44,17 +58,38 @@ class ChatConversationCard extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      conversation.title, // Use the generated title
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: colorScheme.onSurface,
+                    child:
+                        // ⭐ Hero Widget for Conversation Title
+                        Hero(
+                      tag: heroTag, // Use the provided heroTag
+                      child: Material(
+                        // Wrap Hero child with Material for text to animate smoothly
+                        color: Colors.transparent, // Important for Hero text
+                        child: Text(
+                          conversation.title, // Use the generated title
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: colorScheme.onSurface,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  if (isNewConversation) // "New" label for recent conversations
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Chip(
+                        label: Text('New',
+                            style: TextStyle(
+                                fontSize: 10, color: colorScheme.onSecondary)),
+                        backgroundColor: colorScheme.secondary.withOpacity(0.7),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                      ),
+                    ),
                   PopupMenuButton<String>(
                     onSelected: (value) {
                       switch (value) {
@@ -79,11 +114,11 @@ class ChatConversationCard extends StatelessWidget {
                             Icon(
                               conversation.isFavorite
                                   ? Icons.favorite
-                                  : Icons
-                                      .favorite_border, // Show filled icon if favorited
+                                  : Icons.favorite_border,
                               size: 20,
-                              color:
-                                  conversation.isFavorite ? Colors.red : null,
+                              color: conversation.isFavorite
+                                  ? Colors.red
+                                  : colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 12),
                             Text(conversation.isFavorite
@@ -119,14 +154,17 @@ class ChatConversationCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Row(
+              Wrap(
+                // Use Wrap for better layout on smaller screens
+                spacing: 8, // Horizontal spacing
+                runSpacing: 8, // Vertical spacing
                 children: [
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest
-                          .withValues(alpha: 0.5),
+                      color:
+                          colorScheme.surfaceContainerHighest.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -149,13 +187,11 @@ class ChatConversationCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color:
-                          colorScheme.primaryContainer.withValues(alpha: 0.5),
+                      color: colorScheme.primaryContainer.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(

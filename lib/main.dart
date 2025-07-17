@@ -1,5 +1,6 @@
 // main.dart
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'package:wakili/common/helpers/app_router.dart';
 import 'package:wakili/common/notifiers/locale_provider.dart';
 import 'package:wakili/common/widgets/global_bloc_observer.dart';
@@ -9,13 +10,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/provider.dart';
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
 import 'package:wakili/firebase_options.dart';
+
+import 'package:wakili/features/chat_history/presentation/bloc/chat_history_bloc.dart';
+import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
+import 'package:wakili/features/account/presentation/bloc/account_bloc.dart';
+import 'package:wakili/features/overview/presentation/bloc/overview_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,6 +51,10 @@ void main() async {
   localeProvider.loadLocale();
 
   final AuthBloc authBloc = getIt<AuthBloc>();
+  final ChatHistoryBloc chatHistoryBloc = getIt<ChatHistoryBloc>();
+  final WakiliBloc wakiliBloc = getIt<WakiliBloc>();
+  final AccountBloc accountBloc = getIt<AccountBloc>();
+  final OverviewBloc overviewBloc = getIt<OverviewBloc>();
 
   runApp(
     MultiProvider(
@@ -53,6 +63,18 @@ void main() async {
         BlocProvider<AuthBloc>(
           create: (context) => authBloc,
           lazy: false,
+        ),
+        BlocProvider<ChatHistoryBloc>(
+          create: (context) => chatHistoryBloc,
+        ),
+        BlocProvider<WakiliBloc>(
+          create: (context) => wakiliBloc,
+        ),
+        BlocProvider<AccountBloc>(
+          create: (context) => accountBloc,
+        ),
+        BlocProvider<OverviewBloc>(
+          create: (context) => overviewBloc,
         ),
       ],
       child: MyApp(authBloc: authBloc),

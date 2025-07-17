@@ -105,8 +105,9 @@ class AccountScreen extends StatelessWidget {
                 radius: 48,
                 backgroundColor:
                     isDarkMode ? Colors.grey[800] : AppColors.dividerColor,
-                backgroundImage:
-                    user.photoUrl != null ? CachedNetworkImageProvider( user.photoUrl!) : null,
+                backgroundImage: user.photoUrl != null
+                    ? CachedNetworkImageProvider(user.photoUrl!)
+                    : null,
                 child: user.photoUrl == null
                     ? Icon(
                         Icons.person,

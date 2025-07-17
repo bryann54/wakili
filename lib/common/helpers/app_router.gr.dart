@@ -147,6 +147,7 @@ class ChatRoute extends _i15.PageRouteInfo<ChatRouteArgs> {
     String? conversationId,
     String? category,
     String? initialTitle,
+    String? heroTag,
     List<_i15.PageRouteInfo>? children,
   }) : super(
           ChatRoute.name,
@@ -156,6 +157,7 @@ class ChatRoute extends _i15.PageRouteInfo<ChatRouteArgs> {
             conversationId: conversationId,
             category: category,
             initialTitle: initialTitle,
+            heroTag: heroTag,
           ),
           initialChildren: children,
         );
@@ -173,6 +175,7 @@ class ChatRoute extends _i15.PageRouteInfo<ChatRouteArgs> {
         conversationId: args.conversationId,
         category: args.category,
         initialTitle: args.initialTitle,
+        heroTag: args.heroTag,
       );
     },
   );
@@ -185,6 +188,7 @@ class ChatRouteArgs {
     this.conversationId,
     this.category,
     this.initialTitle,
+    this.heroTag,
   });
 
   final _i16.Key? key;
@@ -197,9 +201,11 @@ class ChatRouteArgs {
 
   final String? initialTitle;
 
+  final String? heroTag;
+
   @override
   String toString() {
-    return 'ChatRouteArgs{key: $key, initialMessages: $initialMessages, conversationId: $conversationId, category: $category, initialTitle: $initialTitle}';
+    return 'ChatRouteArgs{key: $key, initialMessages: $initialMessages, conversationId: $conversationId, category: $category, initialTitle: $initialTitle, heroTag: $heroTag}';
   }
 }
 

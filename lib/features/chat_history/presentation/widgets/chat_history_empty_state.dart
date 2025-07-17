@@ -1,3 +1,4 @@
+// features/chat_history/presentation/widgets/chat_history_empty_state.dart
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -25,11 +26,9 @@ class ChatHistoryEmptyState extends StatelessWidget {
       icon = FontAwesomeIcons.magnifyingGlassMinus;
     } else if (!hasConversationsBeforeFilter) {
       titleText = 'No chat history yet';
-      descriptionText = 'Start a conversation to see it here.';
+      descriptionText = 'Start a conversation with Wakili to see it here.';
       icon = FontAwesomeIcons.comments;
     } else {
-      // This case should ideally be covered by `isSearchEmpty` being true if filteredConversations is empty.
-      // But as a fallback/clarification for clarity, it means there are conversations, but none match the filter.
       titleText = 'No matching conversations';
       descriptionText = 'No conversations match your current filter.';
       icon = FontAwesomeIcons.magnifyingGlassMinus;
@@ -44,8 +43,17 @@ class ChatHistoryEmptyState extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                color: colorScheme.primaryContainer.withOpacity(0.3),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  // Add a subtle shadow
+                  BoxShadow(
+                    color: colorScheme.primary.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: FaIcon(
                 icon,
@@ -53,25 +61,29 @@ class ChatHistoryEmptyState extends StatelessWidget {
                 color: colorScheme.primary,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28), // Increased spacing
             Text(
               titleText,
               style: TextStyle(
                 color: colorScheme.onSurface,
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
+                fontSize: 22, // Slightly larger font
+                fontWeight: FontWeight.bold, // Bolder
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12), // Increased spacing
             Text(
               descriptionText,
               style: TextStyle(
-                color: colorScheme.onSurfaceVariant,
+                color: colorScheme.onSurfaceVariant
+                    .withOpacity(0.8), // Slightly less opaque
                 fontSize: 16,
               ),
               textAlign: TextAlign.center,
             ),
+            // ⭐ Optional: Add an illustration or Lottie animation here for more visual interest
+            // if you have a design asset for it.
+            // Example: Image.asset('assets/empty_chat.png', height: 150),
           ],
         ),
       ),

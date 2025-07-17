@@ -1,15 +1,15 @@
+// features/chat_history/presentation/screens/chat_history_screen.dart
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:wakili/common/helpers/app_router.gr.dart';
 import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
 import 'package:wakili/features/chat_history/presentation/bloc/chat_history_bloc.dart';
-import 'package:wakili/features/chat_history/presentation/widgets/chat_history_app_bar.dart'; // NEW
-import 'package:wakili/features/chat_history/presentation/widgets/chat_history_search_bar.dart'; // NEW
-import 'package:wakili/features/chat_history/presentation/widgets/chat_conversation_card.dart'; // NEW
-import 'package:wakili/features/chat_history/presentation/widgets/chat_history_empty_state.dart'; // NEW
+import 'package:wakili/features/chat_history/presentation/widgets/chat_history_app_bar.dart';
+import 'package:wakili/features/chat_history/presentation/widgets/chat_history_search_bar.dart';
+import 'package:wakili/features/chat_history/presentation/widgets/chat_conversation_card.dart';
+import 'package:wakili/features/chat_history/presentation/widgets/chat_history_empty_state.dart';
 
 @RoutePage()
 class ChatHistoryScreen extends StatefulWidget {
@@ -100,12 +100,15 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
   }
 
   void _navigateToChat(ChatConversation conversation) {
+    // ⭐ Hero Tag: Use a unique tag for each conversation card
+    final heroTag = 'conversation-${conversation.id}';
     AutoRouter.of(context).push(
       ChatRoute(
         initialMessages: conversation.messages,
         conversationId: conversation.id,
         category: conversation.category,
         initialTitle: conversation.title,
+        heroTag: heroTag, // Pass the hero tag to ChatScreen
       ),
     );
   }
@@ -166,14 +169,29 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
       appBar: ChatHistoryAppBar(
         isSearchVisible: _isSearchVisible,
         onToggleSearch: _toggleSearch,
+        colorScheme: colorScheme, // Pass colorScheme to AppBar
       ),
       body: Column(
         children: [
-          ChatHistorySearchBar(
-            searchAnimation: _searchAnimation,
-            searchController: _searchController,
-            searchQuery: _searchQuery,
-            minConversationsForSearch: _minConversationsForSearch,
+          // ⭐ AnimatedSwitcher for graceful search bar appearance/disappearance
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return SizeTransition(
+                sizeFactor: animation,
+                axisAlignment: -1.0,
+                child: child,
+              );
+            },
+            child: _isSearchVisible
+                ? ChatHistorySearchBar(
+                    key: const ValueKey('search_bar'), // Important for AnimatedSwitcher
+                    searchAnimation: _searchAnimation,
+                    searchController: _searchController,
+                    searchQuery: _searchQuery,
+                    minConversationsForSearch: _minConversationsForSearch,
+                  )
+                : const SizedBox.shrink(key: ValueKey('no_search_bar')),
           ),
           Expanded(
             child: BlocConsumer<ChatHistoryBloc, ChatHistoryState>(
@@ -200,8 +218,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
               builder: (context, state) {
                 if (state is ChatHistoryLoading) {
                   return Center(
-                    child:
-                        CircularProgressIndicator(color: colorScheme.primary),
+                    child: CircularProgressIndicator(color: colorScheme.primary),
                   );
                 }
 
@@ -229,11 +246,14 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
                   },
                   child: ListView.separated(
                     padding: const EdgeInsets.all(16),
+                    physics: const AlwaysScrollableScrollPhysics(), // Ensure refresh works even with few items
                     itemCount: filteredConversations.length,
                     separatorBuilder: (context, index) =>
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12), // Increased spacing
                     itemBuilder: (context, index) {
                       final conversation = filteredConversations[index];
+                      // ⭐ Hero Tag generation for each item
+                      final heroTag = 'conversation-${conversation.id}';
                       return ChatConversationCard(
                         conversation: conversation,
                         colorScheme: colorScheme,
@@ -248,6 +268,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
                                     'Favorite "${conversation.title}" clicked!')),
                           );
                         },
+                        heroTag: heroTag, // Pass the hero tag
                       );
                     },
                   ),
