@@ -1,3 +1,4 @@
+// wakili_bloc.dart
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
@@ -5,13 +6,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:wakili/core/errors/failures.dart';
 import 'package:wakili/features/chat_history/presentation/bloc/chat_history_bloc.dart';
-import 'package:wakili/features/wakili/data/models/chat_message.dart';
+import 'package:wakili/features/wakili/data/models/chat_message.dart'; // Corrected import path
 import 'package:wakili/features/wakili/data/models/legal_category.dart';
 import 'package:wakili/features/wakili/domain/usecases/get_legal_categories_usecase.dart';
 import 'package:wakili/features/wakili/domain/usecases/send_message_usecase.dart';
 import 'package:wakili/features/wakili/domain/usecases/send_message_stream_usecase.dart';
 import 'package:uuid/uuid.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // ✨ IMPORT FIREBASE AUTH ✨
+import 'package:firebase_auth/firebase_auth.dart';
 
 part 'wakili_event.dart';
 part 'wakili_state.dart';
@@ -24,7 +25,6 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
   final GetLegalCategoriesUseCase _getLegalCategories;
 
   String? _currentConversationId;
-  // Removed hardcoded _currentUserId. It will be fetched dynamically.
 
   WakiliBloc(
     this._sendMessage,
@@ -40,25 +40,33 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     on<LoadExistingChat>(_onLoadExistingChat);
     on<LoadExistingChatWithCategory>(_onLoadExistingChatWithCategory);
     on<LoadLegalCategories>(_onLoadLegalCategories);
+    on<SaveCurrentChatEvent>(_onSaveCurrentChatEvent);
 
     _chatHistoryBloc.stream.listen((chatHistoryState) {
       if (chatHistoryState is ChatHistoryLoaded) {
-        _currentConversationId = chatHistoryState.currentConversationId;
+        if (_currentConversationId == null &&
+            chatHistoryState.currentConversationId != null &&
+            chatHistoryState.activeConversationMessages.isNotEmpty) {
+          _currentConversationId = chatHistoryState.currentConversationId;
+        }
+        if (chatHistoryState.currentConversationId != null &&
+            state is WakiliChatLoaded &&
+            (state as WakiliChatLoaded).messages.isNotEmpty &&
+            _currentConversationId == null) {
+          _currentConversationId = chatHistoryState.currentConversationId;
+        }
       }
     });
 
-    // ✨ LOAD CHAT HISTORY WITH AUTHENTICATED USER ID ON BLOC INITIALIZATION ✨
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
         _chatHistoryBloc.add(LoadChatHistory(userId: user.uid));
       } else {
-        // Handle unauthenticated state if necessary, e.g., clear chat history
-        _chatHistoryBloc.add(const ChatHistoryLoaded(conversations: [])
-            as ChatHistoryEvent); // Or a different state
+        _chatHistoryBloc.add(const ClearChatHistoryEvent());
       }
     });
 
-    add(const LoadLegalCategories()); // Still load categories
+    add(const LoadLegalCategories());
   }
 
   FutureOr<void> _onSendMessage(
@@ -70,7 +78,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
         _applyCategoryContext(event.message, current.category);
 
     final userMessage = ChatMessage(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: const Uuid().v4(),
       content: event.message,
       isUser: true,
       timestamp: DateTime.now(),
@@ -80,6 +88,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       messages: [...current.messages, userMessage],
       isLoading: true,
       selectedCategory: current.category,
+      allCategories: current.allCategories,
     ));
 
     final result = await _sendMessage(
@@ -91,24 +100,27 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
         message: _mapFailureToMessage(failure),
         messages: [...current.messages, userMessage],
         selectedCategory: current.category,
+        allCategories: current.allCategories,
       )),
       (response) {
         final aiMessage = ChatMessage(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          id: const Uuid().v4(),
           content: response,
           isUser: false,
           timestamp: DateTime.now(),
         );
+        final updatedMessages = [...current.messages, userMessage, aiMessage];
         emit(WakiliChatLoaded(
-          messages: [...current.messages, userMessage, aiMessage],
+          messages: updatedMessages,
           isLoading: false,
           selectedCategory: current.category,
+          allCategories: current.allCategories,
         ));
       },
     );
   }
 
-  Future<void> _onSendStreamMessage(
+  FutureOr<void> _onSendStreamMessage(
     SendStreamMessageEvent event,
     Emitter<WakiliState> emit,
   ) async {
@@ -119,7 +131,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
 
     final WakiliChatLoaded loadedState = (state is WakiliChatLoaded)
         ? state as WakiliChatLoaded
-        : const WakiliChatLoaded(messages: []);
+        : const WakiliChatLoaded(messages: [], allCategories: []);
 
     final userMessage = ChatMessage(
       id: const Uuid().v4(),
@@ -137,27 +149,17 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       error: null,
     ));
 
-    // ✨ GET AUTHENTICATED USER UID HERE ✨
     final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
 
     if (currentUserUid == null) {
-      // Handle the case where the user is somehow unauthenticated
       emit(WakiliChatErrorState(
         message: 'You must be logged in to save conversations.',
         messages: updatedMessages,
         selectedCategory: loadedState.selectedCategory,
         allCategories: loadedState.allCategories,
       ));
-      return; // Stop further execution if no user
+      return;
     }
-
-    // Attempt to save the user message immediately
-    _chatHistoryBloc.add(SaveCurrentConversation(
-      userId: currentUserUid, // ✨ PASS THE ACTUAL UID HERE ✨
-      category: loadedState.selectedCategory ?? 'General',
-      messages: updatedMessages,
-      conversationId: _currentConversationId,
-    ));
 
     String fullBotResponse = '';
     await emit.forEach<Either<Failure, String>>(
@@ -242,26 +244,40 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
           ));
         }
       }
-      // ✨ GET AUTHENTICATED USER UID HERE AGAIN FOR FINAL SAVE ✨
-      final currentUserUidAfterStream = FirebaseAuth.instance.currentUser?.uid;
-      if (currentUserUidAfterStream != null) {
-        _chatHistoryBloc.add(SaveCurrentConversation(
-          userId: currentUserUidAfterStream, // ✨ PASS THE ACTUAL UID HERE ✨
-          category: loadedState.selectedCategory ?? 'General',
-          messages: finalMessages,
-          conversationId: _currentConversationId,
-        ));
-      } else {
-        print(
-            'Error: User unauthenticated after stream completed, conversation not saved.');
-        // Consider a more robust error handling or state
-      }
-      emit(loadedState.copyWith(isLoading: false));
+      emit(loadedState.copyWith(
+          messages: finalMessages, isLoading: false, error: null));
     });
   }
 
-  Future<void> _onClearChat(
+  FutureOr<void> _onSaveCurrentChatEvent(
+      SaveCurrentChatEvent event, Emitter<WakiliState> emit) async {
+    final current = _extractChatData(state);
+    final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+
+    if (currentUserUid != null && current.messages.isNotEmpty) {
+      _chatHistoryBloc.add(SaveCurrentConversation(
+        userId: currentUserUid,
+        category: current.category ?? 'General',
+        messages: current.messages,
+        conversationId: _currentConversationId,
+      ));
+    }
+  }
+
+  FutureOr<void> _onClearChat(
       ClearChatEvent event, Emitter<WakiliState> emit) async {
+    final current = _extractChatData(state);
+    final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+
+    if (currentUserUid != null && current.messages.isNotEmpty) {
+      _chatHistoryBloc.add(SaveCurrentConversation(
+        userId: currentUserUid,
+        category: current.category ?? 'General',
+        messages: current.messages,
+        conversationId: _currentConversationId,
+      ));
+    }
+
     emit(WakiliChatLoaded(
       messages: const [],
       selectedCategory: (state is WakiliChatLoaded)
@@ -270,6 +286,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       allCategories: (state is WakiliChatLoaded)
           ? (state as WakiliChatLoaded).allCategories
           : const [],
+      isLoading: false,
     ));
     _currentConversationId = null;
   }
@@ -282,6 +299,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     emit(WakiliChatLoaded(
       messages: current.messages,
       selectedCategory: event.category,
+      allCategories: current.allCategories,
     ));
   }
 
@@ -293,15 +311,23 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     emit(WakiliChatLoaded(
       messages: current.messages,
       selectedCategory: null,
+      allCategories: current.allCategories,
     ));
   }
 
-  void _onLoadExistingChat(
+  FutureOr<void> _onLoadExistingChat(
     LoadExistingChat event,
     Emitter<WakiliState> emit,
-  ) {
+  ) async {
+    if (event.conversationId != null) {
+      _currentConversationId = event.conversationId;
+    } else {
+      _currentConversationId = null;
+    }
+
     emit(WakiliChatLoaded(
       messages: event.messages,
+      isLoading: false,
     ));
   }
 
@@ -336,7 +362,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
     );
   }
 
-  Future<void> _onLoadExistingChatWithCategory(
+  FutureOr<void> _onLoadExistingChatWithCategory(
     LoadExistingChatWithCategory event,
     Emitter<WakiliState> emit,
   ) async {
@@ -345,6 +371,7 @@ class WakiliBloc extends Bloc<WakiliEvent, WakiliState> {
       messages: event.messages,
       selectedCategory: event.category,
       isLoading: false,
+      allCategories: _extractChatData(state).allCategories,
     ));
   }
 

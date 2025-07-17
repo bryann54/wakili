@@ -11,7 +11,7 @@ class SaveCurrentConversation extends ChatHistoryEvent {
   final String userId;
   final String category;
   final List<ChatMessage> messages;
-  final String? conversationId; // Null for new conversations
+  final String? conversationId;
 
   const SaveCurrentConversation({
     required this.userId,
@@ -55,4 +55,11 @@ class DeleteConversation extends ChatHistoryEvent {
 
   @override
   List<Object> get props => [conversationId, userId];
+}
+
+class ClearChatHistoryEvent extends ChatHistoryEvent {
+  const ClearChatHistoryEvent();
+
+  @override
+  List<Object?> get props => [];
 }

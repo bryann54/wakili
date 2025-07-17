@@ -1,3 +1,4 @@
+// chat_history_state.dart
 part of 'chat_history_bloc.dart';
 
 abstract class ChatHistoryState extends Equatable {

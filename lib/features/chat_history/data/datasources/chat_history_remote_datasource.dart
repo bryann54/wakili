@@ -1,6 +1,7 @@
+// features/chat_history/data/datasources/chat_history_remote_datasource.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
-import 'package:wakili/features/wakili/data/models/chat_message.dart';
+import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
 
 @injectable
 class ChatHistoryRemoteDataSource {
@@ -9,33 +10,22 @@ class ChatHistoryRemoteDataSource {
   ChatHistoryRemoteDataSource(this._firestore);
 
   static const String _chatCollectionName = 'chatConversations';
-
-  /// Saves a list of chat messages as a single conversation.
-
   Future<String> saveConversation({
-    required String userId,
-    required String category,
-    required List<ChatMessage> messages,
-    String? conversationId,
+    required ChatConversation conversation,
   }) async {
     try {
-      final conversationData = {
-        'userId': userId,
-        'category': category,
-        'timestamp': FieldValue.serverTimestamp(),
-        'messages': messages.map((msg) => _chatMessageToMap(msg)).toList(),
-      };
+      final Map<String, dynamic> dataToSave = conversation.toJson();
 
-      if (conversationId != null) {
+      if (conversation.id.isNotEmpty &&
+          conversation.id != 'new_conversation_temp_id') {
         await _firestore
             .collection(_chatCollectionName)
-            .doc(conversationId)
-            .update(conversationData);
-        return conversationId;
+            .doc(conversation.id)
+            .set(dataToSave, SetOptions(merge: true));
+        return conversation.id;
       } else {
-        final docRef = await _firestore
-            .collection(_chatCollectionName)
-            .add(conversationData);
+        final docRef =
+            await _firestore.collection(_chatCollectionName).add(dataToSave);
         return docRef.id;
       }
     } catch (e) {
@@ -43,7 +33,6 @@ class ChatHistoryRemoteDataSource {
     }
   }
 
-  /// Fetches all conversations for a given user.
   Future<List<Map<String, dynamic>>> getConversations(String userId) async {
     try {
       final querySnapshot = await _firestore
@@ -59,7 +48,6 @@ class ChatHistoryRemoteDataSource {
     }
   }
 
-  /// Fetches a specific conversation by its ID.
   Future<Map<String, dynamic>?> getConversationById(
       String conversationId) async {
     try {
@@ -76,7 +64,6 @@ class ChatHistoryRemoteDataSource {
     }
   }
 
-  /// Deletes a conversation by its ID.
   Future<void> deleteConversation(String conversationId) async {
     try {
       await _firestore
@@ -86,23 +73,5 @@ class ChatHistoryRemoteDataSource {
     } catch (e) {
       throw Exception('Failed to delete conversation: $e');
     }
-  }
-
-  Map<String, dynamic> _chatMessageToMap(ChatMessage message) {
-    return {
-      'id': message.id,
-      'content': message.content,
-      'isUser': message.isUser,
-      'timestamp': message.timestamp.toIso8601String(),
-      'messageType': message.messageType,
-      'metadata': message.metadata,
-      'parentMessageId': message.parentMessageId,
-      'isEdited': message.isEdited,
-      'editedAt': message.editedAt?.toIso8601String(),
-      'originalContent': message.originalContent,
-      'attachments': message.attachments,
-      'confidenceScore': message.confidenceScore,
-      'isBookmarked': message.isBookmarked,
-    };
   }
 }

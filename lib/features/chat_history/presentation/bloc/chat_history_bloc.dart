@@ -1,3 +1,6 @@
+// chat_history_bloc.dart
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
@@ -8,6 +11,7 @@ import 'package:wakili/features/chat_history/domain/usecases/get_conversation_by
 import 'package:wakili/features/chat_history/domain/usecases/get_conversations_usecase.dart';
 import 'package:wakili/features/chat_history/domain/usecases/save_conversation_usecase.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
+import 'package:uuid/uuid.dart';
 
 part 'chat_history_event.dart';
 part 'chat_history_state.dart';
@@ -27,26 +31,37 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
     this._deleteConversationUseCase,
     this._generateChatTitleUseCase,
   ) : super(const ChatHistoryInitial()) {
-    // Use const with ChatHistoryInitial
     on<SaveCurrentConversation>(_onSaveCurrentConversation);
     on<LoadChatHistory>(_onLoadChatHistory);
     on<LoadSingleConversation>(_onLoadSingleConversation);
     on<DeleteConversation>(_onDeleteConversation);
+    on<ClearChatHistoryEvent>(_onClearChatHistory);
   }
 
-  Future<void> _onSaveCurrentConversation(
+  FutureOr<void> _onSaveCurrentConversation(
     SaveCurrentConversation event,
     Emitter<ChatHistoryState> emit,
   ) async {
+    if (event.messages.isEmpty) {
+      emit(ChatHistoryLoaded(
+        conversations: state.conversations,
+        currentConversationId: state.currentConversationId,
+        activeConversationMessages: state.activeConversationMessages,
+        message: 'No messages to save.',
+      ));
+      return;
+    }
+
     final currentConversations = state.conversations;
     emit(ChatHistoryLoading(
       conversations: currentConversations,
       currentConversationId: state.currentConversationId,
-      activeConversationMessages:
-          event.messages, // Update active messages during save
+      activeConversationMessages: event.messages,
     ));
 
-    // Generate the title before saving
+    final String conversationIdToSave =
+        event.conversationId ?? const Uuid().v4();
+
     final String generatedTitle =
         await _generateChatTitleUseCase(event.messages);
 
@@ -54,8 +69,8 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
       userId: event.userId,
       category: event.category,
       messages: event.messages,
-      conversationId: event.conversationId,
-      title: generatedTitle, // Pass the generated title here
+      conversationId: conversationIdToSave,
+      title: generatedTitle,
     ));
 
     result.fold(
@@ -65,13 +80,26 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
         currentConversationId: state.currentConversationId,
         activeConversationMessages: state.activeConversationMessages,
       )),
-      (conversationId) {
+      (_) {
         add(LoadChatHistory(userId: event.userId));
+        emit(ChatHistoryLoaded(
+          conversations: currentConversations,
+          currentConversationId: conversationIdToSave,
+          activeConversationMessages: event.messages,
+          message: 'Chat saved successfully!',
+        ));
       },
     );
   }
 
-  Future<void> _onLoadChatHistory(
+  FutureOr<void> _onClearChatHistory(
+    ClearChatHistoryEvent event,
+    Emitter<ChatHistoryState> emit,
+  ) {
+    emit(const ChatHistoryInitial());
+  }
+
+  FutureOr<void> _onLoadChatHistory(
     LoadChatHistory event,
     Emitter<ChatHistoryState> emit,
   ) async {
@@ -91,22 +119,18 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
             .map((map) => ChatConversation.fromJson(map))
             .toList();
 
-        // Ensure  current active conversation messages are maintained if its ID matches
         String? newCurrentConversationId = state.currentConversationId;
         List<ChatMessage> newActiveConversationMessages =
             state.activeConversationMessages;
 
-        if (newCurrentConversationId != null &&
-            !conversations.any((conv) => conv.id == newCurrentConversationId)) {
-          // If the current conversation is no longer in the loaded list (e.g., deleted by another device)
-          newCurrentConversationId = null;
-          newActiveConversationMessages = const [];
-        } else if (newCurrentConversationId != null) {
-          // If the current conversation is still in the list, update its messages
+        if (newCurrentConversationId != null) {
           final updatedActiveConversation = conversations
               .firstWhereOrNull((conv) => conv.id == newCurrentConversationId);
           if (updatedActiveConversation != null) {
             newActiveConversationMessages = updatedActiveConversation.messages;
+          } else {
+            newCurrentConversationId = null;
+            newActiveConversationMessages = const [];
           }
         }
 
@@ -122,11 +146,10 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
     );
   }
 
-  Future<void> _onLoadSingleConversation(
+  FutureOr<void> _onLoadSingleConversation(
     LoadSingleConversation event,
     Emitter<ChatHistoryState> emit,
   ) async {
-    // Preserve current conversations list from the previous state
     final List<ChatConversation> previousConversations = state.conversations;
 
     emit(ChatHistoryLoading(
@@ -176,7 +199,7 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
     );
   }
 
-  Future<void> _onDeleteConversation(
+  FutureOr<void> _onDeleteConversation(
     DeleteConversation event,
     Emitter<ChatHistoryState> emit,
   ) async {

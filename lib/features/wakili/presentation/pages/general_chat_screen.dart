@@ -1,3 +1,4 @@
+// features/wakili/presentation/screens/general_chat_screen.dart
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +7,8 @@ import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
+import 'package:wakili/features/wakili/presentation/widgets/chat_message_widget.dart'; // Import ChatMessageWidget
+import 'package:wakili/features/wakili/presentation/widgets/chat_typing_indicator.dart'; // Import ChatTypingIndicator
 
 @RoutePage()
 class GeneralChatScreen extends StatefulWidget {
@@ -24,7 +27,8 @@ class GeneralChatScreen extends StatefulWidget {
   State<GeneralChatScreen> createState() => _GeneralChatScreenState();
 }
 
-class _GeneralChatScreenState extends State<GeneralChatScreen> {
+class _GeneralChatScreenState extends State<GeneralChatScreen>
+    with WidgetsBindingObserver {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   late WakiliBloc _wakiliBloc;
@@ -32,15 +36,19 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _wakiliBloc = GetIt.instance<WakiliBloc>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialMessages != null &&
           widget.initialMessages!.isNotEmpty) {
-        _wakiliBloc.add(LoadExistingChat(widget.initialMessages!));
+        _wakiliBloc.add(LoadExistingChat(
+          widget.initialMessages!,
+          widget.conversationId,
+        ));
       } else if (widget.initialMessage != null &&
           widget.initialMessage!.isNotEmpty) {
-        _sendInitialMessage(widget.initialMessage!);
+        _wakiliBloc.add(SendStreamMessageEvent(widget.initialMessage!));
       } else {
         _wakiliBloc.add(const ClearChatEvent());
       }
@@ -49,15 +57,21 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _wakiliBloc.add(const SaveCurrentChatEvent());
+    }
+  }
+
+  @override
   void dispose() {
+    _wakiliBloc.add(const SaveCurrentChatEvent());
+
+    WidgetsBinding.instance.removeObserver(this);
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
-  }
-
-  void _sendInitialMessage(String message) {
-    _wakiliBloc.add(SendMessageEvent(message));
-    _scrollToBottom();
   }
 
   void _sendMessage() {
@@ -65,7 +79,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     if (messageText.isEmpty) return;
 
     _messageController.clear();
-    _wakiliBloc.add(SendMessageEvent(messageText));
+    _wakiliBloc.add(SendStreamMessageEvent(messageText));
     _scrollToBottom();
   }
 
@@ -83,91 +97,126 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: false,
-        title: const Row(
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundImage: AssetImage('assets/dp.png'),
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (didPop) {
+        if (didPop) {
+          _wakiliBloc.add(const SaveCurrentChatEvent());
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: false,
+          title: const Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundImage: AssetImage('assets/dp.png'),
+              ),
+              SizedBox(width: 12),
+              Text(
+                'Wakili',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.history),
+              onPressed: () {
+                AutoRouter.of(context).push(const ChatHistoryRoute());
+              },
             ),
-            SizedBox(width: 12),
-            Text(
-              'Wakili',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            IconButton(
+              icon: const Icon(Icons.clear),
+              onPressed: () {
+                context.read<WakiliBloc>().add(const ClearChatEvent());
+              },
             ),
+            IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              AutoRouter.of(context).push(const ChatHistoryRoute());
+        body: BlocProvider.value(
+          value: _wakiliBloc,
+          child: BlocConsumer<WakiliBloc, WakiliState>(
+            listener: (context, state) {
+              if (state is WakiliChatErrorState) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                  ),
+                );
+              }
             },
-          ),
-          IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: () {
-              context.read<WakiliBloc>().add(const ClearChatEvent());
-            },
-          ),
-          IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
-        ],
-      ),
-      body: BlocProvider.value(
-        value: _wakiliBloc,
-        child: BlocConsumer<WakiliBloc, WakiliState>(
-          listener: (context, state) {
-            if (state is WakiliChatErrorState) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                ),
-              );
-            }
-          },
-          builder: (context, state) {
-            if (state is WakiliChatInitial) {
+            builder: (context, state) {
+              if (state is WakiliChatInitial) {
+                return Stack(
+                  children: [
+                    _buildBackground(),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 64,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .outline
+                                .withValues(alpha: 0.7),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Start your conversation with Wakili',
+                            textAlign: TextAlign.center,
+                            style:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outline
+                                          .withValues(alpha: 0.8),
+                                    ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              List<ChatMessage> messages = [];
+              bool isLoadingTyping = false;
+
+              if (state is WakiliChatLoaded) {
+                messages = state.messages;
+                isLoadingTyping = state.isLoading;
+              } else if (state is WakiliChatErrorState) {
+                messages = state.messages;
+                isLoadingTyping = false;
+              }
+
               return Stack(
                 children: [
                   _buildBackground(),
-                  const Center(child: CircularProgressIndicator()),
+                  Column(
+                    children: [
+                      Expanded(child: _buildMessagesList(messages)),
+                      if (isLoadingTyping &&
+                          messages.isNotEmpty &&
+                          !messages.last.isUser)
+                        _buildTypingIndicator()
+                      else if (isLoadingTyping && messages.isEmpty)
+                        _buildTypingIndicator(),
+                      _buildChatInput(isLoadingTyping),
+                    ],
+                  ),
                 ],
               );
-            }
-
-            List<ChatMessage> messages = [];
-            bool isLoading = false;
-
-            if (state is WakiliChatLoaded) {
-              messages = state.messages;
-              isLoading = state.isLoading;
-            } else if (state is WakiliChatErrorState) {
-              messages = state.messages;
-              isLoading = false;
-            }
-
-            return Stack(
-              children: [
-                _buildBackground(),
-                Column(
-                  children: [
-                    SizedBox(
-                      height:
-                          MediaQuery.of(context).padding.top + kToolbarHeight,
-                    ),
-                    Expanded(child: _buildMessagesList(messages)),
-                    if (isLoading) _buildTypingIndicator(),
-                    _buildChatInput(isLoading),
-                  ],
-                ),
-              ],
-            );
-          },
+            },
+          ),
         ),
       ),
     );
@@ -221,93 +270,19 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
       );
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToBottom();
-    });
-
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       itemCount: messages.length,
       itemBuilder: (context, index) {
         final message = messages[index];
-        return _buildMessageBubble(message);
+        return ChatMessageWidget(message: message);
       },
     );
   }
 
-  Widget _buildMessageBubble(ChatMessage message) {
-    return Align(
-      alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.8,
-        ),
-        decoration: BoxDecoration(
-          color: message.isUser
-              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.9)
-              : Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
-          borderRadius: BorderRadius.circular(16).copyWith(
-            bottomRight: message.isUser ? const Radius.circular(4) : null,
-            bottomLeft: !message.isUser ? const Radius.circular(4) : null,
-          ),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Text(
-          message.content,
-          style: TextStyle(
-            color: message.isUser
-                ? Theme.of(context).colorScheme.onPrimary
-                : Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildTypingIndicator() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Wakili is typing...',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+    return const ChatTypingIndicator();
   }
 
   Widget _buildChatInput(bool isLoading) {

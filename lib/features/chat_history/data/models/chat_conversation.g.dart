@@ -30,13 +30,14 @@ class ChatConversationAdapter extends TypeAdapter<ChatConversation> {
       summary: fields[10] as String?,
       messageCount: fields[11] as int?,
       searchKeywords: (fields[12] as List?)?.cast<String>(),
+      userId: fields[13] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, ChatConversation obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -62,7 +63,9 @@ class ChatConversationAdapter extends TypeAdapter<ChatConversation> {
       ..writeByte(11)
       ..write(obj.messageCount)
       ..writeByte(12)
-      ..write(obj.searchKeywords);
+      ..write(obj.searchKeywords)
+      ..writeByte(13)
+      ..write(obj.userId);
   }
 
   @override

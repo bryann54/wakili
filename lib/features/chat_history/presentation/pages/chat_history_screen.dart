@@ -164,7 +164,6 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: ChatHistoryAppBar(
-        // Using the new AppBar widget
         isSearchVisible: _isSearchVisible,
         onToggleSearch: _toggleSearch,
       ),
@@ -212,7 +211,6 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
 
                 if (filteredConversations.isEmpty) {
                   return ChatHistoryEmptyState(
-                    // Using the new EmptyState widget
                     colorScheme: colorScheme,
                     isSearchEmpty: _searchQuery.isNotEmpty,
                     hasConversationsBeforeFilter: conversations.isNotEmpty,
@@ -226,7 +224,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
                           .read<ChatHistoryBloc>()
                           .add(LoadChatHistory(userId: _currentUserId!));
                     } else {
-                      _loadUserIdAndChatHistory(); // Attempt to re-authenticate and load
+                      _loadUserIdAndChatHistory();
                     }
                   },
                   child: ListView.separated(
@@ -237,7 +235,6 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
                     itemBuilder: (context, index) {
                       final conversation = filteredConversations[index];
                       return ChatConversationCard(
-                        // Using the new ConversationCard widget
                         conversation: conversation,
                         colorScheme: colorScheme,
                         onTap: () => _navigateToChat(conversation),

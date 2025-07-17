@@ -1,3 +1,4 @@
+// features/wakili/presentation/screens/wakili_chat_screen.dart
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -113,7 +114,8 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                     CircleAvatar(
                       radius: 18,
                       backgroundColor: Theme.of(context).colorScheme.primary,
-                      child: CircleAvatar(
+                      child: const CircleAvatar(
+                        // Added const
                         radius: 18,
                         backgroundImage: AssetImage('assets/dp.png'),
                       ),
@@ -161,6 +163,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
         Navigator.of(context).pop();
+        // This will now push to the GeneralChatScreen which includes the PopScope and WidgetsBindingObserver
         AutoRouter.of(context).push(GeneralChatRoute(initialMessage: message));
       }
     } catch (e) {
@@ -189,7 +192,6 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
         create: (context) => GetIt.instance<WakiliBloc>(),
         child: BlocConsumer<WakiliBloc, WakiliState>(
           listener: (context, state) {
-            // You can add listeners here for error messages or navigation based on state
             if (state is WakiliChatErrorState) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -200,85 +202,79 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
             }
           },
           builder: (context, wakiliState) {
-            // Renamed state to wakiliState to avoid confusion
-            return BlocBuilder<AuthBloc, AuthState>(
-              // New BlocBuilder for AuthBloc
-              builder: (context, authState) {
-                String? firstName;
-                if (authState is AuthAuthenticated) {
-                  // Extract the first name from displayName
-                  firstName = authState.user.displayName?.split(' ').first;
-                }
+            String? firstName;
+            final authState = context
+                .watch<AuthBloc>()
+                .state; // Use context.watch for AuthState
+            if (authState is AuthAuthenticated) {
+              firstName = authState.user.displayName?.split(' ').first;
+            }
 
-                List<LegalCategory> categories = [];
-                bool isLoading = false;
+            List<LegalCategory> categories = [];
+            bool isLoading = false;
 
-                if (wakiliState is WakiliChatLoaded) {
-                  categories =
-                      _getFilteredCategories(wakiliState.allCategories);
-                  isLoading = wakiliState.isLoading;
-                } else if (wakiliState is WakiliChatErrorState) {
-                  categories =
-                      _getFilteredCategories(wakiliState.allCategories);
-                  isLoading = false;
-                }
+            if (wakiliState is WakiliChatLoaded) {
+              categories = _getFilteredCategories(wakiliState.allCategories);
+              isLoading = wakiliState.isLoading;
+            } else if (wakiliState is WakiliChatErrorState) {
+              categories = _getFilteredCategories(wakiliState.allCategories);
+              isLoading = false;
+            }
 
-                return FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 55),
-                      WakiliWelcomeHeader(
-                          firstName: firstName), // Pass the firstName here
-                      const SizedBox(height: 14),
-                      WakiliSearchBar(
-                        controller: _searchController,
-                        onChanged: (value) {
-                          setState(() {
-                            _searchQuery = value;
-                          });
-                        },
-                      )
-                          .animate()
-                          .slideX(begin: 1, end: 0, curve: Curves.easeOut)
-                          .fadeIn(duration: 500.ms, delay: 500.ms),
-                      const SizedBox(height: 16),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: categories.isEmpty && isLoading
-                              ? const CategoryShimmerGridView()
-                              : categories.isEmpty && !isLoading
-                                  ? Center(
-                                      child: Text(
-                                        'No categories found.',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyLarge
-                                            ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurfaceVariant, // Use theme colors
-                                            ),
-                                      ),
-                                    )
-                                  : CategoryGridView(
-                                      categories: categories,
-                                      onCategorySelected: _onCategorySelected,
-                                    ),
-                        ),
-                      ),
-                    ],
+            return FadeTransition(
+              opacity: _fadeAnimation,
+              child: Column(
+                children: [
+                  const SizedBox(height: 55),
+                  WakiliWelcomeHeader(firstName: firstName),
+                  const SizedBox(height: 14),
+                  WakiliSearchBar(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                  )
+                      .animate()
+                      .slideX(begin: 1, end: 0, curve: Curves.easeOut)
+                      .fadeIn(duration: 500.ms, delay: 500.ms),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: categories.isEmpty && isLoading
+                          ? const CategoryShimmerGridView()
+                          : categories.isEmpty && !isLoading
+                              ? Center(
+                                  child: Text(
+                                    'No categories found.',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                  ),
+                                )
+                              : CategoryGridView(
+                                  categories: categories,
+                                  onCategorySelected: _onCategorySelected,
+                                ),
+                    ),
                   ),
-                );
-              },
+                ],
+              ),
             );
           },
         ),
       ),
       floatingActionButton: Builder(builder: (context) {
-        final state = context.watch<WakiliBloc>().state;
-        if (state is WakiliChatLoaded) {}
+        // No direct save logic needed here, just UI.
+        // final state = context.watch<WakiliBloc>().state;
+        // if (state is WakiliChatLoaded) {}
 
         return GestureDetector(
           onTap: () => _showChatInputModal(),
@@ -301,7 +297,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                   color: Theme.of(context)
                       .colorScheme
                       .primary
-                      .withValues(alpha: 0.3),
+                      .withValues(alpha: 0.3), // Corrected alpha usage
                   blurRadius: 12,
                   spreadRadius: 1,
                   offset: const Offset(0, 4),
@@ -314,9 +310,12 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
                   child: CircleAvatar(
+                    key:
+                        ValueKey('dp_avatar'), // Added key for AnimatedSwitcher
                     radius: 18,
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     child: const CircleAvatar(
+                      // Added const
                       radius: 18,
                       backgroundImage: AssetImage('assets/dp.png'),
                     ),

@@ -54,8 +54,8 @@ class ChatHistorySearchBar extends StatelessWidget {
                     borderSide: BorderSide.none,
                   ),
                   filled: true,
-                  fillColor:
-                      colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                  fillColor: colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.5),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 12,

@@ -159,12 +159,12 @@ extension GetItInjectableX on _i174.GetIt {
         remoteDataSource: gh<_i167.AuthRemoteDataSource>()));
     gh.lazySingleton<_i313.WakiliChatRepository>(() =>
         _i644.WakiliChatRepositoryImpl(gh<_i106.WakiliChatRemoteDataSource>()));
+    gh.factory<_i701.GenerateChatTitleUseCase>(
+        () => _i701.GenerateChatTitleUseCase(gh<_i313.WakiliChatRepository>()));
     gh.factory<_i536.SendMessageUseCase>(
         () => _i536.SendMessageUseCase(gh<_i313.WakiliChatRepository>()));
     gh.factory<_i872.SendMessageStreamUseCase>(
         () => _i872.SendMessageStreamUseCase(gh<_i313.WakiliChatRepository>()));
-    gh.factory<_i701.GenerateChatTitleUseCase>(
-        () => _i701.GenerateChatTitleUseCase(gh<_i313.WakiliChatRepository>()));
     gh.factory<_i644.GetLegalCategoriesUseCase>(() =>
         _i644.GetLegalCategoriesUseCase(gh<_i460.LegalCategoryRepository>()));
     gh.lazySingleton<_i993.ChangeLanguageUsecase>(
