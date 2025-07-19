@@ -1,5 +1,3 @@
-// lib/core/chat/wakili_chat_models.dart
-
 class WakiliContext {
   final List<String> provisions;
   final String practicalContext;
@@ -28,7 +26,6 @@ class WakiliContext {
       );
 }
 
-/// different emotional contexts for more empathetic AI responses.
 enum EmotionalContext {
   stressed,
   frustrated,

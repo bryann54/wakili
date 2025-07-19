@@ -1,9 +1,12 @@
+// lib/features/overview/presentation/screens/document_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wakili/common/utils/functions.dart';
 import 'package:wakili/features/overview/domain/entities/legal_document.dart';
-import 'package:wakili/common/helpers/app_router.gr.dart';
+
+import 'package:wakili/features/overview/presentation/widgets/wakili_ai_button.dart';
 
 @RoutePage()
 class DocumentDetailScreen extends StatelessWidget {
@@ -29,13 +32,12 @@ class DocumentDetailScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        // Modified: Using document type in the AppBar's Hero
         title: Hero(
-          tag: 'document-type-${document.id}', // Unique tag for the type Hero
+          tag: 'document-type-${document.id}',
           child: Material(
             type: MaterialType.transparency,
             child: Text(
-              '${_getTypeDisplayName(document.type)} Details',
+              '${getTypeDisplayName(document.type)} Details',
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: colors.onSurface,
@@ -210,25 +212,10 @@ class DocumentDetailScreen extends StatelessWidget {
             // "Ask Wakili AI to Explain" Floating/Fixed Button
             SizedBox(
               width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: () {
-                  context.router.push(
-                    GeneralChatRoute(
-                      initialMessage:
-                          'Explain the ${document.type.name} titled "${document.title}" from the document details.',
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.psychology_alt),
-                label: const Text('Get AI Explanation'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.onPrimary,
-                ),
+              child: WakiliAiButton(
+                initialMessage:
+                    'Explain the ${document.type.name} titled "${document.title}" from the document details.',
+                isFilled: true,
               ),
             ),
           ],
@@ -268,21 +255,5 @@ class DocumentDetailScreen extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  // Helper method to get display name for DocumentType (same as in DocumentCard)
-  String _getTypeDisplayName(DocumentType type) {
-    switch (type) {
-      case DocumentType.bill:
-        return 'Bill';
-      case DocumentType.act:
-        return 'Act';
-      case DocumentType.law:
-        return 'Law';
-      case DocumentType.amendment:
-        return 'Amendment';
-      case DocumentType.regulation:
-        return 'Regulation';
-    }
   }
 }

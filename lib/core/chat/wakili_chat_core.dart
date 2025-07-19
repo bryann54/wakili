@@ -1,4 +1,3 @@
-// lib/core/chat/wakili_chat_core.dart
 import 'dart:async';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:injectable/injectable.dart';
@@ -10,12 +9,10 @@ class ConversationManager {
   ConversationManager();
   final Map<String, List<Content>> _conversations = {};
 
-  /// Keeps only the last 20 messages
   void addMessage(String sessionId, Content message) {
     _conversations[sessionId] ??= [];
     _conversations[sessionId]!.add(message);
 
-    // Maintain a reasonable history size for the model
     const maxHistoryLength = 20;
     if (_conversations[sessionId]!.length > maxHistoryLength) {
       _conversations[sessionId]!
@@ -23,12 +20,10 @@ class ConversationManager {
     }
   }
 
-  /// Retrieves the current conversation history for a session.
   List<Content> getConversationHistory(String sessionId) {
     return _conversations[sessionId] ?? [];
   }
 
-  /// Clears the conversation history for a specific session.
   void clearConversation(String sessionId) {
     _conversations[sessionId]?.clear();
   }
@@ -48,7 +43,7 @@ class WakiliQueryProcessor {
         'discrimination',
         'freedom of expression',
         'data privacy',
-        'right to information',
+        'right to information'
       ],
       shengTerms: ['haki', 'uwazi', 'polisi wameanza'],
     ),
@@ -61,7 +56,7 @@ class WakiliQueryProcessor {
         'workplace harassment',
         'retrenchment',
         'gig economy worker rights',
-        'maternity leave',
+        'maternity leave'
       ],
       shengTerms: ['kazi', 'mshahara', 'boss', 'fired'],
     ),
@@ -75,7 +70,7 @@ class WakiliQueryProcessor {
         'property inheritance',
         'land fraud',
         'title deed process',
-        'rent disputes',
+        'rent disputes'
       ],
       shengTerms: ['nyumba', 'plot', 'landlord', 'rent'],
     ),
@@ -88,7 +83,7 @@ class WakiliQueryProcessor {
         'child support',
         'custody battles',
         'domestic violence',
-        'succession planning',
+        'succession planning'
       ],
       shengTerms: ['ndoa', 'watoto', 'divorce', 'familia'],
     ),
@@ -101,7 +96,7 @@ class WakiliQueryProcessor {
         'bail application',
         'criminal charges',
         'rights during arrest',
-        'plea bargaining',
+        'plea bargaining'
       ],
       shengTerms: ['polisi', 'arrest', 'cell', 'korti'],
     ),
@@ -114,22 +109,19 @@ class WakiliQueryProcessor {
         'contract disputes',
         'licensing',
         'startup legal advice',
-        'intellectual property',
+        'intellectual property'
       ],
       shengTerms: ['biashara', 'business', 'hustle', 'startup'],
     ),
   };
 
-  /// Simulates fetching current web knowledge. In a real app, this would query a search API.
   Future<String> fetchWebKnowledge(String query) async {
-    // Simulate network delay for realism
     await Future.delayed(const Duration(milliseconds: 200));
 
     final queryLower = query.toLowerCase();
     final now = DateTime.now();
     final formatter = DateFormat('MMMM d, yyyy');
 
-    // Updated and more specific mock web knowledge
     if (queryLower.contains('latest property law kenya')) {
       return "BREAKING NEWS (${formatter.format(now.subtract(const Duration(days: 2)))}): The Ministry of Lands is fast-tracking a digital land registry pilot in Kileleshwa, Nairobi.";
     }
@@ -155,48 +147,59 @@ class WakiliQueryProcessor {
     return "No extremely recent web knowledge specifically found for '$query'.";
   }
 
-  /// Detects the emotional context of a user's query.
   EmotionalContext detectEmotionalContext(String query) {
     final queryLower = query.toLowerCase();
 
-    if (queryLower.contains(
-        RegExp(r'(urgent|help|desperate|stressed|worried|scared|emergency)'))) {
+    if (queryLower.contains(RegExp(
+        r'(haraka|emergency|nimesumbuka|shida|taabu|was-was|nimekwama)'))) {
       return EmotionalContext.stressed;
     }
-    if (queryLower
-        .contains(RegExp(r'(frustrated|angry|mad|unfair|ridiculous|stupid)'))) {
+    if (queryLower.contains(RegExp(
+        r'(bwana|shenzi|wazimu|kura|choko|nimechoka|haieleweki|haki-yetu)'))) {
       return EmotionalContext.frustrated;
     }
     if (queryLower.contains(
-        RegExp(r'(confused|not understanding|unclear|lost|complicated)'))) {
+        RegExp(r'(sielewi|confused|mbona|nini|help|inakaaje|vipi)'))) {
       return EmotionalContext.confused;
     }
-    if (queryLower.contains(RegExp(r'(hey|hi|mambo|poa|sawa|niaje)'))) {
+    if (queryLower.contains(
+        RegExp(r'(mambo|niaje|poa|sema|chali|cool|salama|uko|hi|hey)'))) {
       return EmotionalContext.casual;
     }
     return EmotionalContext.neutral;
   }
 
-  /// Detects the relevant legal context of a query using keywords and common scenarios.
+  String _getEmotionalPromptText(EmotionalContext context) {
+    switch (context) {
+      case EmotionalContext.stressed:
+        return "The user sounds stressed 😥. Acknowledge their feeling directly and offer reassurance. Start with: 'Pole sana, maze...' or 'Ah! Hiyo ni shida serious...'";
+      case EmotionalContext.frustrated:
+        return "The user sounds frustrated 😠. Validate their feelings with phrases like 'Naskia hasira yako...' or 'Haki, hiyo inakasirisha.' and provide clear, calming guidance.";
+      case EmotionalContext.confused:
+        return "The user seems confused 🤔. Explain things simply, using analogies if helpful, and assure them it's okay. Start with: 'Usijali, tutaelewana.' or 'Sawa, ngoja nitoe kwa simple...'";
+      case EmotionalContext.casual:
+        return "The user's tone is casual. Match their tone, be friendly and use natural Sheng/Swahili greetings. Start with: 'Poa sana!', 'Mambo chali!', or 'Niaje chica!'";
+      case EmotionalContext.neutral:
+        return "The user's tone is neutral. Be warm, welcoming, and proactive. Start with: 'Karibu Wakili!', 'Hey there!', or 'Sawa, cheki hii...'";
+    }
+  }
+
   WakiliContext? detectLegalContext(String query) {
     final queryLower = query.toLowerCase();
 
     for (final entry in _legalContextMap.entries) {
       if (queryLower.contains(entry.key) ||
-          entry.value.commonScenarios.any(
-            (scenario) => queryLower.contains(scenario.toLowerCase()),
-          ) ||
+          entry.value.commonScenarios
+              .any((scenario) => queryLower.contains(scenario.toLowerCase())) ||
           queryLower.contains(entry.value.practicalContext.toLowerCase()) ||
-          entry.value.shengTerms.any(
-            (term) => queryLower.contains(term.toLowerCase()),
-          )) {
+          entry.value.shengTerms
+              .any((term) => queryLower.contains(term.toLowerCase()))) {
         return entry.value;
       }
     }
     return null;
   }
 
-  /// Checks if the query contains common Sheng words.
   bool containsSheng(String query) {
     final shengWords = [
       'maze',
@@ -211,38 +214,41 @@ class WakiliQueryProcessor {
       'niaje',
       'ndio',
       'hapana',
-      'story'
+      'story',
+      'chali',
+      'chana',
+      'chapaa',
+      'cheki',
+      'chica',
+      'chobo',
+      'chokosh',
+      'choma diskette',
+      'chomeka',
+      'kanyaga',
+      'mucene',
+      'waragi',
+      'ruciu'
     ];
     return shengWords.any((word) => query.toLowerCase().contains(word));
   }
 
-  /// Generates the emotional prompt text based on detected emotional context.
-  String _getEmotionalPromptText(EmotionalContext context) {
-    switch (context) {
-      case EmotionalContext.stressed:
-        return "The user seems stressed. Acknowledge their feeling and offer reassurance.";
-      case EmotionalContext.frustrated:
-        return "The user sounds frustrated. Validate their feelings and provide clear guidance.";
-      case EmotionalContext.confused:
-        return "The user seems confused. Explain things simply and assure them.";
-      case EmotionalContext.casual:
-        return "The user's tone is casual. Match their tone and be friendly.";
-      case EmotionalContext.neutral:
-        return "The user's tone is neutral. Be warm and proactive.";
-    }
-  }
-
-  /// Enhances the original query with detected context, emotional tone, and web knowledge.
   Future<String> enhanceQueryWithContext(String originalQuery) async {
     final context = detectLegalContext(originalQuery);
     final emotionalContext = detectEmotionalContext(originalQuery);
     final isSheng = containsSheng(originalQuery);
 
-    String webKnowledge = await fetchWebKnowledge(
-      context != null
-          ? "${context.commonScenarios.firstOrNull ?? context.practicalContext} Kenya latest news"
-          : "Kenya legal news recent ${originalQuery.split(' ').take(3).join(' ')}",
-    );
+    // Only fetch specific web knowledge if a clear legal context is detected,
+    // or if the query is more than a simple greeting/follow-up.
+    // This helps avoid irrelevant "No extremely recent web knowledge..."
+    String webKnowledge = '';
+    if (context != null || originalQuery.split(' ').length > 4) {
+      // Heuristic: More than 4 words might imply a specific query needing web search
+      webKnowledge = await fetchWebKnowledge(
+        context != null
+            ? "${context.commonScenarios.firstOrNull ?? context.practicalContext} Kenya latest news"
+            : "Kenya legal news recent ${originalQuery.split(' ').take(3).join(' ')}",
+      );
+    }
 
     final now = DateTime.now();
     final dateFormatter = DateFormat('EEEE, MMMM d, yyyy, h:mm:ss a');
@@ -251,22 +257,22 @@ class WakiliQueryProcessor {
     return '''
 User Query: $originalQuery
 Current Date: $formattedDate
-Current Location: Nairobi, Kenya
-Emotional Context: ${emotionalContext.name}
-Language Style: ${isSheng ? 'Sheng-influenced' : 'Standard'}
-${context != null ? 'Detected Legal Context: ${context.practicalContext}' : ''}
-${context != null ? 'Relevant Kenyan Legal Provisions: ${context.provisions.join(', ')}' : ''}
-${webKnowledge.isNotEmpty ? "Latest Interweb Insight: $webKnowledge" : ""}
+Location Context: Nairobi (reference specific areas like Westlands, Kileleshwa, Umoja when relevant)
+Emotional Tone & Response Instruction: ${_getEmotionalPromptText(emotionalContext)}
+Language Style: ${isSheng ? 'Sheng-influenced. Integrate Sheng naturally.' : 'Standard English/Swahili.'}
+${context != null ? 'Detected Legal Area: ${context.practicalContext}' : ''}
+${context != null ? 'Relevant Laws: ${context.provisions.join(', ')}' : ''}
+${webKnowledge.isNotEmpty ? "Breaking News / Latest Interweb Insight: $webKnowledge" : ""}
 
-**As Wakili, respond naturally and empathetically:**
-1. Emotional Acknowledgment: ${_getEmotionalPromptText(emotionalContext)}
-2. Direct Answer & Legal Insight: Provide clear, practical legal guidance.
-3. Practical Next Step: What's the single most important immediate action?
-4. Conversational Bridge: Ask a concise follow-up question.
+**Wakili's Response Guidelines (CRITICAL - Adhere strictly):**
+- You MUST maintain the context of the conversation. If the user's query is a follow-up, respond in relation to the ongoing topic.
+- DO NOT REPEAT THE USER'S EXACT PROMPT OR PHRASES BACK TO THEM in your response. Acknowledge their query naturally without restating it.
+- If the User Query is a simple greeting or does NOT ask a specific question (e.g., "Niaje", "Hello", "Mambo"): **Only provide a simple greeting and an open-ended question.** Follow "A. FOR SIMPLE GREETINGS" in your persona instructions. DO NOT apply the full response structure.
+- If the User Query ASKS A SPECIFIC QUESTION or expresses a PROBLEM (including follow-ups on previous topics): **Follow the full "B. FOR ACTUAL QUESTIONS / PROBLEMS" response structure** from your persona instructions.
+- Be concise. Avoid unnecessary words.
 ''';
   }
 
-  /// Generates context-aware follow-up suggestions for the user.
   List<String> getSuggestedFollowUps(String query) {
     final context = detectLegalContext(query);
     if (context == null) {

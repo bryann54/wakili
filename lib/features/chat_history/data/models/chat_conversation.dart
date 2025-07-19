@@ -1,56 +1,48 @@
+// features/chat_history/data/models/chat_conversation.dart
 import 'package:hive/hive.dart';
 import 'package:wakili/features/wakili/data/models/chat_message.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uuid/uuid.dart';
 part 'chat_conversation.g.dart';
 
 @HiveType(typeId: 1)
 class ChatConversation extends HiveObject {
   @HiveField(0)
   final String id;
-
   @HiveField(1)
   String title;
-
   @HiveField(2)
   final List<ChatMessage> messages;
-
   @HiveField(3)
   final DateTime timestamp;
-
   @HiveField(4)
   final DateTime createdAt;
-
   @HiveField(5)
   DateTime updatedAt;
-
   @HiveField(6)
-  final String? category; // Legal category context
-
+  final String? category;
   @HiveField(7)
-  final List<String> tags; // For better organization
-
+  final List<String> tags;
   @HiveField(8)
   final bool isArchived;
-
   @HiveField(9)
   final bool isFavorite;
-
   @HiveField(10)
-  final String? summary; // AI-generated summary for quick reference
-
+  final String? summary;
   @HiveField(11)
   final int messageCount;
-
   @HiveField(12)
-  final List<String> searchKeywords; // For enhanced search
+  final List<String> searchKeywords;
+  @HiveField(13)
+  final String userId;
 
   ChatConversation({
-    String? id,
+    required this.id,
     required this.title,
     required this.messages,
-    DateTime? timestamp,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    required this.timestamp,
+    required this.createdAt,
+    required this.updatedAt,
     this.category,
     List<String>? tags,
     this.isArchived = false,
@@ -58,31 +50,103 @@ class ChatConversation extends HiveObject {
     this.summary,
     int? messageCount,
     List<String>? searchKeywords,
-  })  : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        timestamp = timestamp ?? DateTime.now(),
-        createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now(),
-        tags = tags ?? [],
+    required this.userId,
+  })  : tags = tags ?? [],
         messageCount = messageCount ?? messages.length,
-        searchKeywords =
-            searchKeywords ?? _generateSearchKeywords(messages, title);
+        searchKeywords = searchKeywords ??
+            ChatConversation.generateSearchKeywords(messages, title);
 
-  // Generate search keywords from messages and title
-  static List<String> _generateSearchKeywords(
+  factory ChatConversation.fromJson(Map<String, dynamic> json) {
+    String conversationTitle = json['title'] as String? ??
+        ((json['messages'] as List?)?.isNotEmpty == true
+            ? (json['messages'][0] as Map<String, dynamic>)['content']
+                    as String? ??
+                'Untitled Conversation'
+            : 'Untitled Conversation');
+
+    List<ChatMessage> parsedMessages = (json['messages'] as List?)
+            ?.map((msgJson) =>
+                ChatMessage.fromJson(msgJson as Map<String, dynamic>))
+            .toList() ??
+        [];
+
+    DateTime parseDateTime(dynamic value) {
+      if (value == null) return DateTime.now();
+      if (value is Timestamp) {
+        return value.toDate();
+      } else if (value is String) {
+        try {
+          return DateTime.parse(value);
+        } catch (e) {
+          print(
+              'Warning: Failed to parse DateTime string: $value. Returning current DateTime.');
+          return DateTime.now();
+        }
+      }
+      if (value is int) {
+        return DateTime.fromMillisecondsSinceEpoch(value);
+      }
+      return DateTime.now();
+    }
+
+    final String parsedUserId = json['userId'] as String? ?? '';
+    if (parsedUserId.isEmpty) {
+      print(
+          'Error: ChatConversation.fromJson received null or empty userId for ID: ${json['id']}');
+    }
+
+    return ChatConversation(
+      id: json['id'] as String,
+      title: conversationTitle,
+      messages: parsedMessages,
+      timestamp: parseDateTime(json['timestamp']),
+      createdAt: parseDateTime(json['createdAt']),
+      updatedAt: parseDateTime(json['updatedAt']),
+      category: json['category'] as String?,
+      tags: List<String>.from(json['tags'] as List? ?? []),
+      isArchived: json['isArchived'] as bool? ?? false,
+      isFavorite: json['isFavorite'] as bool? ?? false,
+      summary: json['summary'] as String?,
+      messageCount: json['messageCount'] as int? ?? parsedMessages.length,
+      searchKeywords: List<String>.from(json['searchKeywords'] as List? ?? []),
+      userId: parsedUserId,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'messages': messages.map((msg) => msg.toJson()).toList(),
+      'timestamp':
+          timestamp.toIso8601String(), // Storing as ISO String for consistency
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'category': category,
+      'tags': tags,
+      'isArchived': isArchived,
+      'isFavorite': isFavorite,
+      'summary': summary,
+      'messageCount': messageCount,
+      'searchKeywords': searchKeywords,
+      'userId': userId,
+    };
+  }
+
+  static String generateUniqueId() {
+    return const Uuid().v4();
+  }
+
+  static List<String> generateSearchKeywords(
       List<ChatMessage> messages, String title) {
     final keywords = <String>{};
 
-    // Add title words
     keywords.addAll(title.toLowerCase().split(' '));
-
-    // Add message content words (first few messages for relevance)
     for (int i = 0; i < messages.length && i < 5; i++) {
       final words = messages[i].content.toLowerCase().split(' ');
-      keywords
-          .addAll(words.where((word) => word.length > 2)); // Filter short words
+      keywords.addAll(words.where((word) => word.length > 2));
     }
 
-    // Remove common stop words
     final stopWords = {
       'the',
       'and',
@@ -142,6 +206,7 @@ class ChatConversation extends HiveObject {
     String? summary,
     int? messageCount,
     List<String>? searchKeywords,
+    String? userId,
   }) {
     return ChatConversation(
       id: id ?? this.id,
@@ -149,7 +214,8 @@ class ChatConversation extends HiveObject {
       messages: messages ?? this.messages,
       timestamp: timestamp ?? this.timestamp,
       createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? DateTime.now(),
+      updatedAt:
+          updatedAt ?? this.updatedAt, // Use existing updatedAt if not provided
       category: category ?? this.category,
       tags: tags ?? this.tags,
       isArchived: isArchived ?? this.isArchived,
@@ -157,44 +223,32 @@ class ChatConversation extends HiveObject {
       summary: summary ?? this.summary,
       messageCount: messageCount ?? this.messageCount,
       searchKeywords: searchKeywords ?? this.searchKeywords,
+      userId: userId ?? this.userId,
     );
   }
 
-  // Helper method to check if conversation matches search query
   bool matchesSearch(String query) {
     final lowerQuery = query.toLowerCase();
 
-    // Check title
     if (title.toLowerCase().contains(lowerQuery)) return true;
-
-    // Check category
     if (category != null && category!.toLowerCase().contains(lowerQuery)) {
       return true;
     }
-
-    // Check tags
     if (tags.any((tag) => tag.toLowerCase().contains(lowerQuery))) return true;
-
-    // Check summary
     if (summary != null && summary!.toLowerCase().contains(lowerQuery)) {
       return true;
     }
-
-    // Check search keywords
     if (searchKeywords.any((keyword) => keyword.contains(lowerQuery))) {
       return true;
     }
-
-    // Check recent messages content
     if (messages.any((msg) => msg.content.toLowerCase().contains(lowerQuery))) {
       return true;
     }
-
     return false;
   }
 
   @override
   String toString() {
-    return 'ChatConversation(id: $id, title: $title, messageCount: $messageCount, timestamp: $timestamp)';
+    return 'ChatConversation(id: $id, title: $title, messageCount: $messageCount, timestamp: $timestamp, userId: $userId)';
   }
 }

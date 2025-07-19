@@ -1,10 +1,26 @@
+// chat_history_state.dart
 part of 'chat_history_bloc.dart';
 
 abstract class ChatHistoryState extends Equatable {
-  const ChatHistoryState();
+  final List<ChatConversation> conversations;
+  final String? currentConversationId;
+  final List<ChatMessage> activeConversationMessages;
+  final String? message;
+
+  const ChatHistoryState({
+    this.conversations = const [],
+    this.currentConversationId,
+    this.activeConversationMessages = const [],
+    this.message,
+  });
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [
+        conversations,
+        currentConversationId,
+        activeConversationMessages,
+        message,
+      ];
 }
 
 class ChatHistoryInitial extends ChatHistoryState {
@@ -12,27 +28,28 @@ class ChatHistoryInitial extends ChatHistoryState {
 }
 
 class ChatHistoryLoading extends ChatHistoryState {
-  const ChatHistoryLoading();
+  const ChatHistoryLoading({
+    super.conversations,
+    super.currentConversationId,
+    super.activeConversationMessages,
+    super.message,
+  });
 }
 
 class ChatHistoryLoaded extends ChatHistoryState {
-  final List<ChatConversation> conversations;
-
-  const ChatHistoryLoaded({required this.conversations});
-
-  @override
-  List<Object?> get props => [conversations];
+  const ChatHistoryLoaded({
+    super.conversations,
+    super.currentConversationId,
+    super.activeConversationMessages,
+    super.message,
+  });
 }
 
 class ChatHistoryError extends ChatHistoryState {
-  final String message;
-  final List<ChatConversation> conversations; // Keep existing data if possible
-
   const ChatHistoryError({
-    required this.message,
-    this.conversations = const [],
-  });
-
-  @override
-  List<Object?> get props => [message, conversations];
+    required String message,
+    super.conversations,
+    super.currentConversationId,
+    super.activeConversationMessages,
+  }) : super(message: message);
 }

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:wakili/features/wakili/data/models/legal_category.dart';
@@ -45,10 +46,10 @@ class CategoryCard extends StatelessWidget {
               children: [
                 // Background Image
                 Positioned.fill(
-                  child: Image.asset(
-                    category.imagePath,
+                  child: CachedNetworkImage(
+                    imageUrl: category.imagePath,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorWidget: (_, __, ___) => Container(
                       color: theme.colorScheme.surfaceContainer,
                       child: Center(
                         child: Icon(

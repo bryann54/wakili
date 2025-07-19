@@ -32,9 +32,9 @@ abstract class RegisterModules {
 
   @lazySingleton
   GoogleSignIn get googleSignIn => GoogleSignIn();
-    @lazySingleton 
+  @lazySingleton
   Uuid get uuid => const Uuid();
-    @lazySingleton 
+  @lazySingleton
   FirebaseStorage get firebaseStorage => FirebaseStorage.instance;
 
   // <------------------------------>
