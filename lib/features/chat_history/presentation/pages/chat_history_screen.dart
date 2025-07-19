@@ -66,6 +66,17 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
     }
   }
 
+  // ⭐ NEW: Method to trigger chat history reload
+  void _refetchChatHistory() {
+    if (_currentUserId != null) {
+      context
+          .read<ChatHistoryBloc>()
+          .add(LoadChatHistory(userId: _currentUserId!));
+    } else {
+      _loadUserIdAndChatHistory(); // Attempt to load user and then chat history
+    }
+  }
+
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
@@ -237,29 +248,23 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
                     colorScheme: colorScheme,
                     isSearchEmpty: _searchQuery.isNotEmpty,
                     hasConversationsBeforeFilter: conversations.isNotEmpty,
+                    onRefetch:
+                        _refetchChatHistory, // ⭐ NEW: Pass the refetch callback
                   );
                 }
 
-                return RefreshIndicator.adaptive(
+                return RefreshIndicator(
                   onRefresh: () async {
-                    if (_currentUserId != null) {
-                      context
-                          .read<ChatHistoryBloc>()
-                          .add(LoadChatHistory(userId: _currentUserId!));
-                    } else {
-                      _loadUserIdAndChatHistory();
-                    }
+                    _refetchChatHistory(); // Use the dedicated refetch method
                   },
                   child: ListView.separated(
                     padding: const EdgeInsets.all(16),
-                    physics:
-                        const AlwaysScrollableScrollPhysics(), // Ensure refresh works even with few items
+                    physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: filteredConversations.length,
                     separatorBuilder: (context, index) =>
-                        const SizedBox(height: 12), // Increased spacing
+                        const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final conversation = filteredConversations[index];
-                      // ⭐ Hero Tag generation for each item
                       final heroTag = 'conversation-${conversation.id}';
                       return ChatConversationCard(
                         conversation: conversation,
@@ -268,7 +273,6 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
                         onDelete: () =>
                             _showDeleteConfirmationDialog(conversation),
                         onFavorite: () {
-                          // TODO: Implement favorite functionality from BLoC/UseCase
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                                 content: Text(

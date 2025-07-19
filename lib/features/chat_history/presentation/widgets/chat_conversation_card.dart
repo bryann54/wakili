@@ -27,30 +27,25 @@ class ChatConversationCard extends StatelessWidget {
         ? conversation.messages.last.content
         : 'No messages';
 
-    // Determine if the conversation is "new" (e.g., created in the last 24 hours)
     final isNewConversation =
         DateTime.now().difference(conversation.timestamp).inHours < 24;
 
     return Card(
-      elevation: 3, // Slightly more prominent elevation
-      shadowColor: colorScheme.shadow
-          .withValues(alpha: 0.2), // Softer shadow (Fixed typo)
-      surfaceTintColor: colorScheme.surfaceTint
-          .withValues(alpha: 0.05), // Material 3 tint (Fixed typo)
+      elevation: 3,
+      shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
+      surfaceTintColor: colorScheme.surfaceTint.withValues(alpha: 0.05),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: colorScheme.outline.withValues(alpha: 0.1), // Fixed typo
+          color: colorScheme.outline.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        splashColor: colorScheme.primary
-            .withValues(alpha: 0.1), // Custom splash color (Fixed typo)
-        highlightColor: colorScheme.primary
-            .withValues(alpha: 0.05), // Custom highlight color (Fixed typo)
+        splashColor: colorScheme.primary.withValues(alpha: 0.1),
+        highlightColor: colorScheme.primary.withValues(alpha: 0.05),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -59,15 +54,12 @@ class ChatConversationCard extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child:
-                        // ⭐ Hero Widget for Conversation Title
-                        Hero(
-                      tag: heroTag, // Use the provided heroTag
+                    child: Hero(
+                      tag: heroTag,
                       child: Material(
-                        // Wrap Hero child with Material for text to animate smoothly
-                        color: Colors.transparent, // Important for Hero text
+                        color: Colors.transparent,
                         child: Text(
-                          conversation.title, // Use the generated title
+                          conversation.title,
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
@@ -157,9 +149,8 @@ class ChatConversationCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Wrap(
-                // Use Wrap for better layout on smaller screens
-                spacing: 8, // Horizontal spacing
-                runSpacing: 8, // Vertical spacing
+                spacing: 8,
+                runSpacing: 8,
                 children: [
                   Container(
                     padding:
@@ -193,8 +184,8 @@ class ChatConversationCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer
-                          .withValues(alpha: 0.5), // Fixed typo
+                      color:
+                          colorScheme.primaryContainer.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(

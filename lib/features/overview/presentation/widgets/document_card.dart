@@ -200,15 +200,14 @@ class DocumentCard extends StatelessWidget {
   }
 }
 
-// Custom clipper for creating the banner diagonal cut
 class BannerClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final path = Path();
-    path.lineTo(0, size.height - 20); // Left side
-    path.lineTo(size.width - 10, 0); // Diagonal cut
-    path.lineTo(size.width, 0); // Top right
-    path.lineTo(0, 0); // Top left
+    path.lineTo(0, size.height - 20);
+    path.lineTo(size.width - 10, 0);
+    path.lineTo(size.width, 0);
+    path.lineTo(0, 0);
     path.close();
     return path;
   }

@@ -55,7 +55,7 @@ class DocumentQuery {
   const DocumentQuery({
     this.filterType,
     this.searchQuery,
-    this.limit = 10,
+    this.limit = 5,
     this.startAfterDocumentId,
     this.orderBy = 'datePublished',
     this.descending = true,

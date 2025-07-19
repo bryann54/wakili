@@ -23,7 +23,7 @@ class _CategoryGridViewState extends State<CategoryGridView>
   late List<AnimationController> _controllers;
   late List<Animation<Offset>> _slideAnimations;
   late List<Animation<double>> _fadeAnimations;
-  late List<bool> _fromLeft; // Track which side each item comes from
+  late List<bool> _fromLeft;
   final math.Random _random = math.Random();
 
   @override
@@ -37,23 +37,20 @@ class _CategoryGridViewState extends State<CategoryGridView>
     _controllers = List.generate(
       widget.categories.length,
       (index) => AnimationController(
-        duration: Duration(
-            milliseconds: 600 +
-                (_random.nextInt(400))), // Random duration between 600-1000ms
+        duration: Duration(milliseconds: 600 + (_random.nextInt(400))),
         vsync: this,
       ),
     );
 
     _fromLeft = List.generate(
       widget.categories.length,
-      (index) => _random.nextBool(), // Randomly choose left or right
+      (index) => _random.nextBool(),
     );
 
     _slideAnimations = List.generate(
       widget.categories.length,
       (index) => Tween<Offset>(
-        begin: Offset(
-            _fromLeft[index] ? -1.5 : 1.5, 0), // Start from left or right
+        begin: Offset(_fromLeft[index] ? -1.5 : 1.5, 0),
         end: Offset.zero,
       ).animate(CurvedAnimation(
         parent: _controllers[index],
@@ -76,7 +73,7 @@ class _CategoryGridViewState extends State<CategoryGridView>
   void _startAnimations() {
     for (int i = 0; i < _controllers.length; i++) {
       Future.delayed(
-        Duration(milliseconds: i * 120), // Stagger the animations
+        Duration(milliseconds: i * 120),
         () {
           if (mounted) {
             _controllers[i].forward();

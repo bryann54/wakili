@@ -43,8 +43,7 @@ class WakiliAiButton extends StatelessWidget {
           );
         },
         style: FilledButton.styleFrom(
-          padding: const EdgeInsets.symmetric(
-              vertical: 16, horizontal: 24), // Adjust padding as needed
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

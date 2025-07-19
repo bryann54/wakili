@@ -1,4 +1,4 @@
-// lib/features/overview/presentation/screens/document_detail_screen.dart (or wherever it's located)
+// lib/features/overview/presentation/screens/document_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:intl/intl.dart';
@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:wakili/common/utils/functions.dart';
 import 'package:wakili/features/overview/domain/entities/legal_document.dart';
 
-import 'package:wakili/features/overview/presentation/widgets/wakili_ai_button.dart'; // <--- Import the new widget
+import 'package:wakili/features/overview/presentation/widgets/wakili_ai_button.dart';
 
 @RoutePage()
 class DocumentDetailScreen extends StatelessWidget {
@@ -74,7 +74,6 @@ class DocumentDetailScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                // FIX: Corrected withValues to withOpacity
                 color: colors.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -190,7 +189,6 @@ class DocumentDetailScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(right: 8.0),
                       child: Chip(
                         label: Text(tag),
-                        // FIX: Corrected withValues to withOpacity
                         backgroundColor:
                             colors.secondaryContainer.withValues(alpha: 0.5),
                         labelStyle: theme.textTheme.labelMedium?.copyWith(
@@ -198,7 +196,6 @@ class DocumentDetailScreen extends StatelessWidget {
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
-                          // FIX: Corrected withValues to withOpacity
                           side: BorderSide(
                               color: colors.secondary.withValues(alpha: 0.2)),
                         ),
@@ -216,10 +213,9 @@ class DocumentDetailScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: WakiliAiButton(
-                // <--- Use the new widget here
                 initialMessage:
                     'Explain the ${document.type.name} titled "${document.title}" from the document details.',
-                isFilled: true, // Use the filled style
+                isFilled: true,
               ),
             ),
           ],
@@ -237,7 +233,6 @@ class DocumentDetailScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // FIX: Corrected withValues to withOpacity
           Icon(icon,
               size: 15, color: colors.onSurfaceVariant.withValues(alpha: 0.7)),
           const SizedBox(width: 12),
