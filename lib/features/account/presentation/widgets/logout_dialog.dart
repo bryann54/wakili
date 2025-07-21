@@ -62,7 +62,6 @@ class CustomLogoutDialog extends StatelessWidget {
                     child: Text(
                       'logout',
                       style: TextStyle(
-                        color: AppColors.textPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),

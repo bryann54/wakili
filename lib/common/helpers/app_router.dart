@@ -52,5 +52,6 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
             page: DocumentDetailRoute.page, guards: [AuthGuard(authBloc)]),
         AutoRoute(page: PaymentRoute.page, guards: [AuthGuard(authBloc)]),
+        AutoRoute(page: EditProfileRoute.page, guards: [AuthGuard(authBloc)]),
       ];
 }

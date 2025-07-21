@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
-
+import 'package:wakili/common/res/colors.dart';
 import 'package:wakili/features/account/presentation/widgets/logout_dialog.dart';
 import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
 
@@ -13,7 +13,29 @@ class LogOutButton extends StatefulWidget {
   State<LogOutButton> createState() => _LogOutButtonState();
 }
 
-class _LogOutButtonState extends State<LogOutButton> {
+class _LogOutButtonState extends State<LogOutButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   void _showLogoutConfirmationDialog() {
     showDialog(
       context: context,
@@ -34,6 +56,8 @@ class _LogOutButtonState extends State<LogOutButton> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthUnauthenticated) {
@@ -47,52 +71,48 @@ class _LogOutButtonState extends State<LogOutButton> {
           );
         }
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            final bool isLoading = state is AuthLoading;
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          final bool isLoading = state is AuthLoading;
 
-            return ElevatedButton(
-              onPressed: isLoading ? null : _showLogoutConfirmationDialog,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(204, 2, 15, 49),
-                foregroundColor: Colors.white,
-                elevation: 2,
-                shadowColor: Colors.black.withValues(alpha: 0.2),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                minimumSize: const Size(double.infinity, 50),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-              ),
-              child: isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.logout, size: 20),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Log Out',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
+          return AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _scaleAnimation.value,
+                child: GestureDetector(
+                  onTapDown: (_) => _controller.forward(),
+                  onTapUp: (_) {
+                    _controller.reverse();
+                    if (!isLoading) _showLogoutConfirmationDialog();
+                  },
+                  onTapCancel: () => _controller.reverse(),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isDarkMode ? Colors.grey[850] : Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: isDarkMode
+                              ? Colors.black.withOpacity(0.4)
+                              : Colors.grey.withOpacity(0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-            );
-          },
-        ),
+                    child: Icon(
+                      Icons.logout,
+                      size: 24,
+                      color: AppColors.brandPrimary,
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

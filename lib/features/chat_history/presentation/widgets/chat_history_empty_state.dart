@@ -73,7 +73,8 @@ class ChatHistoryEmptyState extends StatelessWidget {
             top: screenSize.height * 0.4 + yOffset,
             child: FaIcon(
               _getBackgroundIcon(index),
-              color: colorScheme.primary.withOpacity(0.08 + (index % 3) * 0.02),
+              color: colorScheme.primary
+                  .withValues(alpha: 0.08 + (index % 3) * 0.02),
               size: isSmall ? 16.0 : 24.0,
             )
                 .animate(
@@ -136,20 +137,20 @@ class ChatHistoryEmptyState extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            colorScheme.primaryContainer.withOpacity(0.4),
-            colorScheme.primaryContainer.withOpacity(0.2),
+            colorScheme.primaryContainer.withValues(alpha: 0.4),
+            colorScheme.primaryContainer.withValues(alpha: 0.2),
           ],
         ),
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withOpacity(0.15),
+            color: colorScheme.primary.withValues(alpha: 0.15),
             blurRadius: 20,
             spreadRadius: 0,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: colorScheme.primary.withOpacity(0.1),
+            color: colorScheme.primary.withValues(alpha: 0.1),
             blurRadius: 40,
             spreadRadius: 0,
             offset: const Offset(0, 16),
@@ -194,7 +195,7 @@ class ChatHistoryEmptyState extends StatelessWidget {
       child: Text(
         config.descriptionText,
         style: TextStyle(
-          color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
           fontSize: 16,
           height: 1.5,
         ),
@@ -214,14 +215,14 @@ class ChatHistoryEmptyState extends StatelessWidget {
         children: [
           Icon(
             Icons.keyboard_arrow_down_rounded,
-            color: colorScheme.onSurfaceVariant.withOpacity(0.6),
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
             size: 20,
           ),
           const SizedBox(width: 8),
           Text(
             'Pull down to refresh',
             style: TextStyle(
-              color: colorScheme.onSurfaceVariant.withOpacity(0.6),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),

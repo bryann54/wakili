@@ -11,6 +11,8 @@ import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dar
 import 'package:wakili/features/wakili/presentation/widgets/chat_typing_indicator.dart';
 import 'package:wakili/features/wakili/presentation/widgets/category_focus_bar.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
+import 'package:wakili/features/wakili/presentation/widgets/chat_empty_state.dart'; // Import the new empty state widget
+import 'package:google_fonts/google_fonts.dart'; // Ensure this is imported for GoogleFonts
 
 @RoutePage()
 class CategoryChatScreen extends StatefulWidget {
@@ -101,6 +103,8 @@ class _CategoryChatScreenState extends State<CategoryChatScreen>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return PopScope(
       canPop: true,
       onPopInvoked: (didPop) {
@@ -115,16 +119,13 @@ class _CategoryChatScreenState extends State<CategoryChatScreen>
             backgroundColor: Colors.transparent,
             elevation: 0,
             centerTitle: true,
-            title: Row(
-              children: [
-                Text(
-                  '${widget.category.title} Wakili',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+            title: Text(
+              '${widget.category.title} Wakili',
+              style: GoogleFonts.montserrat(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
             ),
             actions: [
               PopupMenuButton<String>(
@@ -174,8 +175,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen>
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Error: ${state.message}'),
-                            backgroundColor:
-                                Theme.of(context).colorScheme.error,
+                            backgroundColor: colorScheme.error,
                           ),
                         );
                       }
@@ -184,13 +184,25 @@ class _CategoryChatScreenState extends State<CategoryChatScreen>
                   builder: (context, state) {
                     List<ChatMessage> messages = [];
                     bool isLoadingTyping = false;
+                    bool isInitialOrEmpty = false;
 
                     if (state is WakiliChatLoaded) {
                       messages = state.messages;
                       isLoadingTyping = state.isLoading;
+                      isInitialOrEmpty = messages.isEmpty && !isLoadingTyping;
                     } else if (state is WakiliChatErrorState) {
                       messages = state.messages;
                       isLoadingTyping = false;
+                      isInitialOrEmpty = messages.isEmpty;
+                    } else if (state is WakiliChatInitial) {
+                      isInitialOrEmpty = true;
+                    }
+
+                    if (isInitialOrEmpty) {
+                      return ChatEmptyState(
+                        categoryTitle: widget.category.title,
+                        colorScheme: colorScheme,
+                      );
                     }
 
                     return Column(
