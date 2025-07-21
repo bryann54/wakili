@@ -19,14 +19,14 @@ import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 import 'package:uuid/uuid.dart' as _i706;
 
-import '../../features/account/data/datasources/account_local_datasource.dart'
-    as _i29;
+import '../../features/account/data/datasources/account_remote_datasource.dart'
+    as _i302;
 import '../../features/account/data/repositories/account_repository_impl.dart'
     as _i857;
 import '../../features/account/domain/repositories/account_repository.dart'
     as _i1067;
-import '../../features/account/domain/usecases/change_language_usecase.dart'
-    as _i993;
+import '../../features/account/domain/usecases/update_user_profile_usecase.dart'
+    as _i475;
 import '../../features/account/presentation/bloc/account_bloc.dart' as _i708;
 import '../../features/auth/data/datasources/auth_remoteDataSource.dart'
     as _i167;
@@ -132,6 +132,13 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.lazySingleton<_i487.LegalDocumentRepository>(() =>
         _i1072.LegalDocumentRepositoryImpl(gh<_i974.FirebaseFirestore>()));
+    gh.lazySingleton<_i302.AccountRemoteDataSource>(
+        () => _i302.AccountRemoteDataSourceImpl(
+              firebaseAuth: gh<_i59.FirebaseAuth>(),
+              firebaseStorage: gh<_i457.FirebaseStorage>(),
+              firestore: gh<_i974.FirebaseFirestore>(),
+              uuid: gh<_i706.Uuid>(),
+            ));
     gh.factory<_i191.ChatHistoryRemoteDataSource>(
         () => _i191.ChatHistoryRemoteDataSource(gh<_i974.FirebaseFirestore>()));
     gh.factory<_i116.LegalCategoryRemoteDataSource>(() =>
@@ -141,10 +148,6 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i656.GenerativeModel>(),
               gh<_i716.WakiliQueryProcessor>(),
             ));
-    gh.lazySingleton<_i29.AccountLocalDatasource>(() =>
-        _i29.AccountLocalDatasource(gh<_i934.SharedPreferencesManager>()));
-    gh.lazySingleton<_i1067.AccountRepository>(
-        () => _i857.AccountRepositoryImpl(gh<_i29.AccountLocalDatasource>()));
     gh.lazySingleton<_i460.LegalCategoryRepository>(() =>
         _i909.LegalCategoryRepositoryImpl(
             gh<_i116.LegalCategoryRemoteDataSource>()));
@@ -152,6 +155,9 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i447.OverviewBloc(gh<_i487.LegalDocumentRepository>()));
     gh.lazySingleton<_i361.Dio>(
         () => registerModules.dio(gh<String>(instanceName: 'BaseUrl')));
+    gh.lazySingleton<_i1067.AccountRepository>(() =>
+        _i857.AccountRepositoryImpl(
+            remoteDataSource: gh<_i302.AccountRemoteDataSource>()));
     gh.lazySingleton<_i371.ChatHistoryRepository>(() =>
         _i914.ChatHistoryRepositoryImpl(
             gh<_i191.ChatHistoryRemoteDataSource>()));
@@ -167,8 +173,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i872.SendMessageStreamUseCase(gh<_i313.WakiliChatRepository>()));
     gh.factory<_i644.GetLegalCategoriesUseCase>(() =>
         _i644.GetLegalCategoriesUseCase(gh<_i460.LegalCategoryRepository>()));
-    gh.lazySingleton<_i993.ChangeLanguageUsecase>(
-        () => _i993.ChangeLanguageUsecase(gh<_i1067.AccountRepository>()));
+    gh.factory<_i475.UpdateUserProfileUseCase>(
+        () => _i475.UpdateUserProfileUseCase(gh<_i1067.AccountRepository>()));
     gh.lazySingleton<_i758.DioClient>(() => _i758.DioClient(
           gh<_i361.Dio>(),
           gh<String>(instanceName: 'ApiKey'),
@@ -185,6 +191,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i46.GetAuthStateChangesUseCase(gh<_i626.AuthRepository>()));
     gh.lazySingleton<_i46.ResetPasswordUseCase>(
         () => _i46.ResetPasswordUseCase(gh<_i626.AuthRepository>()));
+    gh.factory<_i708.AccountBloc>(() => _i708.AccountBloc(
+        updateUserProfileUseCase: gh<_i475.UpdateUserProfileUseCase>()));
     gh.factory<_i375.GetConversationsUseCase>(
         () => _i375.GetConversationsUseCase(gh<_i371.ChatHistoryRepository>()));
     gh.factory<_i866.SaveConversationUseCase>(
@@ -205,8 +213,6 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i546.ClientProvider>(
         () => _i546.ClientProvider(gh<_i758.DioClient>()));
-    gh.factory<_i708.AccountBloc>(
-        () => _i708.AccountBloc(gh<_i993.ChangeLanguageUsecase>()));
     gh.factory<_i393.ChatHistoryBloc>(() => _i393.ChatHistoryBloc(
           gh<_i866.SaveConversationUseCase>(),
           gh<_i375.GetConversationsUseCase>(),

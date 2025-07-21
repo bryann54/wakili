@@ -1,13 +1,14 @@
 // lib/features/auth/presentation/bloc/auth_bloc.dart
 
 import 'dart:async';
-import 'dart:io'; // Import File
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:wakili/features/auth/domain/entities/user_entity.dart';
 import 'package:wakili/features/auth/domain/usecases/auth_usecases.dart';
+
 part 'auth_event.dart';
 part 'auth_state.dart';
 
@@ -19,7 +20,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignOutUseCase signOutUseCase;
   final GetAuthStateChangesUseCase getAuthStateChangesUseCase;
   final ResetPasswordUseCase resetPasswordUseCase;
-  // Removed UploadProfileImageUseCase as it's no longer a direct dependency here
 
   AuthBloc({
     required this.signInWithEmailAndPasswordUseCase,
@@ -28,7 +28,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.signOutUseCase,
     required this.getAuthStateChangesUseCase,
     required this.resetPasswordUseCase,
-    // Removed uploadProfileImageUseCase from constructor
   }) : super(AuthInitial()) {
     on<AuthCheckStatus>(_onAuthCheckStatus);
     on<AuthSignInWithEmailAndPassword>(_onAuthSignInWithEmailAndPassword);
@@ -37,6 +36,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthSignOut>(_onAuthSignOut);
     on<AuthResetPassword>(_onAuthResetPassword);
     on<AuthStatusChanged>(_onAuthStatusChanged);
+    on<AuthUpdateUser>(_onAuthUpdateUser);
 
     getAuthStateChangesUseCase().listen((user) {
       add(AuthStatusChanged(user));
@@ -92,7 +92,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       event.password,
       event.firstName,
       event.lastName,
-      event.profileImage, // Pass the profile image
+      event.profileImage,
     );
     result.fold(
       (failure) => emit(AuthError(message: failure.toString())),
@@ -136,5 +136,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  // Removed _onAuthUploadProfileImage handler
+  FutureOr<void> _onAuthUpdateUser(
+    AuthUpdateUser event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthAuthenticated(user: event.user));
+  }
 }

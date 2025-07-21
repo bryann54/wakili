@@ -27,14 +27,14 @@ class AuthSignUpWithEmailAndPassword extends AuthEvent {
   final String password;
   final String firstName;
   final String lastName;
-  final File? profileImage; // Added profile image
+  final File? profileImage;
 
   const AuthSignUpWithEmailAndPassword({
     required this.email,
     required this.password,
     required this.firstName,
     required this.lastName,
-    this.profileImage, // Make it optional
+    this.profileImage,
   });
 
   @override
@@ -43,7 +43,7 @@ class AuthSignUpWithEmailAndPassword extends AuthEvent {
         password,
         firstName,
         lastName,
-        profileImage ?? '' // Handle null for Equatable comparison
+        profileImage ?? '',
       ];
 }
 
@@ -75,4 +75,13 @@ class AuthStatusChanged extends AuthEvent {
 
   @override
   List<Object> get props => [user ?? Object()];
+}
+
+class AuthUpdateUser extends AuthEvent {
+  final UserEntity user;
+
+  const AuthUpdateUser(this.user);
+
+  @override
+  List<Object> get props => [user];
 }

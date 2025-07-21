@@ -66,14 +66,14 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
     }
   }
 
-  // ⭐ NEW: Method to trigger chat history reload
+  // Method to trigger chat history reload
   void _refetchChatHistory() {
     if (_currentUserId != null) {
       context
           .read<ChatHistoryBloc>()
           .add(LoadChatHistory(userId: _currentUserId!));
     } else {
-      _loadUserIdAndChatHistory(); // Attempt to load user and then chat history
+      _loadUserIdAndChatHistory();
     }
   }
 
@@ -248,14 +248,13 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
                     colorScheme: colorScheme,
                     isSearchEmpty: _searchQuery.isNotEmpty,
                     hasConversationsBeforeFilter: conversations.isNotEmpty,
-                    onRefetch:
-                        _refetchChatHistory, // ⭐ NEW: Pass the refetch callback
+                    onRefetch: _refetchChatHistory,
                   );
                 }
 
-                return RefreshIndicator(
+                return RefreshIndicator.adaptive(
                   onRefresh: () async {
-                    _refetchChatHistory(); // Use the dedicated refetch method
+                    _refetchChatHistory();
                   },
                   child: ListView.separated(
                     padding: const EdgeInsets.all(16),

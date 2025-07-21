@@ -1,3 +1,5 @@
+// lib/features/account/presentation/bloc/account_state.dart
+
 part of 'account_bloc.dart';
 
 abstract class AccountState extends Equatable {
@@ -9,17 +11,22 @@ abstract class AccountState extends Equatable {
 
 class AccountInitial extends AccountState {}
 
-class AccountLoadingState extends AccountState {}
+class AccountLoading extends AccountState {}
 
-class ChangeLanguageSuccess extends AccountState {
-  final String langCode;
+class AccountProfileUpdated extends AccountState {
+  final UserModel user;
 
-  const ChangeLanguageSuccess({required this.langCode});
+  const AccountProfileUpdated({required this.user});
+
+  @override
+  List<Object> get props => [user];
 }
 
-class ChangeLanguageError extends AccountState {
-  final String lang;
-  final String error;
+class AccountError extends AccountState {
+  final String message;
 
-  const ChangeLanguageError(this.error, {required this.lang});
+  const AccountError({required this.message});
+
+  @override
+  List<Object> get props => [message];
 }

@@ -23,7 +23,7 @@ class ChatHistoryEmptyState extends StatelessWidget {
     final EmptyStateConfig config = _getEmptyStateConfig();
     final screenSize = MediaQuery.of(context).size;
 
-    return RefreshIndicator(
+    return RefreshIndicator.adaptive(
       onRefresh: () async {
         if (onRefetch != null) {
           onRefetch!();

@@ -38,7 +38,24 @@ class AccountScreen extends StatelessWidget {
             },
           ),
           BlocListener<AccountBloc, AccountState>(
-            listener: (context, state) {},
+            listener: (context, state) {
+              if (state is AccountError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              } else if (state is AccountProfileUpdated) {
+                context.read<AuthBloc>().add(AuthUpdateUser(state.user));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Profile updated successfully'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
           ),
         ],
         child: BlocBuilder<AuthBloc, AuthState>(
@@ -58,6 +75,7 @@ class AccountScreen extends StatelessWidget {
                     _buildProfileSection(context, authState.user),
                     const SizedBox(height: 24),
                     _buildSupportSection(context),
+                    _buildtipsSection(context),
                     const SizedBox(height: 24),
                     BuyMeCoffeeButton(),
                     const LogOutButton(),
@@ -122,8 +140,6 @@ class AccountScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(width: 20),
-
-        // User Name and Email
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,7 +181,7 @@ class AccountScreen extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Text(
-            'Profile',
+            'Profile details',
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -246,7 +262,6 @@ class AccountScreen extends StatelessWidget {
       leading: Icon(
         icon,
         color: AppColors.brandPrimary,
-        size: 24,
       ),
       title: Text(
         title,
@@ -321,6 +336,56 @@ class AccountScreen extends StatelessWidget {
             trailing: Icon(
               Icons.chevron_right,
               color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
+              size: 24,
+            ),
+            onTap: () {
+              // Navigate to support
+            },
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildtipsSection(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
+        Card(
+          elevation: 0,
+          color: isDarkMode ? Colors.grey[900] : null,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: isDarkMode
+                  ? Colors.grey[700]!.withValues(alpha: 0.5)
+                  : Colors.grey.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
+          child: ListTile(
+            leading: Icon(
+              Icons.auto_awesome,
+              color: AppColors.brandPrimary,
+              size: 24,
+            ),
+            title: Text(
+              'tips & tricks',
+              style: GoogleFonts.montserrat(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+              ),
+            ),
+            trailing: Icon(
+              Icons.chevron_right,
+              color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
+              size: 24,
             ),
             onTap: () {
               // Navigate to support
@@ -338,24 +403,12 @@ class AccountScreen extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return EditProfileDialog(
-          currentFirstName: user.displayName?.split(' ').first ?? '',
-          currentLastName: user.displayName?.split(' ').length > 1
-              ? user.displayName!.split(' ').last
-              : '',
+          currentFirstName: user.firstName ?? '',
+          currentLastName: user.lastName ?? '',
+          currentPhotoUrl: user.photoUrl,
         );
       },
-    ).then((result) {
-      if (result == true) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile updated successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      }
-    });
+    );
   }
 
   void _showChangePasswordDialog(BuildContext context) {
@@ -365,10 +418,13 @@ class AccountScreen extends StatelessWidget {
         return const ChangePassword();
       },
     ).then((result) {
-      if (result == true) {
-        if (context.mounted) {
-          // Handle success UI updates
-        }
+      if (result == true && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Password updated successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     });
   }
