@@ -27,7 +27,7 @@ class AccountScreen extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(state.message),
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppColors.error,
                   ),
                 );
               }
@@ -42,7 +42,7 @@ class AccountScreen extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(state.message),
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppColors.error,
                   ),
                 );
               } else if (state is AccountProfileUpdated) {
@@ -50,7 +50,7 @@ class AccountScreen extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Profile updated successfully'),
-                    backgroundColor: Colors.green,
+                    backgroundColor: AppColors.brandSecondary,
                   ),
                 );
               }
@@ -129,7 +129,7 @@ class AccountScreen extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Profile updated successfully'),
-                        backgroundColor: Colors.green,
+                        backgroundColor: AppColors.brandSecondary,
                       ),
                     );
                   }
@@ -199,7 +199,7 @@ class AccountScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+          
               Text(
                 user.email ?? 'email@example.com',
                 style: GoogleFonts.montserrat(
@@ -257,7 +257,7 @@ class AccountScreen extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Profile updated successfully'),
-                          backgroundColor: Colors.green,
+                          backgroundColor: AppColors.brandSecondary,
                         ),
                       );
                     }

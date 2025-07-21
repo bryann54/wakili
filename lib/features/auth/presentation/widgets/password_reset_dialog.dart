@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:wakili/common/res/colors.dart';
 import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:wakili/features/auth/presentation/widgets/auth_text_field.dart';
 
@@ -62,7 +63,7 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                backgroundColor: Colors.green,
+                backgroundColor: AppColors.brandSecondary,
               ),
             );
           } else if (state is AuthError) {
