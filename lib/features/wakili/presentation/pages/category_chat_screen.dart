@@ -9,10 +9,9 @@ import 'package:wakili/features/wakili/presentation/widgets/chat_message_widget.
 import 'package:wakili/features/wakili/data/models/legal_category.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_typing_indicator.dart';
-import 'package:wakili/features/wakili/presentation/widgets/category_focus_bar.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
-import 'package:wakili/features/wakili/presentation/widgets/chat_empty_state.dart'; // Import the new empty state widget
-import 'package:google_fonts/google_fonts.dart'; // Ensure this is imported for GoogleFonts
+import 'package:wakili/features/wakili/presentation/widgets/chat_empty_state.dart'; 
+import 'package:google_fonts/google_fonts.dart';
 
 @RoutePage()
 class CategoryChatScreen extends StatefulWidget {
@@ -158,13 +157,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen>
           ),
           body: Column(
             children: [
-              Hero(
-                tag: 'category_card_${widget.category.title}',
-                child: Material(
-                  color: Colors.transparent,
-                  child: CategoryFocusBar(category: widget.category),
-                ),
-              ),
+           
               Expanded(
                 child: BlocConsumer<WakiliBloc, WakiliState>(
                   listener: (context, state) {

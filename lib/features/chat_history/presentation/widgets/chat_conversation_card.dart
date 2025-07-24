@@ -1,15 +1,15 @@
 // features/chat_history/presentation/widgets/chat_conversation_card.dart
 import 'package:flutter/material.dart';
-import 'package:wakili/common/utils/date_utils.dart'; // Assuming this utility is available
+import 'package:wakili/common/utils/date_utils.dart';
 import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class ChatConversationCard extends StatelessWidget {
   final ChatConversation conversation;
   final ColorScheme colorScheme;
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final VoidCallback onFavorite;
-  final String heroTag; // ⭐ NEW: Property for Hero tag
+  final String heroTag; 
 
   const ChatConversationCard({
     super.key,
@@ -18,7 +18,7 @@ class ChatConversationCard extends StatelessWidget {
     required this.onTap,
     required this.onDelete,
     required this.onFavorite,
-    required this.heroTag, // ⭐ NEW
+    required this.heroTag,
   });
 
   @override
@@ -90,7 +90,7 @@ class ChatConversationCard extends StatelessWidget {
                         case 'delete':
                           onDelete();
                           break;
-                        case 'favorite':
+                        case 'bookmark':
                           onFavorite();
                           break;
                       }
@@ -102,13 +102,13 @@ class ChatConversationCard extends StatelessWidget {
                     ),
                     itemBuilder: (context) => [
                       PopupMenuItem(
-                        value: 'favorite',
+                        value: 'bookmark',
                         child: Row(
                           children: [
                             Icon(
                               conversation.isFavorite
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
+                                  ? Icons.bookmark
+                                  : Icons.bookmark_border,
                               size: 20,
                               color: conversation.isFavorite
                                   ? Colors.red
@@ -116,8 +116,8 @@ class ChatConversationCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 12),
                             Text(conversation.isFavorite
-                                ? 'Unfavorite'
-                                : 'Favorite'),
+                                ? 'remove bookmark'
+                                : 'Bookmark'),
                           ],
                         ),
                       ),
@@ -164,7 +164,7 @@ class ChatConversationCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          Icons.access_time,
+                          Icons.lock_clock,
                           size: 12,
                           color: colorScheme.onSurfaceVariant,
                         ),
@@ -191,8 +191,8 @@ class ChatConversationCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.chat_bubble_outline,
+                         FaIcon(
+                          FontAwesomeIcons.comments,
                           size: 12,
                           color: colorScheme.onPrimaryContainer,
                         ),

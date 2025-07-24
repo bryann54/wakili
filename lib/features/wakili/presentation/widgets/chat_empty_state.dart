@@ -27,7 +27,7 @@ class ChatEmptyState extends StatelessWidget {
             FaIcon(
            FontAwesomeIcons.comments,
               size: 30,
-              color: colorScheme.primary.withOpacity(0.6),
+              color: colorScheme.primary.withValues(alpha: 0.6),
             )
                 .animate()
                 .scale(
@@ -61,7 +61,7 @@ class ChatEmptyState extends StatelessWidget {
               'Type your question below to get legal guidance from Wakili.',
               style: GoogleFonts.montserrat(
                 fontSize: 14,
-                color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
               ),
               textAlign: TextAlign.center,
             )

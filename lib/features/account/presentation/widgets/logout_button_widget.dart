@@ -5,6 +5,7 @@ import 'package:wakili/common/helpers/app_router.gr.dart';
 import 'package:wakili/common/res/colors.dart';
 import 'package:wakili/features/account/presentation/widgets/logout_dialog.dart';
 import 'package:wakili/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LogOutButton extends StatefulWidget {
   const LogOutButton({super.key});
@@ -95,15 +96,15 @@ class _LogOutButtonState extends State<LogOutButton>
                       boxShadow: [
                         BoxShadow(
                           color: isDarkMode
-                              ? Colors.black.withOpacity(0.4)
-                              : Colors.grey.withOpacity(0.3),
+                              ? Colors.black.withValues(alpha: 0.4)
+                              : Colors.grey.withValues(alpha: 0.3),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: Icon(
-                      Icons.logout,
+                    child: FaIcon(
+                      FontAwesomeIcons.rightFromBracket,
                       size: 24,
                       color: AppColors.brandPrimary,
                     ),

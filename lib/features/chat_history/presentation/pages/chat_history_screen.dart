@@ -129,7 +129,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen>
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AlertDialog.adaptive(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Delete Conversation'),
         content: Text(
