@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
-import 'package:wakili/features/overview/domain/entities/legal_document.dart';
-import 'package:wakili/features/overview/domain/repositories/legal_document_repository.dart';
+import 'package:wakili/features/bills/domain/entities/legal_document.dart';
+import 'package:wakili/features/bills/domain/repositories/legal_document_repository.dart';
 
 part 'overview_event.dart';
 part 'overview_state.dart';

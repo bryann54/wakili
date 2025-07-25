@@ -20,7 +20,7 @@ import 'package:wakili/firebase_options.dart';
 import 'package:wakili/features/chat_history/presentation/bloc/chat_history_bloc.dart';
 import 'package:wakili/features/wakili/presentation/bloc/wakili_bloc.dart';
 import 'package:wakili/features/account/presentation/bloc/account_bloc.dart';
-import 'package:wakili/features/overview/presentation/bloc/overview_bloc.dart';
+import 'package:wakili/features/bills/presentation/bloc/overview_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

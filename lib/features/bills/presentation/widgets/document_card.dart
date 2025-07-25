@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:wakili/common/utils/date_utils.dart';
 import 'package:wakili/common/utils/functions.dart';
-import 'package:wakili/features/overview/domain/entities/legal_document.dart';
+import 'package:wakili/features/bills/domain/entities/legal_document.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
-import 'package:wakili/features/overview/presentation/widgets/wakili_ai_button.dart';
+import 'package:wakili/features/bills/presentation/widgets/wakili_ai_button.dart';
 
 class DocumentCard extends StatelessWidget {
   final LegalDocument document;

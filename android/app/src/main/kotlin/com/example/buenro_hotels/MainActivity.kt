@@ -1,4 +1,4 @@
-package com.example.wakili
+package com.nduko.wakili
 
 import io.flutter.embedding.android.FlutterActivity
 

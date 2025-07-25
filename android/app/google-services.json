@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:749843920861:android:12bb646d9696209c606834",
         "android_client_info": {
-          "package_name": "com.example.wakili"
+          "package_name": "com.nduko.wakili"
         }
       },
       "oauth_client": [
@@ -34,7 +34,7 @@
               "client_id": "749843920861-sgfngm0m061e95khlocpcp0ism9udc1q.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.buenrowakili"
+                "bundle_id": "com.nduko.wakili"
               }
             }
           ]

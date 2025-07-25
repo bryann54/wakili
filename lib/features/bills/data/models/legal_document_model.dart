@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wakili/features/overview/domain/entities/legal_document.dart';
+import 'package:wakili/features/bills/domain/entities/legal_document.dart';
 
 class LegalDocumentModel extends LegalDocument {
   const LegalDocumentModel({

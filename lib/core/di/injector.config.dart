@@ -35,6 +35,11 @@ import '../../features/auth/data/repositories/auth_repositoryImpl.dart'
 import '../../features/auth/domain/repositories/auth_epository.dart' as _i626;
 import '../../features/auth/domain/usecases/auth_usecases.dart' as _i46;
 import '../../features/auth/presentation/bloc/auth_bloc.dart' as _i797;
+import '../../features/bills/data/repositories/legal_document_repository_impl.dart'
+    as _i515;
+import '../../features/bills/domain/repositories/legal_document_repository.dart'
+    as _i524;
+import '../../features/bills/presentation/bloc/overview_bloc.dart' as _i1033;
 import '../../features/chat_history/data/datasources/chat_history_remote_datasource.dart'
     as _i191;
 import '../../features/chat_history/data/repositories/chat_history_repository_impl.dart'
@@ -53,11 +58,6 @@ import '../../features/chat_history/domain/usecases/save_conversation_usecase.da
     as _i866;
 import '../../features/chat_history/presentation/bloc/chat_history_bloc.dart'
     as _i393;
-import '../../features/overview/data/repositories/legal_document_repository_impl.dart'
-    as _i1072;
-import '../../features/overview/domain/repositories/legal_document_repository.dart'
-    as _i487;
-import '../../features/overview/presentation/bloc/overview_bloc.dart' as _i447;
 import '../../features/wakili/data/datasources/legal_category_remote_datasource.dart'
     as _i116;
 import '../../features/wakili/data/datasources/wakili_chat_remote_datasource.dart'
@@ -130,8 +130,8 @@ extension GetItInjectableX on _i174.GetIt {
               firebaseStorage: gh<_i457.FirebaseStorage>(),
               uuid: gh<_i706.Uuid>(),
             ));
-    gh.lazySingleton<_i487.LegalDocumentRepository>(() =>
-        _i1072.LegalDocumentRepositoryImpl(gh<_i974.FirebaseFirestore>()));
+    gh.lazySingleton<_i524.LegalDocumentRepository>(
+        () => _i515.LegalDocumentRepositoryImpl(gh<_i974.FirebaseFirestore>()));
     gh.lazySingleton<_i302.AccountRemoteDataSource>(
         () => _i302.AccountRemoteDataSourceImpl(
               firebaseAuth: gh<_i59.FirebaseAuth>(),
@@ -151,8 +151,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i460.LegalCategoryRepository>(() =>
         _i909.LegalCategoryRepositoryImpl(
             gh<_i116.LegalCategoryRemoteDataSource>()));
-    gh.factory<_i447.OverviewBloc>(
-        () => _i447.OverviewBloc(gh<_i487.LegalDocumentRepository>()));
     gh.lazySingleton<_i361.Dio>(
         () => registerModules.dio(gh<String>(instanceName: 'BaseUrl')));
     gh.lazySingleton<_i1067.AccountRepository>(() =>
@@ -163,6 +161,8 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i191.ChatHistoryRemoteDataSource>()));
     gh.lazySingleton<_i626.AuthRepository>(() => _i877.AuthRepositoryImpl(
         remoteDataSource: gh<_i167.AuthRemoteDataSource>()));
+    gh.factory<_i1033.OverviewBloc>(
+        () => _i1033.OverviewBloc(gh<_i524.LegalDocumentRepository>()));
     gh.lazySingleton<_i313.WakiliChatRepository>(() =>
         _i644.WakiliChatRepositoryImpl(gh<_i106.WakiliChatRemoteDataSource>()));
     gh.factory<_i701.GenerateChatTitleUseCase>(

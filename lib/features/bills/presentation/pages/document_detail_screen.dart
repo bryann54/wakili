@@ -4,9 +4,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wakili/common/utils/functions.dart';
-import 'package:wakili/features/overview/domain/entities/legal_document.dart';
+import 'package:wakili/features/bills/domain/entities/legal_document.dart';
 
-import 'package:wakili/features/overview/presentation/widgets/wakili_ai_button.dart';
+import 'package:wakili/features/bills/presentation/widgets/wakili_ai_button.dart';
 
 @RoutePage()
 class DocumentDetailScreen extends StatelessWidget {

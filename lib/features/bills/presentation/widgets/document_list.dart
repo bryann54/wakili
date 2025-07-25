@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakili/features/overview/presentation/bloc/overview_bloc.dart';
-import 'package:wakili/features/overview/presentation/widgets/document_card_shimmer.dart';
+import 'package:wakili/features/bills/presentation/bloc/overview_bloc.dart';
+import 'package:wakili/features/bills/presentation/widgets/document_card_shimmer.dart';
 
 import 'document_card.dart';
 

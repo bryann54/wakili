@@ -1,9 +1,22 @@
+// --- 1. KEEP THESE IMPORTS AT THE VERY TOP OF THE FILE ---
+import java.util.Properties
+import java.io.FileInputStream
+// --- END OF IMPORTS ---
+
 plugins {
     id "com.android.application"
     id "kotlin-android"
     id "com.google.gms.google-services"
     id "dev.flutter.flutter-gradle-plugin"
 }
+
+// --- 2. MOVE THIS BLOCK HERE, AFTER plugins {} AND BEFORE android {} ---
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+// --- END OF MOVED BLOCK ---
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
@@ -24,7 +37,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.example.wakili"
+    namespace "com.nduko.wakili"
     compileSdkVersion 35
 
     compileOptions {
@@ -41,16 +54,32 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.wakili"
+        applicationId "com.nduko.wakili"
         minSdkVersion 23
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
 
+    // --- THIS SIGNING CONFIGS BLOCK IS CORRECTLY PLACED INSIDE THE 'android { ... }' BLOCK ---
+    signingConfigs {
+        release {
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+    }
+    // --- END OF SIGNING CONFIGS ---
+
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            // --- THIS LINE IS ALSO CORRECT ---
+            signingConfig signingConfigs.release
+            // You can also add these for smaller app size if desired
+            // minifyEnabled true
+            // shrinkResources true
+            // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }

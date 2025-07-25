@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wakili/features/overview/domain/entities/legal_document.dart';
+import 'package:wakili/features/bills/domain/entities/legal_document.dart';
 
 Color getTypeColor(DocumentType type) {
   switch (type) {

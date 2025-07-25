@@ -72,6 +72,6 @@ class DefaultFirebaseOptions {
     storageBucket: 'wakili-5400e.firebasestorage.app',
     iosClientId:
         '749843920861-sgfngm0m061e95khlocpcp0ism9udc1q.apps.googleusercontent.com',
-    iosBundleId: 'com.example.buenrowakili',
+    iosBundleId: 'com.nduko.wakili',
   );
 }

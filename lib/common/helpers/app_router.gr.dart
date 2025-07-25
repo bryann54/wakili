@@ -22,16 +22,16 @@ import 'package:wakili/features/auth/presentation/pages/register_screen.dart'
     as _i13;
 import 'package:wakili/features/auth/presentation/pages/splash_screen.dart'
     as _i14;
+import 'package:wakili/features/bills/domain/entities/legal_document.dart'
+    as _i20;
+import 'package:wakili/features/bills/presentation/pages/document_detail_screen.dart'
+    as _i5;
+import 'package:wakili/features/bills/presentation/pages/overview_screen.dart'
+    as _i11;
 import 'package:wakili/features/chat_history/presentation/pages/chat_history_screen.dart'
     as _i3;
 import 'package:wakili/features/chat_history/presentation/pages/chat_screen.dart'
     as _i4;
-import 'package:wakili/features/overview/domain/entities/legal_document.dart'
-    as _i20;
-import 'package:wakili/features/overview/presentation/pages/document_detail_screen.dart'
-    as _i5;
-import 'package:wakili/features/overview/presentation/pages/overview_screen.dart'
-    as _i11;
 import 'package:wakili/features/payment/presentation/pages/payment_screen.dart'
     as _i12;
 import 'package:wakili/features/wakili/data/models/chat_message.dart' as _i19;

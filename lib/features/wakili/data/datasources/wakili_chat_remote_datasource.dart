@@ -15,7 +15,9 @@ class WakiliChatRemoteDataSource {
     List<ChatMessage>? conversationHistory,
   }) async {
     try {
-      final enhancedQuery = await _queryProcessor.fetchWebKnowledge(message);
+      // CORRECTED: Use enhanceQueryWithContext instead of fetchWebKnowledge
+      final enhancedQuery =
+          await _queryProcessor.enhanceQueryWithContext(message);
 
       // Create chat session with conversation history
       final chatSession = _model.startChat(
@@ -23,7 +25,8 @@ class WakiliChatRemoteDataSource {
       );
 
       final response = await chatSession.sendMessage(
-        Content.text(enhancedQuery),
+        Content.text(
+            enhancedQuery), // This will now send the full, contextualized prompt
       );
 
       return response.text ?? 'No response generated';
@@ -37,7 +40,9 @@ class WakiliChatRemoteDataSource {
     List<ChatMessage>? conversationHistory,
   }) async* {
     try {
-      final enhancedQuery = await _queryProcessor.fetchWebKnowledge(message);
+      // CORRECTED: Use enhanceQueryWithContext instead of fetchWebKnowledge
+      final enhancedQuery =
+          await _queryProcessor.enhanceQueryWithContext(message);
 
       // Create chat session with conversation history
       final chatSession = _model.startChat(
@@ -45,7 +50,8 @@ class WakiliChatRemoteDataSource {
       );
 
       final response = chatSession.sendMessageStream(
-        Content.text(enhancedQuery),
+        Content.text(
+            enhancedQuery), // This will now send the full, contextualized prompt
       );
 
       await for (final chunk in response) {

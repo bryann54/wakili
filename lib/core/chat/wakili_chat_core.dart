@@ -239,14 +239,19 @@ class WakiliQueryProcessor {
 
     // Only fetch specific web knowledge if a clear legal context is detected,
     // or if the query is more than a simple greeting/follow-up.
-    // This helps avoid irrelevant "No extremely recent web knowledge..."
     String webKnowledge = '';
-    if (context != null || originalQuery.split(' ').length > 4) {
-      // Heuristic: More than 4 words might imply a specific query needing web search
+    // Increase word count threshold or make it more dynamic for web searches
+    if (context != null ||
+        originalQuery.split(' ').length > 3 ||
+        originalQuery
+            .toLowerCase()
+            .contains('fee') || // Explicitly search for 'fee'
+        originalQuery.toLowerCase().contains('law about')) {
+      // Explicitly search for 'law about'
       webKnowledge = await fetchWebKnowledge(
         context != null
             ? "${context.commonScenarios.firstOrNull ?? context.practicalContext} Kenya latest news"
-            : "Kenya legal news recent ${originalQuery.split(' ').take(3).join(' ')}",
+            : originalQuery, // Use original query for broader search if no specific context
       );
     }
 
@@ -262,14 +267,14 @@ Emotional Tone & Response Instruction: ${_getEmotionalPromptText(emotionalContex
 Language Style: ${isSheng ? 'Sheng-influenced. Integrate Sheng naturally.' : 'Standard English/Swahili.'}
 ${context != null ? 'Detected Legal Area: ${context.practicalContext}' : ''}
 ${context != null ? 'Relevant Laws: ${context.provisions.join(', ')}' : ''}
-${webKnowledge.isNotEmpty ? "Breaking News / Latest Interweb Insight: $webKnowledge" : ""}
+${webKnowledge.isNotEmpty ? "Relevant Interweb Insight to INTEGRATE into response: $webKnowledge" : ""}
 
 **Wakili's Response Guidelines (CRITICAL - Adhere strictly):**
 - You MUST maintain the context of the conversation. If the user's query is a follow-up, respond in relation to the ongoing topic.
 - DO NOT REPEAT THE USER'S EXACT PROMPT OR PHRASES BACK TO THEM in your response. Acknowledge their query naturally without restating it.
 - If the User Query is a simple greeting or does NOT ask a specific question (e.g., "Niaje", "Hello", "Mambo"): **Only provide a simple greeting and an open-ended question.** Follow "A. FOR SIMPLE GREETINGS" in your persona instructions. DO NOT apply the full response structure.
 - If the User Query ASKS A SPECIFIC QUESTION or expresses a PROBLEM (including follow-ups on previous topics): **Follow the full "B. FOR ACTUAL QUESTIONS / PROBLEMS" response structure** from your persona instructions.
-- Be concise. Avoid unnecessary words.
+- Be concise. Avoid unnecessary words. **Integrate the "Relevant Interweb Insight" naturally into your answer, acting as if you already know this information from your vast knowledge base. If it's a specific fee or legal provision, state it directly and reference its source as if it's a "link" or a known fact.**
 ''';
   }
 
