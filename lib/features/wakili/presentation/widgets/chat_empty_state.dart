@@ -25,7 +25,7 @@ class ChatEmptyState extends StatelessWidget {
           children: [
             // Icon with a subtle animation
             FaIcon(
-           FontAwesomeIcons.comments,
+              FontAwesomeIcons.comments,
               size: 30,
               color: colorScheme.primary.withValues(alpha: 0.6),
             )

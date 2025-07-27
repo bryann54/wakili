@@ -115,7 +115,6 @@ Remember: You're here to build legal literacy and confidence, one natural, empat
 ''');
   }
 
-
   GenerationConfig _createGenerationConfig() {
     return GenerationConfig(
       temperature: 0.9,

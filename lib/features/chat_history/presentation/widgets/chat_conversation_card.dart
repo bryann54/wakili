@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:wakili/common/utils/date_utils.dart';
 import 'package:wakili/features/chat_history/data/models/chat_conversation.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 class ChatConversationCard extends StatelessWidget {
   final ChatConversation conversation;
   final ColorScheme colorScheme;
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final VoidCallback onFavorite;
-  final String heroTag; 
+  final String heroTag;
 
   const ChatConversationCard({
     super.key,
@@ -191,7 +192,7 @@ class ChatConversationCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                         FaIcon(
+                        FaIcon(
                           FontAwesomeIcons.comments,
                           size: 12,
                           color: colorScheme.onPrimaryContainer,

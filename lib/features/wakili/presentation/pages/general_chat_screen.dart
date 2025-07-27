@@ -118,7 +118,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen>
               CircleAvatar(
                 radius: 18,
                 backgroundColor: colorScheme.primary
-                    .withOpacity(0.1), // Added subtle background
+                    .withValues(alpha: 0.1), // Added subtle background
                 child: const CircleAvatar(
                   radius: 18,
                   backgroundImage: AssetImage('assets/dp.png'),

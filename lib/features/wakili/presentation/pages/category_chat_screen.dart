@@ -10,7 +10,7 @@ import 'package:wakili/features/wakili/data/models/legal_category.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_input_field.dart';
 import 'package:wakili/features/wakili/presentation/widgets/chat_typing_indicator.dart';
 import 'package:wakili/common/helpers/app_router.gr.dart';
-import 'package:wakili/features/wakili/presentation/widgets/chat_empty_state.dart'; 
+import 'package:wakili/features/wakili/presentation/widgets/chat_empty_state.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 @RoutePage()
@@ -157,7 +157,6 @@ class _CategoryChatScreenState extends State<CategoryChatScreen>
           ),
           body: Column(
             children: [
-           
               Expanded(
                 child: BlocConsumer<WakiliBloc, WakiliState>(
                   listener: (context, state) {
