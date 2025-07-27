@@ -37,7 +37,10 @@ class AuthHeader extends StatelessWidget {
                   children: const [
                     TextSpan(
                       text: 'Wakili AI',
-                      style: TextStyle(color: Colors.lightGreen),
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -51,7 +54,6 @@ class AuthHeader extends StatelessWidget {
           style: GoogleFonts.poppins(
             fontSize: 25,
             fontWeight: FontWeight.bold,
-            color: Theme.of(context).primaryColor,
           ),
         ).animate().fadeIn(duration: 600.ms, curve: Curves.easeOutQuad).slideY(
               begin: 0.2,

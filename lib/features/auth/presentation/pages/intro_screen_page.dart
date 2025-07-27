@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wakili/common/res/colors.dart';
@@ -17,6 +19,9 @@ class IntroScreenPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+      final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     final Color leftColor = Colors.black;
     final Color rightColor = Colors.white;
     final Color darkSideTextColor = Colors.white;
@@ -29,32 +34,42 @@ class IntroScreenPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Icon with gradient and container styling
-          Container(
+Container(
             height: 240,
             width: 240,
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(20),
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  leftColor.withValues(alpha: 0.05),
-                  rightColor.withValues(alpha: 0.05),
+                  rightColor.withValues(alpha: isDarkMode ? 0.08 : 0.03),
+                  leftColor.withValues(alpha: isDarkMode ? 0.12 : 0.05),
                 ],
+              ),
+              border: Border.all(
+                color: isDarkMode
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.black.withValues(alpha: 0.05),
+                width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 20,
+                  color: isDarkMode
+                      ? Colors.black.withValues(alpha: 0.3)
+                      : Colors.black.withValues(alpha: 0.08),
+                  blurRadius: isDarkMode ? 30 : 20,
                   offset: const Offset(0, 10),
+                  spreadRadius: isDarkMode ? 2 : 0,
                 ),
               ],
             ),
             child: Center(
               child: ShaderMask(
                 shaderCallback: (bounds) => LinearGradient(
-                  colors: [leftColor, rightColor],
-                  stops: const [0.5, 0.5],
+                  colors: [rightColor, leftColor],
+                  stops: const [0.3, 0.7], // Smoother blend
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ).createShader(bounds),
