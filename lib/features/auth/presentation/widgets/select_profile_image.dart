@@ -98,7 +98,7 @@ class _SelectProfileImageState extends State<SelectProfileImage> {
                 child: Text(
                   widget.imagePath != null
                       ? 'Change Profile Photo'
-                      : 'Upload Profile Photo',
+                      : 'Upload Profile Photo (optional)',
                   style: GoogleFonts.poppins(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -149,17 +149,15 @@ class _SelectProfileImageState extends State<SelectProfileImage> {
   Widget _buildImageWidget(ColorScheme colors) {
     if (widget.imagePath != null) {
       if (widget.imagePath!.startsWith('http')) {
-        // It's a network URL (e.g., from Firebase Storage)
         return Image.network(
           widget.imagePath!,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           errorBuilder: (_, __, ___) => _buildDefaultAvatar(colors),
         );
       } else {
-        // It's a local file path (e.g., from image_picker)
         return Image.file(
           File(widget.imagePath!),
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           errorBuilder: (_, __, ___) => _buildDefaultAvatar(colors),
         );
       }
@@ -172,7 +170,7 @@ class _SelectProfileImageState extends State<SelectProfileImage> {
       FontAwesomeIcons.solidUser,
       size: 60,
       color: colors.onSurfaceVariant
-          .withValues(alpha: 0.2), // Corrected from withValues
+          .withValues(alpha: 0.2), 
     );
   }
 }

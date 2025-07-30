@@ -72,7 +72,7 @@ class ChatInputField extends StatelessWidget {
                     ? SizedBox(
                         width: 22,
                         height: 22,
-                        child: CircularProgressIndicator(
+                        child: CircularProgressIndicator.adaptive(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(
                             Theme.of(context).colorScheme.onSurfaceVariant,

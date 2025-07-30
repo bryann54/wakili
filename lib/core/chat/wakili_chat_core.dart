@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
-import 'package:collection/collection.dart';
 import 'package:wakili/core/chat/wakili_chat_models.dart';
 
 class ConversationManager {
@@ -45,7 +44,7 @@ class WakiliQueryProcessor {
         'data privacy',
         'right to information'
       ],
-      shengTerms: ['haki', 'uwazi', 'polisi wameanza'],
+      shengTerms: ['haki', 'uwazi', 'polisi'],
     ),
     'employment': WakiliContext(
       provisions: ['Article 41', 'Employment Act 2007'],
@@ -55,10 +54,9 @@ class WakiliQueryProcessor {
         'unpaid wages',
         'workplace harassment',
         'retrenchment',
-        'gig economy worker rights',
         'maternity leave'
       ],
-      shengTerms: ['kazi', 'mshahara', 'boss', 'fired'],
+      shengTerms: ['kazi', 'mshahara', 'boss'],
     ),
     'property': WakiliContext(
       provisions: ['Article 40', 'Land Act 2012', 'Land Registration Act 2012'],
@@ -72,7 +70,7 @@ class WakiliQueryProcessor {
         'title deed process',
         'rent disputes'
       ],
-      shengTerms: ['nyumba', 'plot', 'landlord', 'rent'],
+      shengTerms: ['nyumba', 'plot', 'rent'],
     ),
     'family': WakiliContext(
       provisions: ['Article 45', 'Marriage Act 2014', 'Children Act 2001'],
@@ -85,7 +83,7 @@ class WakiliQueryProcessor {
         'domestic violence',
         'succession planning'
       ],
-      shengTerms: ['ndoa', 'watoto', 'divorce', 'familia'],
+      shengTerms: ['ndoa', 'watoto', 'familia'],
     ),
     'criminal': WakiliContext(
       provisions: ['Article 49-50', 'Criminal Procedure Code', 'Penal Code'],
@@ -98,7 +96,7 @@ class WakiliQueryProcessor {
         'rights during arrest',
         'plea bargaining'
       ],
-      shengTerms: ['polisi', 'arrest', 'cell', 'korti'],
+      shengTerms: ['polisi', 'korti'],
     ),
     'business': WakiliContext(
       provisions: ['Companies Act 2015', 'Competition Act', 'Insolvency Act'],
@@ -111,77 +109,146 @@ class WakiliQueryProcessor {
         'startup legal advice',
         'intellectual property'
       ],
-      shengTerms: ['biashara', 'business', 'hustle', 'startup'],
+      shengTerms: ['biashara', 'hustle'],
     ),
   };
 
-  Future<String> fetchWebKnowledge(String query) async {
-    await Future.delayed(const Duration(milliseconds: 200));
+  // Enhanced language detection
+  String detectPrimaryLanguage(String query) {
+    final queryLower = query.trim().toLowerCase();
 
-    final queryLower = query.toLowerCase();
-    final now = DateTime.now();
-    final formatter = DateFormat('MMMM d, yyyy');
+    // Common Swahili/Sheng words
+    final swahiliIndicators = [
+      'niaje',
+      'mambo',
+      'poa',
+      'sawa',
+      'shida',
+      'una',
+      'kuna',
+      'nina',
+      'je',
+      'nini',
+      'vipi',
+      'kwani',
+      'lakini',
+      'ama',
+      'au',
+      'na',
+      'ya',
+      'za',
+      'wa',
+      'la',
+      'cha',
+      'vya',
+      'pa',
+      'ku',
+      'mu',
+      'ndio',
+      'hapana',
+      'sijui',
+      'najua',
+      'nataka',
+      'naweza'
+    ];
 
-    if (queryLower.contains('latest property law kenya')) {
-      return "BREAKING NEWS (${formatter.format(now.subtract(const Duration(days: 2)))}): The Ministry of Lands is fast-tracking a digital land registry pilot in Kileleshwa, Nairobi.";
-    }
-    if (queryLower.contains('recent employment cases kenya gig economy')) {
-      return "URGENT UPDATE (${formatter.format(now.subtract(const Duration(days: 4)))}): An Employment Court ruling granted a major win to Bolt drivers in Nairobi.";
-    }
-    if (queryLower.contains('data privacy laws kenya enforcement')) {
-      return "FLASH (${formatter.format(now.subtract(const Duration(days: 6)))}): The Data Protection Commissioner issued a hefty fine to a major e-commerce platform.";
-    }
-    if (queryLower.contains('consumer rights online shopping kenya')) {
-      return "INTERWEB BUZZ (${formatter.format(now.subtract(const Duration(days: 1)))}): Online forums are discussing the Consumer Protection Amendment Bill 2025.";
-    }
-    if (queryLower.contains('small claims court process kenya')) {
-      return "TIP (${formatter.format(now.subtract(const Duration(days: 3)))}): The Judiciary released H1 2025 statistics showing a 40% increase in Small Claims Court filings.";
-    }
-    if (queryLower.contains('new tax laws kenya 2025')) {
-      return "ALERT (July 1, 2025): The Finance Act 2025 introduced new compliance requirements for digital content creators.";
-    }
-    if (queryLower.contains('what about domestic violence kenya')) {
-      return "CRITICAL UPDATE (${formatter.format(now.subtract(const Duration(days: 7)))}): FIDA Kenya reported a 15% rise in domestic violence cases in Nairobi.";
+    // Common English words
+    final englishIndicators = [
+      'the',
+      'is',
+      'are',
+      'can',
+      'what',
+      'how',
+      'when',
+      'where',
+      'why',
+      'do',
+      'does',
+      'will',
+      'would',
+      'should',
+      'could',
+      'have',
+      'has',
+      'about',
+      'with',
+      'from',
+      'they',
+      'this',
+      'that',
+      'there'
+    ];
+
+    final words = queryLower.split(RegExp(r'\s+'));
+    int swahiliScore = 0;
+    int englishScore = 0;
+
+    for (final word in words) {
+      if (swahiliIndicators.contains(word)) {
+        swahiliScore += 2; // Higher weight for clear indicators
+      }
+      if (englishIndicators.contains(word)) {
+        englishScore += 2;
+      }
     }
 
-    return "No extremely recent web knowledge specifically found for '$query'.";
+    // Check for common greetings
+    if (queryLower.startsWith('niaje') ||
+        queryLower.startsWith('mambo') ||
+        queryLower.startsWith('sema') ||
+        queryLower.contains('habari')) {
+      return 'swahili';
+    }
+
+    if (queryLower.startsWith('hello') ||
+        queryLower.startsWith('hi') ||
+        queryLower.startsWith('hey')) {
+      return 'english';
+    }
+
+    return swahiliScore > englishScore ? 'swahili' : 'english';
+  }
+
+  bool isSimpleGreeting(String query) {
+    final greetings = [
+      'hello',
+      'hi',
+      'hey',
+      'niaje',
+      'mambo',
+      'sema',
+      'habari',
+      'good morning',
+      'good afternoon',
+      'good evening'
+    ];
+
+    final queryLower = query.trim().toLowerCase();
+    return greetings.any((greeting) =>
+        queryLower == greeting || queryLower.startsWith('$greeting '));
   }
 
   EmotionalContext detectEmotionalContext(String query) {
     final queryLower = query.toLowerCase();
 
-    if (queryLower.contains(RegExp(
-        r'(haraka|emergency|nimesumbuka|shida|taabu|was-was|nimekwama)'))) {
+    if (queryLower
+        .contains(RegExp(r'(emergency|urgent|haraka|nimesumbuka|nimekwama)'))) {
       return EmotionalContext.stressed;
     }
-    if (queryLower.contains(RegExp(
-        r'(bwana|shenzi|wazimu|kura|choko|nimechoka|haieleweki|haki-yetu)'))) {
+    if (queryLower
+        .contains(RegExp(r'(frustrated|angry|annoyed|nimechoka|haieleweki)'))) {
       return EmotionalContext.frustrated;
     }
-    if (queryLower.contains(
-        RegExp(r'(sielewi|confused|mbona|nini|help|inakaaje|vipi)'))) {
+    if (queryLower
+        .contains(RegExp(r'(confused|sijui|sielewi|help|vipi|mbona)'))) {
       return EmotionalContext.confused;
     }
-    if (queryLower.contains(
-        RegExp(r'(mambo|niaje|poa|sema|chali|cool|salama|uko|hi|hey)'))) {
+    if (queryLower
+        .contains(RegExp(r'(mambo|niaje|poa|sema|cool|salama|hi|hey)'))) {
       return EmotionalContext.casual;
     }
     return EmotionalContext.neutral;
-  }
-
-  String _getEmotionalPromptText(EmotionalContext context) {
-    switch (context) {
-      case EmotionalContext.stressed:
-        return "The user sounds stressed 😥. Acknowledge their feeling directly and offer reassurance. Start with: 'Pole sana, maze...' or 'Ah! Hiyo ni shida serious...'";
-      case EmotionalContext.frustrated:
-        return "The user sounds frustrated 😠. Validate their feelings with phrases like 'Naskia hasira yako...' or 'Haki, hiyo inakasirisha.' and provide clear, calming guidance.";
-      case EmotionalContext.confused:
-        return "The user seems confused 🤔. Explain things simply, using analogies if helpful, and assure them it's okay. Start with: 'Usijali, tutaelewana.' or 'Sawa, ngoja nitoe kwa simple...'";
-      case EmotionalContext.casual:
-        return "The user's tone is casual. Match their tone, be friendly and use natural Sheng/Swahili greetings. Start with: 'Poa sana!', 'Mambo chali!', or 'Niaje chica!'";
-      case EmotionalContext.neutral:
-        return "The user's tone is neutral. Be warm, welcoming, and proactive. Start with: 'Karibu Wakili!', 'Hey there!', or 'Sawa, cheki hii...'";
-    }
   }
 
   WakiliContext? detectLegalContext(String query) {
@@ -191,7 +258,6 @@ class WakiliQueryProcessor {
       if (queryLower.contains(entry.key) ||
           entry.value.commonScenarios
               .any((scenario) => queryLower.contains(scenario.toLowerCase())) ||
-          queryLower.contains(entry.value.practicalContext.toLowerCase()) ||
           entry.value.shengTerms
               .any((term) => queryLower.contains(term.toLowerCase()))) {
         return entry.value;
@@ -200,99 +266,67 @@ class WakiliQueryProcessor {
     return null;
   }
 
-  bool containsSheng(String query) {
-    final shengWords = [
-      'maze',
-      'poa',
-      'sawa',
-      'mambo',
-      'shida',
-      'kitu',
-      'kwanza',
-      'si',
-      'unajua',
-      'niaje',
-      'ndio',
-      'hapana',
-      'story',
-      'chali',
-      'chana',
-      'chapaa',
-      'cheki',
-      'chica',
-      'chobo',
-      'chokosh',
-      'choma diskette',
-      'chomeka',
-      'kanyaga',
-      'mucene',
-      'waragi',
-      'ruciu'
-    ];
-    return shengWords.any((word) => query.toLowerCase().contains(word));
-  }
-
   Future<String> enhanceQueryWithContext(String originalQuery) async {
+    final primaryLanguage = detectPrimaryLanguage(originalQuery);
+    final isGreeting = isSimpleGreeting(originalQuery);
     final context = detectLegalContext(originalQuery);
     final emotionalContext = detectEmotionalContext(originalQuery);
-    final isSheng = containsSheng(originalQuery);
-
-    // Only fetch specific web knowledge if a clear legal context is detected,
-    // or if the query is more than a simple greeting/follow-up.
-    String webKnowledge = '';
-    // Increase word count threshold or make it more dynamic for web searches
-    if (context != null ||
-        originalQuery.split(' ').length > 3 ||
-        originalQuery
-            .toLowerCase()
-            .contains('fee') || // Explicitly search for 'fee'
-        originalQuery.toLowerCase().contains('law about')) {
-      // Explicitly search for 'law about'
-      webKnowledge = await fetchWebKnowledge(
-        context != null
-            ? "${context.commonScenarios.firstOrNull ?? context.practicalContext} Kenya latest news"
-            : originalQuery, // Use original query for broader search if no specific context
-      );
-    }
 
     final now = DateTime.now();
     final dateFormatter = DateFormat('EEEE, MMMM d, yyyy, h:mm:ss a');
     final formattedDate = dateFormatter.format(now);
 
+    String webKnowledge = '';
+    if (!isGreeting && context != null) {
+      webKnowledge = await fetchWebKnowledge(
+          "${context.commonScenarios.first} Kenya latest news");
+    }
+
     return '''
 User Query: $originalQuery
+Primary Language Detected: $primaryLanguage
+Is Simple Greeting: $isGreeting
 Current Date: $formattedDate
-Location Context: Nairobi (reference specific areas like Westlands, Kileleshwa, Umoja when relevant)
-Emotional Tone & Response Instruction: ${_getEmotionalPromptText(emotionalContext)}
-Language Style: ${isSheng ? 'Sheng-influenced. Integrate Sheng naturally.' : 'Standard English/Swahili.'}
-${context != null ? 'Detected Legal Area: ${context.practicalContext}' : ''}
-${context != null ? 'Relevant Laws: ${context.provisions.join(', ')}' : ''}
-${webKnowledge.isNotEmpty ? "Relevant Interweb Insight to INTEGRATE into response: $webKnowledge" : ""}
+Emotional Context: ${emotionalContext.name}
+${context != null ? 'Legal Context: ${context.practicalContext}' : ''}
+${webKnowledge.isNotEmpty ? 'Recent Info: $webKnowledge' : ''}
 
-**Wakili's Response Guidelines (CRITICAL - Adhere strictly):**
-- You MUST maintain the context of the conversation. If the user's query is a follow-up, respond in relation to the ongoing topic.
-- DO NOT REPEAT THE USER'S EXACT PROMPT OR PHRASES BACK TO THEM in your response. Acknowledge their query naturally without restating it.
-- If the User Query is a simple greeting or does NOT ask a specific question (e.g., "Niaje", "Hello", "Mambo"): **Only provide a simple greeting and an open-ended question.** Follow "A. FOR SIMPLE GREETINGS" in your persona instructions. DO NOT apply the full response structure.
-- If the User Query ASKS A SPECIFIC QUESTION or expresses a PROBLEM (including follow-ups on previous topics): **Follow the full "B. FOR ACTUAL QUESTIONS / PROBLEMS" response structure** from your persona instructions.
-- Be concise. Avoid unnecessary words. **Integrate the "Relevant Interweb Insight" naturally into your answer, acting as if you already know this information from your vast knowledge base. If it's a specific fee or legal provision, state it directly and reference its source as if it's a "link" or a known fact.**
+RESPONSE INSTRUCTIONS:
+1. Respond ONLY in $primaryLanguage (no mixing languages)
+2. ${isGreeting ? 'Simple greeting response only - no legal advice' : 'Provide comprehensive legal guidance'}
+3. Start directly - NO filler words like "Ah", "Eeh", "Sawa cheki"
+4. Be concise and professional
+5. For direct questions, start with YES/NO then explain
 ''';
+  }
+
+  Future<String> fetchWebKnowledge(String query) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    // Your existing web knowledge logic here
+    return '';
   }
 
   List<String> getSuggestedFollowUps(String query) {
     final context = detectLegalContext(query);
+    final language = detectPrimaryLanguage(query);
+
     if (context == null) {
-      return [
-        "Tell me more about basic legal rights.",
-        "How do I find a good lawyer in Nairobi?",
-        "What's the latest on the justice system reforms?",
-      ];
+      return language == 'swahili'
+          ? [
+              "Niambie kuhusu haki za msingi",
+              "Vipi kupata lawyer Nairobi?",
+              "Mambo ya korti vipi?"
+            ]
+          : [
+              "Tell me about basic rights",
+              "How to find a lawyer in Nairobi?",
+              "Court procedures?"
+            ];
     }
 
-    return context.commonScenarios
-        .where(
-            (scenario) => !query.toLowerCase().contains(scenario.toLowerCase()))
-        .take(3)
-        .map((scenario) => "What about $scenario?")
-        .toList();
+    final suggestions = context.commonScenarios.take(3).toList();
+    return language == 'swahili'
+        ? suggestions.map((s) => "Je, $s?").toList()
+        : suggestions.map((s) => "What about $s?").toList();
   }
 }

@@ -5,7 +5,7 @@ import 'package:injectable/injectable.dart';
 import 'package:wakili/core/errors/failures.dart';
 import 'package:wakili/features/auth/domain/entities/user_entity.dart';
 import 'package:wakili/features/auth/domain/repositories/auth_epository.dart';
-import 'dart:io'; 
+import 'dart:io';
 
 @lazySingleton
 class SignInWithEmailAndPasswordUseCase {
@@ -32,7 +32,7 @@ class SignUpWithEmailAndPasswordUseCase {
     String password,
     String firstName,
     String lastName,
-    File? profileImage, 
+    File? profileImage,
   ) async {
     return await repository.signUpWithEmailAndPassword(
         email, password, firstName, lastName, profileImage);

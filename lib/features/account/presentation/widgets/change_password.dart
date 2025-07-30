@@ -196,7 +196,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(
+                          child: CircularProgressIndicator.adaptive(
                             strokeWidth: 2,
                             valueColor:
                                 AlwaysStoppedAnimation<Color>(Colors.white),

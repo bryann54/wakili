@@ -5,7 +5,6 @@ import 'package:wakili/common/helpers/app_router.gr.dart';
 import 'package:wakili/features/auth/presentation/pages/intro_screen_page.dart';
 import 'package:wakili/features/auth/presentation/widgets/getstarted/intro_screen_controller.dart';
 import 'package:wakili/features/auth/presentation/widgets/getstarted/intro_background.dart';
-import 'package:wakili/features/auth/presentation/widgets/getstarted/autoplay_indicator.dart';
 import 'package:wakili/features/auth/presentation/widgets/getstarted/intro_page_indicator.dart';
 import 'package:wakili/features/auth/presentation/widgets/getstarted/intro_navigation.dart';
 import 'package:wakili/features/auth/presentation/widgets/getstarted/intro_content_data.dart';
@@ -47,18 +46,6 @@ class _GetStartedScreenState extends State<GetStartedScreen>
             child: Column(
               children: [
                 const SizedBox(height: 20),
-
-                // Autoplay indicator
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) {
-                    return AutoplayIndicator(
-                      isVisible: _controller.isAutoplayActive &&
-                          !_controller.userInteracted,
-                      onStop: _controller.onUserInteraction,
-                    );
-                  },
-                ),
 
                 // PageView
                 Expanded(

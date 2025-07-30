@@ -234,9 +234,8 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,
-                                    child: CircularProgressIndicator(
+                                    child: CircularProgressIndicator.adaptive(
                                       strokeWidth: 2.5,
-                                      color: Colors.white,
                                     ),
                                   )
                                 : Text(

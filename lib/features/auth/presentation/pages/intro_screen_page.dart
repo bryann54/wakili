@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wakili/common/res/colors.dart';
@@ -19,7 +17,7 @@ class IntroScreenPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      final theme = Theme.of(context);
+    final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
     final Color leftColor = Colors.black;
@@ -34,7 +32,7 @@ class IntroScreenPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Icon with gradient and container styling
-Container(
+          Container(
             height: 240,
             width: 240,
             decoration: BoxDecoration(

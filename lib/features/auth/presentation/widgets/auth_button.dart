@@ -38,7 +38,7 @@ class AuthButton extends StatelessWidget {
               ? const SizedBox(
                   height: 24,
                   width: 24,
-                  child: CircularProgressIndicator(
+                  child: CircularProgressIndicator.adaptive(
                     strokeWidth: 2.5,
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),

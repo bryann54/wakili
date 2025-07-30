@@ -257,7 +257,7 @@ class _SplashScreenState extends State<SplashScreen>
                       child: SizedBox(
                         width: 24,
                         height: 24,
-                        child: CircularProgressIndicator(
+                        child: CircularProgressIndicator.adaptive(
                           strokeWidth: 2,
                           // Progress indicator color can still adapt to overall theme
                           valueColor: AlwaysStoppedAnimation<Color>(

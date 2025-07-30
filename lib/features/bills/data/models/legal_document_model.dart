@@ -20,7 +20,7 @@ class LegalDocumentModel extends LegalDocument {
     final data = doc.data() as Map<String, dynamic>;
 
     return LegalDocumentModel(
-      id: doc.id, // Use Firestore document ID
+      id: doc.id,
       title: data['title'] ?? '',
       summary: data['summary'] ?? '',
       content: data['content'] ?? '',

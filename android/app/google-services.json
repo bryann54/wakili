@@ -7,12 +7,36 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:749843920861:android:12bb646d9696209c606834",
+        "mobilesdk_app_id": "1:749843920861:android:07ab2eb2d8342543606834",
         "android_client_info": {
           "package_name": "com.nduko.wakili"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "749843920861-b750rslnv0tnukjllijm3q4u3cikfaah.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nduko.wakili",
+            "certificate_hash": "4bbafd8fb50b6c7982d714bab4db57b1fb46f26f"
+          }
+        },
+        {
+          "client_id": "749843920861-gof58d397ubfu3b9u090dgrjbrolb9ud.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nduko.wakili",
+            "certificate_hash": "578503163a41e7d12f237bb76fdcc38e7f7fd771"
+          }
+        },
+        {
+          "client_id": "749843920861-kd2e2bufun3u54rfbusateju98dfu1ad.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nduko.wakili",
+            "certificate_hash": "c790b2c89703d7e098177905c2f751e295808834"
+          }
+        },
         {
           "client_id": "749843920861-2t62f7jkt63hme5g78e6ke1jbfrsa6ea.apps.googleusercontent.com",
           "client_type": 3
@@ -29,13 +53,6 @@
             {
               "client_id": "749843920861-2t62f7jkt63hme5g78e6ke1jbfrsa6ea.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "749843920861-sgfngm0m061e95khlocpcp0ism9udc1q.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.nduko.wakili"
-              }
             }
           ]
         }

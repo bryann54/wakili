@@ -211,7 +211,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ),
                   child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const CircularProgressIndicator.adaptive()
                       : Text(
                           'SAVE CHANGES',
                           style: GoogleFonts.montserrat(

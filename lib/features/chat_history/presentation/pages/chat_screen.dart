@@ -351,9 +351,8 @@ class _ChatScreenState extends State<ChatScreen> {
                           ? SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(
+                              child: CircularProgressIndicator.adaptive(
                                 strokeWidth: 2,
-                                color: colorScheme.onPrimary,
                               ),
                             )
                           : const Icon(Icons.send),
