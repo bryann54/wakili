@@ -54,8 +54,6 @@ class ChatEmptyState extends StatelessWidget {
                 .fadeIn(duration: 600.ms, delay: 200.ms)
                 .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 200.ms),
 
-          
-
             // Description
             Text(
               'Type your question below to get legal guidance from Wakili.',

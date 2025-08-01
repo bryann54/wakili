@@ -143,11 +143,9 @@ class _CategoryGridViewState extends State<CategoryGridView>
 
         int effectiveItemCount = categories.length;
         if (hasMore && isLoading) {
-          effectiveItemCount +=
-              2; 
+          effectiveItemCount += 2;
         } else if (hasMore && !isLoading && categories.isNotEmpty) {
-          effectiveItemCount +=
-              1; 
+          effectiveItemCount += 1;
         }
 
         if (categories.isEmpty && isLoading) {
@@ -170,7 +168,7 @@ class _CategoryGridViewState extends State<CategoryGridView>
           ),
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
-          itemCount: effectiveItemCount, 
+          itemCount: effectiveItemCount,
           itemBuilder: (context, index) {
             final heights = [180.0, 220.0, 200.0, 240.0, 190.0, 210.0];
             final height = heights[index % heights.length];
@@ -202,15 +200,17 @@ class _CategoryGridViewState extends State<CategoryGridView>
             } else if (hasMore && isLoading) {
               return SizedBox(
                 height: height,
-                child: const CategoryCardShimmer(height: 100,),
+                child: const CategoryCardShimmer(
+                  height: 100,
+                ),
               );
             } else if (hasMore &&
                 !isLoading &&
                 categories.isNotEmpty &&
                 index == categories.length) {
-              return const SizedBox.shrink(); 
+              return const SizedBox.shrink();
             }
-            return const SizedBox.shrink(); 
+            return const SizedBox.shrink();
           },
         );
       },

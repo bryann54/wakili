@@ -22,10 +22,15 @@ class ProfileHeaderWidget extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 60, 16, 24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            AppColors.brandPrimary.withValues(alpha: 0.8),
-            AppColors.brandPrimary.withValues(alpha: 0.4),
-          ],
+          colors: isDarkMode
+              ? [
+                  AppColors.textLight.withValues(alpha: 0.8),
+                  AppColors.textLight.withValues(alpha: 0.4),
+                ]
+              : [
+                  AppColors.brandPrimary.withValues(alpha: 0.8),
+                  AppColors.brandPrimary.withValues(alpha: 0.4),
+                ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -105,7 +110,7 @@ class ProfileHeaderWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: AppColors.brandPrimary,
+        color: isDarkMode ? AppColors.textLight : AppColors.brandPrimary,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(

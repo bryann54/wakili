@@ -106,7 +106,9 @@ class _LogOutButtonState extends State<LogOutButton>
                     child: FaIcon(
                       FontAwesomeIcons.rightFromBracket,
                       size: 24,
-                      color: AppColors.brandPrimary,
+                      color: isDarkMode
+                          ? AppColors.textLight
+                          : AppColors.brandPrimary,
                     ),
                   ),
                 ),
