@@ -25,7 +25,6 @@ class ChatTypingIndicator extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 8),
-                 
                 ],
               ),
             ),

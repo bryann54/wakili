@@ -44,7 +44,7 @@ class ChatEmptyState extends StatelessWidget {
             Text(
               'Start a conversation about $categoryTitle',
               style: GoogleFonts.montserrat(
-                fontSize: 22,
+                fontSize: 15,
                 fontWeight: FontWeight.w500,
                 color: colorScheme.onSurface,
               ),
@@ -54,7 +54,7 @@ class ChatEmptyState extends StatelessWidget {
                 .fadeIn(duration: 600.ms, delay: 200.ms)
                 .slideY(begin: 0.2, end: 0, duration: 600.ms, delay: 200.ms),
 
-            const SizedBox(height: 12),
+          
 
             // Description
             Text(

@@ -36,7 +36,7 @@ abstract class WakiliChatModule {
   @lazySingleton
   ConversationManager get conversationManager => ConversationManager();
 
-Content _createSystemInstruction() {
+  Content _createSystemInstruction() {
     final now = DateTime.now();
     final formatter = DateFormat('EEEE, MMMM d, yyyy, h:mm:ss a');
     final formattedDate = formatter.format(now);

@@ -169,8 +169,7 @@ class _SelectProfileImageState extends State<SelectProfileImage> {
     return FaIcon(
       FontAwesomeIcons.solidUser,
       size: 60,
-      color: colors.onSurfaceVariant
-          .withValues(alpha: 0.2), 
+      color: colors.onSurfaceVariant.withValues(alpha: 0.2),
     );
   }
 }

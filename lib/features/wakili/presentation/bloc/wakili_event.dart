@@ -49,8 +49,14 @@ class SaveCurrentChatEvent extends WakiliEvent {
   const SaveCurrentChatEvent();
 }
 
-class LoadLegalCategories extends WakiliEvent {
-  const LoadLegalCategories();
+// Event to load the first page of legal categories or refresh
+class LoadLegalCategoriesPage extends WakiliEvent {
+  const LoadLegalCategoriesPage();
+}
+
+// Event to load more legal categories for pagination
+class LoadMoreLegalCategories extends WakiliEvent {
+  const LoadMoreLegalCategories();
 }
 
 class LoadExistingChat extends WakiliEvent {

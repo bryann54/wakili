@@ -116,7 +116,7 @@ class _CategoryChatScreenState extends State<CategoryChatScreen>
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.transparent,
-            elevation: 0,
+            elevation: 1,
             centerTitle: true,
             title: Text(
               '${widget.category.title} Wakili',
@@ -206,7 +206,9 @@ class _CategoryChatScreenState extends State<CategoryChatScreen>
                             itemCount: messages.length,
                             itemBuilder: (context, index) {
                               final message = messages[index];
-                              return ChatMessageWidget(message: message);
+                              return ChatMessageWidget(
+                                message: message,
+                              );
                             },
                           ),
                         ),

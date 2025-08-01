@@ -260,7 +260,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                                   ),
                                 )
                               : CategoryGridView(
-                                  categories: categories,
+                                  // categories: categories,
                                   onCategorySelected: _onCategorySelected,
                                 ),
                     ),
@@ -272,10 +272,6 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
         ),
       ),
       floatingActionButton: Builder(builder: (context) {
-        // No direct save logic needed here, just UI.
-        // final state = context.watch<WakiliBloc>().state;
-        // if (state is WakiliChatLoaded) {}
-
         return GestureDetector(
           onTap: () => _showChatInputModal(),
           child: AnimatedContainer(
@@ -297,7 +293,7 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                   color: Theme.of(context)
                       .colorScheme
                       .primary
-                      .withValues(alpha: 0.3), // Corrected alpha usage
+                      .withValues(alpha: 0.3),
                   blurRadius: 12,
                   spreadRadius: 1,
                   offset: const Offset(0, 4),
@@ -310,12 +306,10 @@ class _WakiliChatScreenState extends State<WakiliChatScreen>
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
                   child: CircleAvatar(
-                    key:
-                        ValueKey('dp_avatar'), // Added key for AnimatedSwitcher
+                    key: ValueKey('dp_avatar'),
                     radius: 18,
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     child: const CircleAvatar(
-                      // Added const
                       radius: 18,
                       backgroundImage: AssetImage('assets/dp.png'),
                     ),

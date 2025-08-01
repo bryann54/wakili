@@ -1,6 +1,8 @@
+// lib/features/wakili/presentation/widgets/category_card.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+// import 'package:shimmer/shimmer.dart'; // No longer needed here
 import 'package:wakili/features/wakili/data/models/legal_category.dart';
 
 class CategoryCard extends StatelessWidget {
@@ -35,7 +37,7 @@ class CategoryCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+                  color: Colors.black.withValues(alpha:isDark ? 0.3 : 0.1),
                   blurRadius: 8,
                   spreadRadius: 1,
                   offset: const Offset(0, 2),
@@ -71,7 +73,7 @@ class CategoryCard extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withValues(alpha: isDark ? 0.6 : 0.4),
+                          Colors.black.withValues(alpha:isDark ? 0.6 : 0.4),
                         ],
                         stops: const [0.5, 1.0],
                       ),
@@ -101,7 +103,7 @@ class CategoryCard extends StatelessWidget {
                       Text(
                         category.description,
                         style: textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.9),
+                          color: Colors.white.withValues(alpha:0.9),
                           height: 1.3,
                         ),
                         maxLines: 2,
@@ -116,8 +118,8 @@ class CategoryCard extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      splashColor: category.color.withValues(alpha: 0.2),
-                      highlightColor: category.color.withValues(alpha: 0.1),
+                      splashColor: category.color.withValues(alpha:0.2),
+                      highlightColor: category.color.withValues(alpha:0.1),
                     ),
                   ),
                 ),
@@ -146,7 +148,7 @@ class _ShineText extends StatelessWidget {
         .animate(onPlay: (controller) => controller.repeat())
         .shimmer(
           duration: 3000.ms,
-          color: Colors.white.withValues(alpha: 0.2),
+          color: Colors.white.withValues(alpha:0.2),
           angle: -0.1,
         );
   }
