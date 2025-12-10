@@ -25,7 +25,7 @@ import 'package:wakili/features/bills/presentation/bloc/overview_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Configure system UI early
+ 
   SystemUIHelper.configureSystemUI();
 
   await Firebase.initializeApp(
@@ -99,7 +99,6 @@ class MyApp extends StatelessWidget {
       darkTheme: _buildDarkTheme(),
       themeMode: ThemeMode.system,
       builder: (context, child) {
-        // This ensures status bar styling updates when theme changes
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: _getSystemUiOverlayStyle(context),
           child: child!,

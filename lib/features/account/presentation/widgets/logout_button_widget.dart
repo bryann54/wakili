@@ -67,7 +67,7 @@ class _LogOutButtonState extends State<LogOutButton>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Logout Error: ${state.message}'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.error,
             ),
           );
         }

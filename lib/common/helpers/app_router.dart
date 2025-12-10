@@ -11,9 +11,9 @@ class AuthGuard extends AutoRouteGuard {
   void onNavigation(NavigationResolver resolver, StackRouter router) {
     final currentUserState = authBloc.state;
     if (currentUserState is AuthAuthenticated) {
-      resolver.next(true); // Allow navigation
+      resolver.next(true);
     } else if (currentUserState is AuthUnauthenticated) {
-      // Redirect to login if not authenticated
+     
       router.replace(const LoginRoute());
     } else {
       router.replace(const LoginRoute());

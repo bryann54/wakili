@@ -135,7 +135,7 @@ class HelpSupportScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionHeaderWidget(title: 'Frequently Asked Questions'),
+        const SectionHeaderWidget(title: 'Frequently Asked Questions (FAQ\'s)'),
         const SizedBox(height: 16),
         ..._buildFAQItems(context, colorScheme),
       ],

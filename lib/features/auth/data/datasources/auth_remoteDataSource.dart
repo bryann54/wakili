@@ -2,9 +2,10 @@
 
 import 'dart:io'; // For File
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_storage/firebase_storage.dart'; // Import Firebase Storage
-import 'package:uuid/uuid.dart'; // Import Uuid
+import 'package:firebase_storage/firebase_storage.dart'; 
+import 'package:uuid/uuid.dart'; 
 import 'package:wakili/common/utils/google_sign_in.dart';
 import 'package:wakili/core/errors/exceptions.dart';
 import 'package:wakili/features/auth/data/models/user_model.dart';
@@ -18,25 +19,24 @@ abstract class AuthRemoteDataSource {
       String password,
       String firstName,
       String lastName,
-      File? profileImage); // Added profileImage
+      File? profileImage); 
   Future<UserModel> signInWithGoogle();
   Future<void> signOut();
   Future<void> resetPassword(String email);
-  // Removed uploadProfileImage method as it's integrated into signUp
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
-  final FirebaseStorage _firebaseStorage; // Injected
-  final Uuid _uuid; // Injected
+  final FirebaseStorage _firebaseStorage;
+  final Uuid _uuid; 
 
   AuthRemoteDataSourceImpl({
     required auth.FirebaseAuth firebaseAuth,
     required GoogleSignIn googleSignIn,
-    required FirebaseStorage firebaseStorage, // Add to constructor
-    required Uuid uuid, // Add to constructor
+    required FirebaseStorage firebaseStorage, 
+    required Uuid uuid, 
   })  : _firebaseAuth = firebaseAuth,
         _googleSignIn = googleSignIn,
         _firebaseStorage = firebaseStorage,
@@ -81,7 +81,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String password,
     String firstName,
     String lastName,
-    File? profileImage, // Added profileImage
+    File? profileImage, 
   ) async {
     try {
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
@@ -95,11 +95,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       final auth.User user = userCredential.user!;
 
-      // Update display name
       await user.updateDisplayName('$firstName $lastName');
 
       String? photoUrl;
-      // Upload profile image if provided
       if (profileImage != null) {
         try {
           final String fileName =
@@ -110,21 +108,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           final TaskSnapshot snapshot = await uploadTask;
           photoUrl = await snapshot.ref.getDownloadURL();
           await user
-              .updatePhotoURL(photoUrl); // Update Firebase Auth user's photoURL
+              .updatePhotoURL(photoUrl); 
         } on FirebaseException catch (e) {
-          // Log or handle the image upload error separately, but don't block user creation
-          print('Error uploading profile image: ${e.message}');
-          // You might choose to throw ServerException here if image upload is critical,
-          // or just proceed without a photoUrl. For this example, we proceed.
+          debugPrint('Error uploading profile image: ${e.message}');
         }
       }
 
-      // Reload user to ensure photoURL is updated in the current session
       await user.reload();
-      // Get the current user instance from FirebaseAuth after reload
       final updatedUser = _firebaseAuth.currentUser;
 
-      // Return UserModel from the potentially updated user, or the original if reload failed
       return UserModel.fromFirebaseUser(updatedUser ?? user);
     } on auth.FirebaseAuthException catch (e) {
       throw ServerException(message: getFirebaseAuthErrorMessage(e.code));

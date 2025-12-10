@@ -5,14 +5,11 @@ import 'package:flutter/services.dart';
 class SystemUIHelper {
   SystemUIHelper._();
 
-  /// Configure system UI overlay style for the entire app
   static void configureSystemUI() {
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
     );
   }
-
-  /// Get system UI overlay style based on theme brightness
   static SystemUiOverlayStyle getOverlayStyle(Brightness brightness) {
     final isLight = brightness == Brightness.light;
 
@@ -28,7 +25,6 @@ class SystemUIHelper {
     );
   }
 
-  /// Get overlay style for specific background color
   static SystemUiOverlayStyle getOverlayStyleForColor(Color backgroundColor) {
     final luminance = backgroundColor.computeLuminance();
     final isLight = luminance > 0.5;

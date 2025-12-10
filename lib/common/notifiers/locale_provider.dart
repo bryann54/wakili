@@ -5,7 +5,7 @@ import 'package:wakili/core/storage/storage_preference_manager.dart';
 import 'package:flutter/material.dart';
 
 class LocaleProvider with ChangeNotifier {
-  Locale _locale = Locale('en'); // Default locale is English
+  Locale _locale = Locale('en');
 
   Locale get locale => _locale;
 
@@ -21,6 +21,6 @@ class LocaleProvider with ChangeNotifier {
 
   void setLocale(Locale locale) {
     _locale = locale;
-    notifyListeners(); // Notify listeners about the change
+    notifyListeners(); 
   }
 }

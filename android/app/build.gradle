@@ -1,7 +1,7 @@
-// --- 1. KEEP THESE IMPORTS AT THE VERY TOP OF THE FILE ---
+
 import java.util.Properties
 import java.io.FileInputStream
-// --- END OF IMPORTS ---
+
 
 plugins {
     id "com.android.application"
@@ -10,13 +10,11 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
-// --- 2. MOVE THIS BLOCK HERE, AFTER plugins {} AND BEFORE android {} ---
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
-// --- END OF MOVED BLOCK ---
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
@@ -61,7 +59,6 @@ android {
         versionName flutterVersionName
     }
 
-    // --- THIS SIGNING CONFIGS BLOCK IS CORRECTLY PLACED INSIDE THE 'android { ... }' BLOCK ---
     signingConfigs {
         release {
             storeFile file(keystoreProperties['storeFile'])
@@ -70,16 +67,11 @@ android {
             keyPassword keystoreProperties['keyPassword']
         }
     }
-    // --- END OF SIGNING CONFIGS ---
 
     buildTypes {
         release {
-            // --- THIS LINE IS ALSO CORRECT ---
+         
             signingConfig signingConfigs.release
-            // You can also add these for smaller app size if desired
-            // minifyEnabled true
-            // shrinkResources true
-            // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
